@@ -18,18 +18,13 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-//    UIWindow *window = [[UIWindow alloc]initWithFrame:[UIScreen mainScreen].bounds];
-//    
-//    WJTabBarController *tabBarCon = [[WJTabBarController alloc]initWithNibName:@"Main.storyboard" bundle:nil];
-//    
-//    [window makeKeyAndVisible];
+    self.window = [[UIWindow alloc]initWithFrame:[UIScreen mainScreen].bounds];
+    
+    UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    self.window.rootViewController = [storyBoard instantiateInitialViewController];
+    [self.window makeKeyAndVisible];
+    return  YES;
    
-    
-    
-    
-    
-    
-    return YES;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

@@ -40,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		04B9F3781C592CC30037FB7A /* singleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = singleton.h; sourceTree = "<group>"; };
 		AEDB5AC81C58495A00902D17 /* WJDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WJDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEDB5ACC1C58495A00902D17 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		AEDB5ACE1C58495A00902D17 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -137,6 +138,7 @@
 				AEDB5B251C5912F100902D17 /* WJNavigationController.h */,
 				AEDB5B261C5912F100902D17 /* WJNavigationController.m */,
 				AEDB5B2C1C591F8C00902D17 /* WJDemoPrefixHeader.pch */,
+				04B9F3781C592CC30037FB7A /* singleton.h */,
 			);
 			path = WJDemo;
 			sourceTree = "<group>";
@@ -234,6 +236,7 @@
 				TargetAttributes = {
 					AEDB5AC71C58495A00902D17 = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = 5E27AV4V35;
 					};
 					AEDB5AE01C58495A00902D17 = {
 						CreatedOnToolsVersion = 7.2;
@@ -445,6 +448,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/WJDemo",
@@ -465,6 +469,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/WJDemo",
