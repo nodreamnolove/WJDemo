@@ -24,6 +24,13 @@
 		AEDB5B431C59C83300902D17 /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = AEDB5B3F1C59C83300902D17 /* AsyncUdpSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		AEDB5B441C59C83300902D17 /* NetFunction.m in Sources */ = {isa = PBXBuildFile; fileRef = AEDB5B411C59C83300902D17 /* NetFunction.m */; };
 		AEDB5B461C59C85500902D17 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEDB5B451C59C85500902D17 /* CFNetwork.framework */; };
+		AEDB5B5B1C59F5EB00902D17 /* MineCellModel.m in Sources */ = {isa = PBXBuildFile; fileRef = AEDB5B581C59F5EB00902D17 /* MineCellModel.m */; };
+		AEDB5B5C1C59F5EB00902D17 /* MineCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = AEDB5B5A1C59F5EB00902D17 /* MineCellView.m */; };
+		AEDB5B671C5A0C9200902D17 /* headpic.png in Resources */ = {isa = PBXBuildFile; fileRef = AEDB5B661C5A0C9200902D17 /* headpic.png */; };
+		AEDB5B691C5A123100902D17 /* wenhua.png in Resources */ = {isa = PBXBuildFile; fileRef = AEDB5B681C5A123100902D17 /* wenhua.png */; };
+		AEDB5B6B1C5A123700902D17 /* obu.png in Resources */ = {isa = PBXBuildFile; fileRef = AEDB5B6A1C5A123700902D17 /* obu.png */; };
+		AEDB5B6D1C5A123C00902D17 /* chen.png in Resources */ = {isa = PBXBuildFile; fileRef = AEDB5B6C1C5A123C00902D17 /* chen.png */; };
+		AEDB5B701C5A256A00902D17 /* UIView+HMH.m in Sources */ = {isa = PBXBuildFile; fileRef = AEDB5B6F1C5A256A00902D17 /* UIView+HMH.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +86,16 @@
 		AEDB5B401C59C83300902D17 /* NetFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetFunction.h; sourceTree = "<group>"; };
 		AEDB5B411C59C83300902D17 /* NetFunction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetFunction.m; sourceTree = "<group>"; };
 		AEDB5B451C59C85500902D17 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		AEDB5B571C59F5EB00902D17 /* MineCellModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MineCellModel.h; sourceTree = "<group>"; };
+		AEDB5B581C59F5EB00902D17 /* MineCellModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MineCellModel.m; sourceTree = "<group>"; };
+		AEDB5B591C59F5EB00902D17 /* MineCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MineCellView.h; sourceTree = "<group>"; };
+		AEDB5B5A1C59F5EB00902D17 /* MineCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MineCellView.m; sourceTree = "<group>"; };
+		AEDB5B661C5A0C9200902D17 /* headpic.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = headpic.png; sourceTree = "<group>"; };
+		AEDB5B681C5A123100902D17 /* wenhua.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wenhua.png; sourceTree = "<group>"; };
+		AEDB5B6A1C5A123700902D17 /* obu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = obu.png; sourceTree = "<group>"; };
+		AEDB5B6C1C5A123C00902D17 /* chen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chen.png; sourceTree = "<group>"; };
+		AEDB5B6E1C5A256A00902D17 /* UIView+HMH.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+HMH.h"; sourceTree = "<group>"; };
+		AEDB5B6F1C5A256A00902D17 /* UIView+HMH.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+HMH.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +148,11 @@
 		AEDB5ACA1C58495A00902D17 /* WJDemo */ = {
 			isa = PBXGroup;
 			children = (
+				AEDB5B6E1C5A256A00902D17 /* UIView+HMH.h */,
+				AEDB5B6F1C5A256A00902D17 /* UIView+HMH.m */,
+				AEDB5B5D1C5A071000902D17 /* pics */,
+				AEDB5B561C59F5D900902D17 /* mine */,
+				AEDB5B551C59F45000902D17 /* home */,
 				AEDB5B3B1C59C83300902D17 /* AsyncSocket */,
 				AEDB5B401C59C83300902D17 /* NetFunction.h */,
 				AEDB5B411C59C83300902D17 /* NetFunction.m */,
@@ -194,6 +216,35 @@
 				AEDB5B3F1C59C83300902D17 /* AsyncUdpSocket.m */,
 			);
 			path = AsyncSocket;
+			sourceTree = "<group>";
+		};
+		AEDB5B551C59F45000902D17 /* home */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = home;
+			sourceTree = "<group>";
+		};
+		AEDB5B561C59F5D900902D17 /* mine */ = {
+			isa = PBXGroup;
+			children = (
+				AEDB5B571C59F5EB00902D17 /* MineCellModel.h */,
+				AEDB5B581C59F5EB00902D17 /* MineCellModel.m */,
+				AEDB5B591C59F5EB00902D17 /* MineCellView.h */,
+				AEDB5B5A1C59F5EB00902D17 /* MineCellView.m */,
+			);
+			name = mine;
+			sourceTree = "<group>";
+		};
+		AEDB5B5D1C5A071000902D17 /* pics */ = {
+			isa = PBXGroup;
+			children = (
+				AEDB5B6C1C5A123C00902D17 /* chen.png */,
+				AEDB5B6A1C5A123700902D17 /* obu.png */,
+				AEDB5B681C5A123100902D17 /* wenhua.png */,
+				AEDB5B661C5A0C9200902D17 /* headpic.png */,
+			);
+			name = pics;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -300,8 +351,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AEDB5B6B1C5A123700902D17 /* obu.png in Resources */,
+				AEDB5B671C5A0C9200902D17 /* headpic.png in Resources */,
 				AEDB5ADB1C58495A00902D17 /* LaunchScreen.storyboard in Resources */,
+				AEDB5B6D1C5A123C00902D17 /* chen.png in Resources */,
 				AEDB5AD81C58495A00902D17 /* Assets.xcassets in Resources */,
+				AEDB5B691C5A123100902D17 /* wenhua.png in Resources */,
 				AEDB5AD61C58495A00902D17 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -333,11 +388,14 @@
 				AEDB5B241C590F3800902D17 /* ExitPageVC.m in Sources */,
 				AEDB5B421C59C83300902D17 /* AsyncSocket.m in Sources */,
 				AEDB5B1B1C590EA400902D17 /* HomePageVC.m in Sources */,
+				AEDB5B701C5A256A00902D17 /* UIView+HMH.m in Sources */,
 				AEDB5B441C59C83300902D17 /* NetFunction.m in Sources */,
 				AEDB5B211C590EF600902D17 /* SetupPageVC.m in Sources */,
+				AEDB5B5B1C59F5EB00902D17 /* MineCellModel.m in Sources */,
 				AEDB5B2A1C59177800902D17 /* WJTabBarController.m in Sources */,
 				AEDB5B1E1C590EBB00902D17 /* MinePageVC.m in Sources */,
 				AEDB5ACD1C58495A00902D17 /* main.m in Sources */,
+				AEDB5B5C1C59F5EB00902D17 /* MineCellView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

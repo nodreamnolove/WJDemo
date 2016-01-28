@@ -55,7 +55,7 @@
                     <view key="view" contentMode="scaleToFill" id="Tjr-7c-W8y">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="0.26684129839999998" green="0.56326941289999999" blue="0.19646124970000001" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" id="x6c-fe-C2H"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
@@ -129,7 +129,6 @@
                     <view key="view" contentMode="scaleToFill" id="XbJ-wj-cjL">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="0.001065340909" green="0.001065340909" blue="0.001065340909" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
                     <navigationItem key="navigationItem" id="Tk1-py-jDh"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
@@ -149,7 +148,6 @@
                     <view key="view" contentMode="scaleToFill" id="R6b-OR-CPi">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="0.43529411759999997" green="0.4431372549" blue="0.47450980390000003" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
                     <navigationItem key="navigationItem" id="Di0-NJ-D6L"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
@@ -169,7 +167,6 @@
                     <view key="view" contentMode="scaleToFill" id="JRX-2k-M5z">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="0.83529411760000005" green="0.1450980392" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
                     <navigationItem key="navigationItem" id="Kke-1J-Wf1"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
