@@ -5,6 +5,14 @@
 //  Created by mac on 16/1/28.
 //  Copyright © 2016年 WanJi. All rights reserved.
 //
+
+
+
+// @interface
+#define singleton_interface(className) \
++ (className *)shared##className;
+
+
 #define singleton_implementation(className) \
 static className *_instance; \
 + (id)allocWithZone:(NSZone *)zone \
