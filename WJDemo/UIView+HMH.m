@@ -2,7 +2,7 @@
 //  UIView+HMH.m
 //  STeBook
 //
-//  Created by 段瑞权 on 15/10/25.
+//  Created by hmh on 15/10/25.
 //  Copyright © 2015年 rain. All rights reserved.
 //
 

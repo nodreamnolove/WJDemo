@@ -2,15 +2,16 @@
 //  HomePageVC.m
 //  WJDemo
 //
-//  Created by 段瑞权 on 16/1/27.
+//  Created by hmh on 16/1/27.
 //  Copyright © 2016年 WanJi. All rights reserved.
 //
 
 #import "HomePageVC.h"
+#import "MyWebVC.h"
 #import "UIView+HMH.h"
 
 #define PicNum  3
-#define ScrollNum 500
+#define ScrollNum 3600
 
 
 @interface HomePageVC ()<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate>
@@ -25,6 +26,8 @@
 
 @property (nonatomic,assign) int   lastPage;
 
+@property (nonatomic,assign) int   nextPage;
+
 @property (nonatomic,strong) NSArray * picArr;
 
 @property (nonatomic,strong) UIImageView * imageView0;
@@ -32,6 +35,8 @@
 @property (nonatomic,strong) UIImageView * imageView1;
 
 @property (nonatomic,strong) UIImageView * imageView2;
+
+@property (nonatomic,strong) NSTimer * gundongTimer;
 @end
 
 @implementation HomePageVC
@@ -40,27 +45,42 @@
     [super viewDidLoad];
     self.title = @"首页";
     self.automaticallyAdjustsScrollViewInsets = NO;
-    self.imageView0 = [[UIImageView alloc]initWithFrame:CGRectMake(ScreenWidth*(ScrollNum/2-1), 0, ScreenWidth, ScreenWidth/4)];
+    self.currentPage = (ScrollNum/2);
+    self.lastPage = (ScrollNum/2)-1;
+    self.nextPage = (ScrollNum/2)+1;
+    UITapGestureRecognizer *imageViewTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(imageViewClick:)];
+    self.imageView0 = [[UIImageView alloc]initWithFrame:CGRectMake(ScreenWidth*(ScrollNum/2), 0, ScreenWidth, ScreenWidth/4)];
+    self.imageView0.userInteractionEnabled = YES;
     self.imageView0.image = [UIImage imageNamed:@"obu"];
-    self.imageView0.tag = 0;
+    self.imageView0.tag = self.currentPage%PicNum;
+    [self.imageView0 addGestureRecognizer:imageViewTap];
+    self.imageView0.userInteractionEnabled = YES;
     
-    self.imageView1 = [[UIImageView alloc]initWithFrame:CGRectMake(ScreenWidth*(ScrollNum/2), 0, ScreenWidth, ScreenWidth/4)];
+    UITapGestureRecognizer *imageViewTap1 = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(imageViewClick:)];
+    self.imageView1 = [[UIImageView alloc]initWithFrame:CGRectMake(ScreenWidth*(ScrollNum/2+1), 0, ScreenWidth, ScreenWidth/4)];
+    self.imageView1.userInteractionEnabled = YES;
     self.imageView1.image = [UIImage imageNamed:@"chen"];
-    self.imageView1.tag = 1;
+    self.imageView1.tag = self.nextPage%PicNum;
+     [self.imageView1 addGestureRecognizer:imageViewTap1];
+    self.imageView1.userInteractionEnabled = YES;
     
-    self.imageView2 = [[UIImageView alloc]initWithFrame:CGRectMake(ScreenWidth*(ScrollNum/2+1), 0, ScreenWidth, ScreenWidth/4)];
+    UITapGestureRecognizer *imageViewTap2 = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(imageViewClick:)];
+    self.imageView2 = [[UIImageView alloc]initWithFrame:CGRectMake(ScreenWidth*(ScrollNum/2-1), 0, ScreenWidth, ScreenWidth/4)];
+    self.imageView2.userInteractionEnabled = YES;
     self.imageView2.image = [UIImage imageNamed:@"wenhua"];
-    self.imageView2.tag = 2;
+    self.imageView2.tag = self.lastPage%PicNum;
+    [self.imageView2 addGestureRecognizer:imageViewTap2];
+    
     
     self.scrollView.contentOffset = CGPointMake((ScrollNum/2)*ScreenWidth, 0);
     [self.scrollView addSubview:self.imageView0];
     [self.scrollView addSubview:self.imageView1];
     [self.scrollView addSubview:self.imageView2];
     
-    self.currentPage = (ScrollNum/2);
-    self.lastPage = (ScrollNum/2)-1;
+    
     [self.view addSubview:self.scrollView];
     [self.view addSubview:self.pageControl];
+    self.gundongTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(scrollTimer) userInfo:nil repeats:YES];
 }
 
 -(UIScrollView *)scrollView
@@ -118,12 +138,15 @@
             if (self.currentPage > self.lastPage)  //1.正向
             {
                 lastView = [scrollView viewWithTag:self.lastPage%PicNum];
-                nextViewx = (page+1)%ScrollNum * ScreenWidth;
+                self.nextPage = (page+1)%ScrollNum;
+                nextViewx = self.nextPage * ScreenWidth;
+               
             }
             else                                //4.先反向后正向
             {
-                lastView = [scrollView viewWithTag:(self.currentPage-1+PicNum)%PicNum];
-                nextViewx = (page + 1)%ScrollNum *ScreenWidth;
+                lastView = [scrollView viewWithTag:(self.nextPage)%PicNum];
+                self.nextPage = (page + 1)%ScrollNum;
+                nextViewx =  self.nextPage*ScreenWidth;
                
             }
             
@@ -133,14 +156,16 @@
             if (self.lastPage > self.currentPage) //2.反向
             {
                 lastView = [scrollView viewWithTag:self.lastPage%PicNum];
-                nextViewx = (page-1+ScrollNum)%ScrollNum * ScreenWidth;
+                self.nextPage = (page-1+ScrollNum)%ScrollNum;
+                nextViewx =  self.nextPage* ScreenWidth;
                 
                 
             }
             else                                //3.先正向后反向
             {
-                lastView = [scrollView viewWithTag:(self.currentPage+1+PicNum)%PicNum];
-                nextViewx = (page-1+ScrollNum)%ScrollNum *ScreenWidth;
+                lastView = [scrollView viewWithTag:(self.nextPage+PicNum)%PicNum];
+                self.nextPage = (page-1+ScrollNum)%ScrollNum;
+                nextViewx =  self.nextPage*ScreenWidth;
                 
             }
         }
@@ -148,15 +173,26 @@
         self.lastPage = self.currentPage;
         self.currentPage = page;
         if (self.currentPage == 0|| self.currentPage == ScrollNum-1) {
+            self.nextPage = ScrollNum/2+1;
             self.currentPage = ScrollNum/2;
             self.lastPage = ScrollNum/2-1;
             self.scrollView.contentOffset = CGPointMake(ScreenWidth*(ScrollNum/2), ScreenWidth/4);
-            [self.imageView0 setViewX:ScreenWidth*(ScrollNum/2-1) ];
-            [self.imageView1 setViewX:ScreenWidth*(ScrollNum/2)];
-            [self.imageView2 setViewX:ScreenWidth*(ScrollNum/2+1)];
+            [self.imageView0 setViewX:ScreenWidth*(ScrollNum/2) ];
+            [self.imageView1 setViewX:ScreenWidth*(ScrollNum/2+1)];
+            [self.imageView2 setViewX:ScreenWidth*(ScrollNum/2-1)];
             self.pageControl.currentPage = self.currentPage%PicNum;
         }
     }
+}
+
+-(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    [self.gundongTimer setFireDate:[NSDate distantFuture]];
+}
+
+-(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    [self.gundongTimer setFireDate:[[NSDate date] dateByAddingTimeInterval:3]];
 }
 
 #pragma mark collection代理
@@ -177,6 +213,44 @@
 
 -(void)pageChange:(id)sender
 {
+    
+}
+static int timeCount = ScrollNum/2;
+-(void)scrollTimer
+{
+    timeCount++;
+    if (timeCount == ScrollNum-1 ) {
+        timeCount = ScrollNum/2;
+    }
+    [self.scrollView scrollRectToVisible:CGRectMake(timeCount*ScreenWidth, 0, ScreenWidth, ScreenHigth) animated:YES];
+    
+    
+}
+
+-(void)imageViewClick:(UITapGestureRecognizer *)ges
+{
+    NSString *urlstring;
+    NSString *webTitle;
+    if (ges.view.tag == (ScrollNum/2)%PicNum) {
+        urlstring = @"http://www.wanji.net.cn/d/a/";
+        webTitle = @"短程通信";
+    }
+    else if(ges.view.tag == (ScrollNum/2+1)%PicNum){
+        urlstring = @"http://www.wanji.net.cn/d/b/20100824/368.html";
+        webTitle = @"动态称重";
+    }
+    else if(ges.view.tag == (ScrollNum/2-1)%PicNum){
+        urlstring = @"http://www.wanji.net.cn/b/b/";
+        webTitle = @"公司文化";
+    }
+    if (urlstring.length>0) {
+        MyWebVC *webVC = [MyWebVC new];
+        webVC.urlstring = urlstring;
+        webVC.title = webTitle;
+        webVC.hidesBottomBarWhenPushed = YES;
+        self.navigationItem.backBarButtonItem.title = @"返回";
+        [self.navigationController pushViewController:webVC animated:YES];
+    }
     
 }
 
