@@ -57,7 +57,9 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
-                    <navigationItem key="navigationItem" id="x6c-fe-C2H"/>
+                    <navigationItem key="navigationItem" id="x6c-fe-C2H">
+                        <barButtonItem key="backBarButtonItem" title="返回" id="wOG-PA-mVa"/>
+                    </navigationItem>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CUp-Vb-esP" userLabel="First Responder" sceneMemberID="firstResponder"/>

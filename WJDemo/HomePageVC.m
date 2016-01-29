@@ -86,7 +86,7 @@
 -(UIScrollView *)scrollView
 {
     if (_scrollView == nil) {
-        _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 64, 320, 80)];
+        _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 64, ScreenWidth, ScreenWidth/4)];
         _scrollView.contentSize = CGSizeMake(ScreenWidth*ScrollNum, ScreenWidth/4);
         _scrollView.backgroundColor = [UIColor clearColor];
         _scrollView.pagingEnabled = YES;
