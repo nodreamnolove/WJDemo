@@ -81,6 +81,9 @@
     [self.view addSubview:self.scrollView];
     [self.view addSubview:self.pageControl];
     self.gundongTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(scrollTimer) userInfo:nil repeats:YES];
+
+
+
 }
 
 -(UIScrollView *)scrollView
@@ -192,6 +195,7 @@
 
 -(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
+    timeCount = self.currentPage;
     [self.gundongTimer setFireDate:[[NSDate date] dateByAddingTimeInterval:3]];
 }
 
@@ -248,10 +252,22 @@ static int timeCount = ScrollNum/2;
         webVC.urlstring = urlstring;
         webVC.title = webTitle;
         webVC.hidesBottomBarWhenPushed = YES;
-        self.navigationItem.backBarButtonItem.title = @"返回";
+        UIBarButtonItem *back = [[UIBarButtonItem alloc]initWithTitle:@"返回" style:UIBarButtonItemStylePlain target:nil action:nil];        
+        self.navigationItem.backBarButtonItem = back;
         [self.navigationController pushViewController:webVC animated:YES];
     }
     
 }
+
+
+
+
+
+
+
+
+
+
+
 
 @end

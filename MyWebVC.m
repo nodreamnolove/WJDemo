@@ -23,7 +23,8 @@
     // Do any additional setup after loading the view.
     self.automaticallyAdjustsScrollViewInsets = NO;
     [self.view addSubview:self.mywebview];
-    self.navigationItem.backBarButtonItem.title = @"返回";
+ 
+//    [[UINavigationBar appearance]setTintColor:[UIColor redColor]];
 }
 
 -(UIWebView *)mywebview
