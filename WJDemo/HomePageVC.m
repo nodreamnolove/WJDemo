@@ -9,6 +9,8 @@
 #import "HomePageVC.h"
 #import "MyWebVC.h"
 #import "UIView+HMH.h"
+#import "ObuSDK.h"
+
 
 #define PicNum  3
 #define ScrollNum 3600
@@ -233,6 +235,12 @@ static int timeCount = ScrollNum/2;
 
 -(void)imageViewClick:(UITapGestureRecognizer *)ges
 {
+    //  测试
+    ObuSDK *testSDK = [ObuSDK sharedObuSDK];
+    [testSDK isEnabledBluetooth];
+    
+    return ;
+    //  测试
     NSString *urlstring;
     NSString *webTitle;
     if (ges.view.tag == (ScrollNum/2)%PicNum) {

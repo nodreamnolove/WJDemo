@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		AE50A86F1C5B118200688BD6 /* MyWebVC.m in Sources */ = {isa = PBXBuildFile; fileRef = AE50A86E1C5B118100688BD6 /* MyWebVC.m */; };
+		AE5D69B91C5F99CC00381955 /* ObuSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = AE5D69B81C5F99CC00381955 /* ObuSDK.m */; };
+		AE5D69BB1C5FA1CA00381955 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE5D69BA1C5FA1CA00381955 /* CoreBluetooth.framework */; };
 		AEDB5ACD1C58495A00902D17 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AEDB5ACC1C58495A00902D17 /* main.m */; };
 		AEDB5AD01C58495A00902D17 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = AEDB5ACF1C58495A00902D17 /* AppDelegate.m */; };
 		AEDB5AD61C58495A00902D17 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AEDB5AD41C58495A00902D17 /* Main.storyboard */; };
@@ -55,6 +57,9 @@
 		04B9F3781C592CC30037FB7A /* singleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = singleton.h; sourceTree = "<group>"; };
 		AE50A86D1C5B118100688BD6 /* MyWebVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyWebVC.h; path = ../MyWebVC.h; sourceTree = "<group>"; };
 		AE50A86E1C5B118100688BD6 /* MyWebVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyWebVC.m; path = ../MyWebVC.m; sourceTree = "<group>"; };
+		AE5D69B71C5F99CC00381955 /* ObuSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObuSDK.h; sourceTree = "<group>"; };
+		AE5D69B81C5F99CC00381955 /* ObuSDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObuSDK.m; sourceTree = "<group>"; };
+		AE5D69BA1C5FA1CA00381955 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		AEDB5AC81C58495A00902D17 /* WJDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WJDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEDB5ACC1C58495A00902D17 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		AEDB5ACE1C58495A00902D17 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -106,6 +111,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AE5D69BB1C5FA1CA00381955 /* CoreBluetooth.framework in Frameworks */,
 				AEDB5B461C59C85500902D17 /* CFNetwork.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -127,9 +133,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AE5D69B61C5F981C00381955 /* frame */ = {
+			isa = PBXGroup;
+			children = (
+				AE5D69B71C5F99CC00381955 /* ObuSDK.h */,
+				AE5D69B81C5F99CC00381955 /* ObuSDK.m */,
+			);
+			name = frame;
+			sourceTree = "<group>";
+		};
 		AEDB5ABF1C58495A00902D17 = {
 			isa = PBXGroup;
 			children = (
+				AE5D69BA1C5FA1CA00381955 /* CoreBluetooth.framework */,
 				AEDB5B451C59C85500902D17 /* CFNetwork.framework */,
 				AEDB5ACA1C58495A00902D17 /* WJDemo */,
 				AEDB5AE41C58495A00902D17 /* WJDemoTests */,
@@ -151,6 +167,7 @@
 		AEDB5ACA1C58495A00902D17 /* WJDemo */ = {
 			isa = PBXGroup;
 			children = (
+				AE5D69B61C5F981C00381955 /* frame */,
 				AE50A86D1C5B118100688BD6 /* MyWebVC.h */,
 				AE50A86E1C5B118100688BD6 /* MyWebVC.m */,
 				AEDB5B6E1C5A256A00902D17 /* UIView+HMH.h */,
@@ -398,6 +415,7 @@
 				AEDB5B441C59C83300902D17 /* NetFunction.m in Sources */,
 				AEDB5B211C590EF600902D17 /* SetupPageVC.m in Sources */,
 				AEDB5B5B1C59F5EB00902D17 /* MineCellModel.m in Sources */,
+				AE5D69B91C5F99CC00381955 /* ObuSDK.m in Sources */,
 				AEDB5B2A1C59177800902D17 /* WJTabBarController.m in Sources */,
 				AEDB5B1E1C590EBB00902D17 /* MinePageVC.m in Sources */,
 				AEDB5ACD1C58495A00902D17 /* main.m in Sources */,
