@@ -7,16 +7,23 @@
 //
 
 #import <Foundation/Foundation.h>
+@class CBPeripheral;
+
+@protocol ObuSDKDelegate <NSObject>
+
+
+
+@end
 
 @interface ObuSDK : NSObject
 //创建ObuSDK对象的实例（单例）
 +(instancetype)sharedObuSDK;
 
 //查询蓝牙打开状态
--(BOOL)isEnabledBluetooth;
+@property (nonatomic,assign,getter=isEnableBluetooth) BOOL   bluetoothState;
 
 //连接OBU
--(void)connectDevice;
+-(void)connectDevice:(CBPeripheral *)connectPeripheral;
 
 //断开OBU连接
 -(void)disconnectDevice;
@@ -44,4 +51,6 @@
 
 //数据透传
 -(void)transCommand;
+-(void)startScan;//开始扫描
+-(void)stopScan;//停止扫描
 @end

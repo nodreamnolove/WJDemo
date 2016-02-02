@@ -135,7 +135,7 @@
     self.pageControl.currentPage = page%PicNum;
     UIImageView *lastView;
     CGFloat nextViewx;
-    NSLog(@"page= %d,currentPage=%d,lastpage=%d",page,self.currentPage,self.lastPage);
+//    NSLog(@"page= %d,currentPage=%d,lastpage=%d",page,self.currentPage,self.lastPage);
     if ((page)!=self.currentPage) {
         
         if(page > self.currentPage)
@@ -237,7 +237,8 @@ static int timeCount = ScrollNum/2;
 {
     //  测试
     ObuSDK *testSDK = [ObuSDK sharedObuSDK];
-    [testSDK isEnabledBluetooth];
+    
+    
     
     return ;
     //  测试
