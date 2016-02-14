@@ -10,13 +10,14 @@
 #import "MyWebVC.h"
 #import "UIView+HMH.h"
 #import "ObuSDK.h"
-
+#import "MBProgressHUD+MJ.h"
+#import <CoreBluetooth/CoreBluetooth.h>
 
 #define PicNum  3
 #define ScrollNum 3600
 
 
-@interface HomePageVC ()<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate>
+@interface HomePageVC ()<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate,CBCentralManagerDelegate>
 
 @property (nonatomic,strong) UIScrollView * scrollView;
 
@@ -39,6 +40,10 @@
 @property (nonatomic,strong) UIImageView * imageView2;
 
 @property (nonatomic,strong) NSTimer * gundongTimer;
+
+@property (nonatomic, strong) NSArray *titleArr;
+
+@property (nonatomic, strong) ObuSDK *myObu;
 @end
 
 @implementation HomePageVC
@@ -82,11 +87,21 @@
     
     [self.view addSubview:self.scrollView];
     [self.view addSubview:self.pageControl];
+    [self.view addSubview:self.collectionView];
     self.gundongTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(scrollTimer) userInfo:nil repeats:YES];
 
-
+   
 
 }
+-(NSArray *)titleArr
+{
+    if (_titleArr == nil) {
+        _titleArr = @[@"标签信息", @"标签激活", @"交易信息明细", @"IC卡信息", @"IC卡充值", @"OBU程序更新", @"程序升级", @"通讯测试", @"连接设备"];
+    }
+    return _titleArr;
+}
+
+
 
 -(UIScrollView *)scrollView
 {
@@ -120,9 +135,11 @@
     if (_collectionView == nil) {
         UICollectionViewFlowLayout *fallLayout =[[UICollectionViewFlowLayout alloc]init];
         [fallLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
-        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 44, ScreenWidth, ScreenHigth-44-20) collectionViewLayout:fallLayout];
+       
+        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(self.scrollView.frame)+2, ScreenWidth, ScreenHigth-CGRectGetMaxY(self.scrollView.frame)-2) collectionViewLayout:fallLayout];
         _collectionView.dataSource = self;
         _collectionView.delegate = self;
+        _collectionView.backgroundColor = [UIColor whiteColor];
         [_collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"homePageCell"];
     }
     return _collectionView;
@@ -145,16 +162,13 @@
                 lastView = [scrollView viewWithTag:self.lastPage%PicNum];
                 self.nextPage = (page+1)%ScrollNum;
                 nextViewx = self.nextPage * ScreenWidth;
-               
             }
             else                                //4.先反向后正向
             {
                 lastView = [scrollView viewWithTag:(self.nextPage)%PicNum];
                 self.nextPage = (page + 1)%ScrollNum;
                 nextViewx =  self.nextPage*ScreenWidth;
-               
             }
-            
         }
        else if (page < self.currentPage)
        {
@@ -163,8 +177,6 @@
                 lastView = [scrollView viewWithTag:self.lastPage%PicNum];
                 self.nextPage = (page-1+ScrollNum)%ScrollNum;
                 nextViewx =  self.nextPage* ScreenWidth;
-                
-                
             }
             else                                //3.先正向后反向
             {
@@ -211,9 +223,93 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     UICollectionViewCell *collectCell = [collectionView dequeueReusableCellWithReuseIdentifier:@"homePageCell" forIndexPath:indexPath];
-    collectCell.backgroundColor = [UIColor blueColor];
+    collectCell.backgroundColor = [UIColor lightGrayColor];
+    UILabel *titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 100, 100)];
+    titleLabel.text = self.titleArr[indexPath.row];
+    titleLabel.textColor = [UIColor blackColor];
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    titleLabel.numberOfLines = 0;
+    [collectCell.contentView addSubview:titleLabel];
     return collectCell;
 }
+
+//cell大小
+-(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    return CGSizeMake(100, 100);
+    
+}
+
+#pragma mark 
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    //标签信息
+    if (indexPath.row == 0) {
+        if (self.myObu) {
+            [self.myObu getObuInformation:^(BOOL status, NSObject *data, NSString *errorMsg) {
+              dispatch_async(dispatch_get_main_queue(), ^{
+                  [MBProgressHUD showSuccess:@"得到标签信息"];
+              });
+            }];
+        }
+    }//卡片信息
+    else if(indexPath.row == 1){
+        
+    }
+    else if(indexPath.row == 2){
+        
+    }
+    else if (indexPath.row == 3){
+        
+    }
+    else if (indexPath.row == 4){
+        
+    }
+    else if (indexPath.row == 5){
+        
+    }
+    else if (indexPath.row == 6){
+        if (self.myObu) {
+            [self.myObu disconnectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
+                if (status == YES) {
+                  dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD showSuccess:@"断开成功"];
+                     });
+                }
+            }];
+        }
+    }
+    else if (indexPath.row == 7){
+        if (self.myObu) {
+            [self.myObu connectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
+                if (status==NO) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                      [MBProgressHUD showError:@"连接失败"];
+                    });
+                }
+                else if (status == YES){
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [MBProgressHUD showSuccess:@"obu连接成功"];
+                    });
+                }
+            }];
+        }
+    }
+    else if (indexPath.row == 8){
+        //  测试
+        self.myObu = [ObuSDK sharedObuSDK];
+        
+//        [MBProgressHUD showMessage:@"正在搜索..." toView:self.view];
+//        [self blueInit];
+    }
+    else
+    {
+        
+    }
+}
+
+
 
 #pragma mark 点击pagecontrol
 
@@ -235,12 +331,7 @@ static int timeCount = ScrollNum/2;
 
 -(void)imageViewClick:(UITapGestureRecognizer *)ges
 {
-    //  测试
-    ObuSDK *testSDK = [ObuSDK sharedObuSDK];
-    
-    
-    
-    return ;
+   
     //  测试
     NSString *urlstring;
     NSString *webTitle;
@@ -268,13 +359,34 @@ static int timeCount = ScrollNum/2;
     
 }
 
+-(void)blueInit
+{
+    CBCentralManager * wjCentralManger = [[CBCentralManager alloc]initWithDelegate:self queue:nil options:@{CBCentralManagerOptionShowPowerAlertKey:@YES}];
+    
+//    wjCentralManger.delegate = self;
+    [wjCentralManger scanForPeripheralsWithServices:nil options:@{CBCentralManagerScanOptionAllowDuplicatesKey:@YES}];
+}
 
+- (void)centralManagerDidUpdateState:(CBCentralManager *)central
+{
+    NSLog(@"centralManagerDidUpdateState---%@",central);
+  
+}
 
+- (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI
+{
+    NSLog(@"didDiscoverPeripheral---%@",peripheral);
+    [central connectPeripheral:peripheral options:nil];
+}
+- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
+{
+      NSLog(@"didConnectPeripheral---%@",peripheral);
+}
+- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(nullable NSError *)error
+{
+    NSLog(@"didFailToConnectPeripheral---%@",peripheral);
 
-
-
-
-
+}
 
 
 

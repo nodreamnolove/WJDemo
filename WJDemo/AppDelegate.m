@@ -8,6 +8,8 @@
 
 #import "AppDelegate.h"
 #import "WJTabBarController.h"
+#import "NetFunction.h"
+#import "AsyncSocket.h"
 
 @interface AppDelegate ()
 
@@ -23,6 +25,7 @@
     UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
     self.window.rootViewController = [storyBoard instantiateInitialViewController];
     [self.window makeKeyAndVisible];
+   
     return  YES;
    
 }
@@ -49,4 +52,70 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+
+
+#pragma mark
+//接受消息成功之后
+- (void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
+{
+    
+}
+//
+-(void)onSocket:(AsyncSocket *)sock willDisconnectWithError:(NSError *)err
+{
+    
+}
+
+- (void)onSocket:(AsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port
+{
+    
+}
+-(void)onSocketDidDisconnect:(AsyncSocket *)sock
+{
+    self.asocket = nil;
+}
+
+-(AsyncSocket *)asocket
+{
+    if (_asocket==nil) {
+        _asocket = [[AsyncSocket alloc]initWithDelegate:self];
+    }
+    return _asocket;
+}
+-(NSString *)ip
+{
+    if (_ip==nil) {
+        _ip =  [NetFunction getIPByHostName:@"wanjiwuhanyuming.oicp.net"];
+    }
+    return _ip;
+}
+
+//连接
+-(BOOL)connection
+{
+    NSError *error;
+    if (!self.asocket) {
+        return NO;
+    }
+    if (self.asocket.isConnected) {
+        return YES;
+    }
+    
+//    self.port = 8088;
+    if(![self.asocket connectToHost:self.ip onPort:self.port  error:&error])
+    {
+        //连接失败
+        return NO;
+    }
+    [self.asocket readDataWithTimeout:-1 tag:0];
+    return YES;
+}
+
+-(BOOL)disconnection
+{
+    if ([self.asocket isConnected]) {
+        [self.asocket disconnect];
+    }
+    return YES;
+}
 @end

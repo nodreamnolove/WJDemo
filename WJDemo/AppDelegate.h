@@ -7,11 +7,20 @@
 //
 
 #import <UIKit/UIKit.h>
+@class AsyncSocket;
+
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 
+@property (strong ,nonatomic) AsyncSocket *asocket;
 
+@property (nonatomic,copy)  NSString * ip;
+
+@property (nonatomic,assign) UInt16 port;
+
+-(BOOL)connection;
+-(BOOL)disconnection;
 @end
 

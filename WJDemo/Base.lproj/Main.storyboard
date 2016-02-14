@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Tab Bar Controller-->
@@ -129,6 +130,15 @@
                     <view key="view" contentMode="scaleToFill" id="XbJ-wj-cjL">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8jC-bx-FHv">
+                                <rect key="frame" x="92" y="207" width="136" height="30"/>
+                                <state key="normal" title="退出"/>
+                                <connections>
+                                    <action selector="closeConnect:" destination="U3i-Ex-s6l" eventType="touchUpInside" id="L6P-t2-HVt"/>
+                                </connections>
+                            </button>
+                        </subviews>
                     </view>
                     <navigationItem key="navigationItem" id="Tk1-py-jDh"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
@@ -148,9 +158,78 @@
                     <view key="view" contentMode="scaleToFill" id="R6b-OR-CPi">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dUm-lL-bbw">
+                                <rect key="frame" x="20" y="214" width="269" height="30"/>
+                                <color key="backgroundColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                <state key="normal" title="连接">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="5"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="connectSer:" destination="Qlf-zy-LPV" eventType="touchUpInside" id="ufp-gE-wra"/>
+                                </connections>
+                            </button>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="8088" borderStyle="roundedRect" placeholder="端口" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="khU-dU-L5G">
+                                <rect key="frame" x="86" y="152" width="203" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="QCb-6z-OQS"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="域名" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8CX-Ug-8W4">
+                                <rect key="frame" x="20" y="118" width="42" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="42" id="fuZ-x2-eRU"/>
+                                    <constraint firstAttribute="height" constant="21" id="sD5-vJ-MNW"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="端口" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UKC-TS-tsJ">
+                                <rect key="frame" x="20" y="161" width="42" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="Krn-To-nJf"/>
+                                    <constraint firstAttribute="width" constant="42" id="NH8-ni-ZLh"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="wanjiwuhanyuming.oicp.net" borderStyle="roundedRect" placeholder="域名" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="34g-du-Cib">
+                                <rect key="frame" x="87" y="114" width="202" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="vtt-Oo-Xkk"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="34g-du-Cib" firstAttribute="leading" secondItem="8CX-Ug-8W4" secondAttribute="trailing" constant="25" id="28g-Mh-7SY"/>
+                            <constraint firstItem="8CX-Ug-8W4" firstAttribute="top" secondItem="o99-Qb-TCy" secondAttribute="bottom" constant="54" id="4kj-Qo-6lP"/>
+                            <constraint firstItem="khU-dU-L5G" firstAttribute="top" secondItem="34g-du-Cib" secondAttribute="bottom" constant="8" id="NEm-CE-TYk"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="34g-du-Cib" secondAttribute="trailing" constant="11" id="To8-yz-MnS"/>
+                            <constraint firstItem="34g-du-Cib" firstAttribute="top" secondItem="o99-Qb-TCy" secondAttribute="bottom" constant="50" id="WoE-63-q2g"/>
+                            <constraint firstItem="UKC-TS-tsJ" firstAttribute="top" secondItem="8CX-Ug-8W4" secondAttribute="bottom" constant="22" id="bWy-7P-ZeE"/>
+                            <constraint firstItem="khU-dU-L5G" firstAttribute="leading" secondItem="UKC-TS-tsJ" secondAttribute="trailing" constant="24" id="gTO-lB-d6g"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="khU-dU-L5G" secondAttribute="trailing" constant="11" id="sNF-nT-rv9"/>
+                            <constraint firstItem="UKC-TS-tsJ" firstAttribute="leading" secondItem="R6b-OR-CPi" secondAttribute="leadingMargin" id="xKW-bQ-txE"/>
+                            <constraint firstItem="8CX-Ug-8W4" firstAttribute="leading" secondItem="R6b-OR-CPi" secondAttribute="leadingMargin" id="zD9-QD-3YG"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Di0-NJ-D6L"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
+                    <connections>
+                        <outlet property="portstr" destination="khU-dU-L5G" id="fgC-1X-sla"/>
+                        <outlet property="yuming" destination="34g-du-Cib" id="H92-2P-lhP"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NeM-f2-j8Q" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

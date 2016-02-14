@@ -10,13 +10,24 @@
 #import <UIKit/UIKit.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 
-@interface ObuSDK()<CBCentralManagerDelegate>
+@interface ObuSDK()<CBCentralManagerDelegate,CBPeripheralManagerDelegate,CBPeripheralDelegate>
 
 @property (nonatomic,strong) CBCentralManager * wjCentralManger;
 
 @property (nonatomic,strong) CBPeripheral * connectedPeripheral;
 
 @property (nonatomic,strong) dispatch_queue_t  bluetoothQueue;
+
+
+@property (nonatomic, copy) obuCallBack connectBlock;//连接block
+@property (nonatomic, copy) obuCallBack disconnectBlock;//断开
+@property (nonatomic, copy) obuCallBack getCardInfoBlock;//卡片信息
+@property (nonatomic, copy) obuCallBack getOBUInfoBlock;//obu信息
+
+@property (nonatomic,assign,getter=isBlueConnected) BOOL blueConnected;
+
+//连接成功失败
+-(void)setConnectBlockWithSuccess:(void (^)(BOOL status,NSDictionary *data, NSString *errorMsg))success failure:(void (^)(BOOL status,NSDictionary *data, NSString *errorMsg))failure;
 
 @end
 
@@ -41,7 +52,6 @@ static ObuSDK * _instance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _instance = [[self alloc]init];
-        
     });
     return _instance;
 }
@@ -51,36 +61,29 @@ static ObuSDK * _instance;
     self = [super init];
     if (self) {
         NSLog(@"init%@",[NSThread currentThread]);
-        _bluetoothQueue = dispatch_queue_create("BlueQueue", NULL);
+        _bluetoothQueue = dispatch_get_main_queue();//dispatch_queue_create("BlueQueue", NULL);
         _wjCentralManger = [[CBCentralManager alloc]initWithDelegate:_instance queue:_bluetoothQueue options:@{CBCentralManagerOptionShowPowerAlertKey:@YES}];
-        
         _bluetoothState = NO;
+        
     }
     return self;
 }
 
 -(void)startScan
 {
-    NSLog(@"startScan%@",[NSThread currentThread]);
-//    if(![_wjCentralManger isScanning])
-    {
-        [_wjCentralManger scanForPeripheralsWithServices:nil options:@{CBCentralManagerScanOptionAllowDuplicatesKey:@YES}];
-        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-    }
+    [_wjCentralManger scanForPeripheralsWithServices:nil options:@{CBCentralManagerScanOptionAllowDuplicatesKey:@YES}];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
 }
 
 -(void)stopScan
 {
-//    if ([_wjCentralManger isScanning]) {
-        [_wjCentralManger stopScan];
-        [[UIApplication sharedApplication]setNetworkActivityIndicatorVisible:NO];
-//    }
+    [_wjCentralManger stopScan];
+    [[UIApplication sharedApplication]setNetworkActivityIndicatorVisible:NO];
 }
--(void)connectDevice:(CBPeripheral *)connectPeripheral
+-(void)connectDeviceold:(CBPeripheral *)connectPeripheral
 {
     //停止扫描
     [self stopScan];
-    
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     self.connectedPeripheral = connectPeripheral;
 }
@@ -99,7 +102,14 @@ static ObuSDK * _instance;
     NSLog(@"centralManagerDidUpdateState%@",[NSThread currentThread]);
     if (central.state == CBCentralManagerStatePoweredOn) {
         _bluetoothState = YES;
-        [self startScan];
+//        [self startScan];
+    }
+    else if (central.state == CBCentralManagerStatePoweredOff){
+        _bluetoothState = NO;
+        if (self.connectBlock) {
+            self.connectBlock(NO,@(1),@"蓝牙未开启");
+        }
+        
     }
    
 }
@@ -113,25 +123,146 @@ static ObuSDK * _instance;
 //发现设备
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI
 {
-    NSLog(@"%@++%@",[NSThread currentThread],central);
+    NSLog(@"%@++%@----%@",[NSThread currentThread],central,peripheral.name);
+    NSLog(@"&&&&%@",advertisementData);
+    if ([[advertisementData objectForKey:@"kCBAdvDataLocalName"] isEqualToString:@"WanJi_303"]) {
+        if(self.isBlueConnected)
+            return;
+        else
+        {
+            NSLog(@"aaaa");
+            self.connectedPeripheral = peripheral;
+            [self.wjCentralManger connectPeripheral:self.connectedPeripheral options:nil];//@{CBConnectPeripheralOptionNotifyOnConnectionKey:@(YES)}];
+        }
+    }
+    else
+        return ;
+ 
 }
 
 //连接上设备
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
 {
     self.connectedPeripheral = peripheral;
+    self.connectedPeripheral.delegate = self;
+    [self.connectedPeripheral discoverServices:nil];
+    NSLog(@"%@",peripheral);
+    
+    if (self.connectBlock) {
+        self.connectBlock(YES,nil,nil);
+    }
 }
 
 //连接失败
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(nullable NSError *)error
 {
     self.connectedPeripheral = nil;
+    if (self.connectBlock) {
+        self.connectBlock(NO,error,nil);
+    }
 }
 
 //断开连接
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(nullable NSError *)error
 {
     self.connectedPeripheral = nil;
+    self.blueConnected = NO;
+    if (self.disconnectBlock) {
+        self.disconnectBlock(YES,nil,nil);
+    }
 }
 
+-(void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error
+{
+    
+}
+-(void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error
+{
+    
+}
+//发送成功调用
+- (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
+{
+    
+}
+
+//处理蓝牙发过来的数据
+-(void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
+{
+    
+}
+
+
+//4.连接OBU
+-(void)connectDevice:(obuCallBack)callBack
+{
+     self.connectBlock = callBack;
+    [self startScan];       //开始扫描
+}
+//5.断开连接
+-(void)disconnectDevice:(obuCallBack)callBack
+{
+    self.disconnectBlock = callBack;
+    if (self.isBlueConnected) {
+        [self.wjCentralManger cancelPeripheralConnection:self.connectedPeripheral];
+    }
+    
+}
+//6.读取OBU的卡片信息
+-(void)getCardInformation:(obuCallBack)callBack
+{
+    self.getCardInfoBlock = callBack;
+}
+//7.读取OBU的设备信息
+-(void)getObuInformation:(obuCallBack)callBack
+{
+    self.getOBUInfoBlock = callBack;
+    //发送数据
+//    NSData *sendData;
+//    [peripheral writeValue:datastr forCharacteristic:writeCharacteristic type:CBCharacteristicWriteWithResponse];
+//    [self.connectedPeripheral writeValue:sendData forCharacteristic:nil type:CBCharacteristicWriteWithoutResponse];
+}
+
+
+//8.充值写卡：获取Mac1等数据
+-(void)loadCreditGetMac1:(NSString *)credit \
+cardId:(NSString*)cardId  \
+terminalNo:(NSString *)terminalNo \
+picCode:(NSString *)pinCode \
+procType:(NSString*)procType \
+keyIndex:(NSString *)keyIndex \
+callBack:(obuCallBack)callBack
+{
+    
+}
+
+//9.充值写卡：执行写卡操作
+-(void)loadCreditWriteCard:(NSString *)dateMAC2 callBack:(obuCallBack)callBack
+{
+    
+}
+
+//10.读终端交易记录文件
+-(void)readCardTransactionRecord:(obuCallBack)callBack;
+{
+    
+}
+
+//11.读联网收费复合消费过程文件
+-(void)readCardConsumeRecord:(obuCallBack)callBack;
+{
+    
+}
+
+//12.读持卡人基本数据文件
+-(void)readCardOwnerRecord:(obuCallBack)callBack;
+{
+    
+}
+
+//13.数据透传
+-(void)transCommand:(NSData*)reqData callBack:(obuCallBack)callBack
+{
+    
+}
 @end
