@@ -12,6 +12,10 @@
 
 @interface ObuSDK()<CBCentralManagerDelegate,CBPeripheralManagerDelegate,CBPeripheralDelegate>
 
+@property (nonatomic,copy) NSString * characteristic_uuid; //特征id
+
+@property (nonatomic,copy) NSString * deveice_uuid;//设备id
+
 @property (nonatomic,strong) CBCentralManager * wjCentralManger;
 
 @property (nonatomic,strong) CBPeripheral * connectedPeripheral;
@@ -34,6 +38,10 @@
 @implementation ObuSDK
 
 static ObuSDK * _instance;
+
+
+
+
 
 //static CBCentralManager * _wjCentralManger;
 
@@ -125,12 +133,39 @@ static ObuSDK * _instance;
 {
     NSLog(@"%@++%@----%@",[NSThread currentThread],central,peripheral.name);
     NSLog(@"&&&&%@",advertisementData);
+    // 过滤信号强度范围
+    if (RSSI.integerValue > -15) {
+        return;
+    }
+    if (RSSI.integerValue < -35) {
+        return;
+    }
+ 
     if ([[advertisementData objectForKey:@"kCBAdvDataLocalName"] isEqualToString:@"WanJi_303"]) {
         if(self.isBlueConnected)
             return;
         else
         {
-            NSLog(@"aaaa");
+            //取 UUID
+            NSArray *keys = [advertisementData allKeys];
+            for (int i=0; i< [keys count]; ++i) {
+                id  key = [keys objectAtIndex:i];
+                NSString *keyName = (NSString *)key;
+                NSObject *value = [advertisementData objectForKey:key];
+                if ([value isKindOfClass:[NSArray class]]) {
+                    if ([keyName isEqualToString:@"kCBAdvDataServiceUUIDs"]) {
+                        NSArray *values = (NSArray *)value;
+                        for (int j=0; j<[values count]; j++) {
+                            if ([[values objectAtIndex:j] isKindOfClass:[CBUUID class]]) {
+                                CBUUID *obuuuid = [values objectAtIndex:j];
+                                self.deveice_uuid = [obuuuid UUIDString];
+                                break ;
+                            }
+                        }
+                    }
+                }
+            }
+            
             self.connectedPeripheral = peripheral;
             [self.wjCentralManger connectPeripheral:self.connectedPeripheral options:nil];//@{CBConnectPeripheralOptionNotifyOnConnectionKey:@(YES)}];
         }
@@ -143,10 +178,12 @@ static ObuSDK * _instance;
 //连接上设备
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
 {
-    self.connectedPeripheral = peripheral;
+  
     self.connectedPeripheral.delegate = self;
-    [self.connectedPeripheral discoverServices:nil];
+    [self.connectedPeripheral discoverServices:@[[CBUUID UUIDWithString:self.deveice_uuid]]];
     NSLog(@"%@",peripheral);
+    [self stopScan]; //停止扫描
+    
     
     if (self.connectBlock) {
         self.connectBlock(YES,nil,nil);
@@ -157,9 +194,11 @@ static ObuSDK * _instance;
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(nullable NSError *)error
 {
     self.connectedPeripheral = nil;
+    self.deveice_uuid = nil;
     if (self.connectBlock) {
         self.connectBlock(NO,error,nil);
     }
+    [self startScan];
 }
 
 //断开连接
@@ -171,24 +210,53 @@ static ObuSDK * _instance;
         self.disconnectBlock(YES,nil,nil);
     }
 }
-
+//发现服务
 -(void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error
 {
-    
+    if (error) {
+        NSLog(@"发现特征错误：%@",error);
+        
+        return ;
+    }
+    for (CBService *service  in peripheral.services) {
+        if (service.UUID) {
+            self.characteristic_uuid = [service.UUID UUIDString];
+            [peripheral discoverCharacteristics:@[[CBUUID UUIDWithString:self.characteristic_uuid]] forService:service];
+        }
+    }
+
+
 }
+//发现特征
 -(void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error
 {
-    
+    if (error) {
+        
+        return;
+    }
+    for (CBCharacteristic *characteristic in service.characteristics) {
+        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:self.characteristic_uuid]]) {
+            [peripheral setNotifyValue:YES forCharacteristic:characteristic];
+            //找到需要的特征 预定成功
+        }
+    }
 }
 //发送成功调用
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    
+    NSLog(@"发现成功调用%s",__func__);
 }
 
 //处理蓝牙发过来的数据
 -(void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
+    if(error){
+        NSLog(@"发现特征错误：%@",[error localizedDescription]);
+        return;
+    }
+    
+    NSString *getStringData = [[NSString alloc]initWithData:characteristic.value encoding:NSUTF8StringEncoding];
+    NSLog(@"收到的字符：%@",getStringData);
     
 }
 
