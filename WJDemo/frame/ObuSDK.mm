@@ -286,11 +286,13 @@ static ObuSDK * _instance;
     //1.发c1
     //成功
     if ( dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+20) == 0) {
-        
+        send_c1_Ble_OC(<#PROG_COMM_C1 prog_c1#>);
         
         
     }else{
         //超时失败
+        
+        return;
     }
    
     //2.等b1

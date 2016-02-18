@@ -987,7 +987,7 @@ public class wjOBU {
 			return l_ret;
 		}
 		WJInit.save_CpuCardinfo();
-		// 发送C5,等待B4
+		
 		WJInit.init_C5();
 		l_ret.ServiceCode = WJIssue_Ble.send_c5_Ble(WJVariables.g_c5_data);
 		if (l_ret.ServiceCode != WJVariables.SUCCESS) {
@@ -999,7 +999,7 @@ public class wjOBU {
 			return l_ret;
 		}
 
-		// 通知OBU释放链路
+		
 		l_ret.ServiceCode = WJIssue_Ble.recv_b4_Ble(WJVariables.g_b4_data,
 				WJVariables.TIME_OUT);
 		if (l_ret.ServiceCode != WJVariables.SUCCESS) {

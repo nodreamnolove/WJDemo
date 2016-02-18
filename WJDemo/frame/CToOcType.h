@@ -11,6 +11,8 @@
 #define uint32 uint32_t
 #define int32 int32_t
 
+#define byte  unsigned char
+
 
 
 
@@ -21,7 +23,8 @@
 
 
 1、getCardInformation：
- c1≥    b1≤
+ 
+ 发c1(send_c1_Ble_OC)    b1≤
  c9≥    b9≤
  c5≥    b4≤
  

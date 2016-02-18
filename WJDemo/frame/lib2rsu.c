@@ -856,28 +856,8 @@ int TransferChannel_rs(int *DATALIST, char *Data, int time_out)
 	int ret = SUCCESS;
 	uint16 pos = 0, i = 0, data_len = 0;
 	uint8 transfer_rs_len = 0, action_para;
-//    for(i = 0; i < time_out; i++)
-//	{
-//		ret = sem_trywait(&g_sem_transfer);
-//		if(ret == SUCCESS)
-//		{
-//			break;
-//		}
-//		else
-//		{
-//			if(i == time_out - 1)
-//			{
-//				is_transfer_recved = 1;		//收到或者超时退出都不再收数
-//				sem_destroy(&g_sem_transfer);
-//				return -1;		//超时，没有收到vst
-//			}
-//			usleep(20000);
-//		}
-//	}
-//	is_transfer_recved = 1;	//收到或者超时退出都不再收数
-//	sem_destroy(&g_sem_transfer);
 	ret = IsTransfer_rs(g_com_rx_buf);
-	if(ret != SUCCESS)	//判断是否时TransferChannel_rs
+	if(ret != SUCCESS)
 	{
 		return -2 + ret*10;
 	}
@@ -891,14 +871,12 @@ int TransferChannel_rs(int *DATALIST, char *Data, int time_out)
 	pos++;		//段子头
 	action_para = g_com_rx_buf[pos++];	//action标识0x18
 	pos++;		//DID 0x01
-	//判断容器是否存在
 	if(Getbit(action_para,3))
 	{
 		pos++;	//容器类型0x19
 		pos++;	//通道号
 		*DATALIST = g_com_rx_buf[pos++];
 		data_len = transfer_rs_len + 4 - pos - 1;
-
 		if(data_len < 128)
 		{
 			print_info_Info(g_com_rx_buf,99,UDPNET);
@@ -907,9 +885,6 @@ int TransferChannel_rs(int *DATALIST, char *Data, int time_out)
 		pos += data_len;
 	}
 	pos++;	//ReturnStatus
-
-	 
-
  	return SUCCESS;
 } 
 

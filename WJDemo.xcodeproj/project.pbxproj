@@ -33,6 +33,7 @@
 		AE08698C1C7577E900887931 /* WJIssue_Ble.java in Sources */ = {isa = PBXBuildFile; fileRef = AE08698B1C7577E900887931 /* WJIssue_Ble.java */; };
 		AE08698F1C7577F600887931 /* WJStructs.java in Sources */ = {isa = PBXBuildFile; fileRef = AE08698D1C7577F600887931 /* WJStructs.java */; };
 		AE0869901C7577F600887931 /* wjOBU.java in Sources */ = {isa = PBXBuildFile; fileRef = AE08698E1C7577F600887931 /* wjOBU.java */; };
+		AE0869931C75B06E00887931 /* issue_Ble_recv.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869911C75B06E00887931 /* issue_Ble_recv.c */; };
 		AE50A86F1C5B118200688BD6 /* MyWebVC.m in Sources */ = {isa = PBXBuildFile; fileRef = AE50A86E1C5B118100688BD6 /* MyWebVC.m */; };
 		AE5D69BB1C5FA1CA00381955 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE5D69BA1C5FA1CA00381955 /* CoreBluetooth.framework */; };
 		AEDB5ACD1C58495A00902D17 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AEDB5ACC1C58495A00902D17 /* main.m */; };
@@ -129,6 +130,8 @@
 		AE08698B1C7577E900887931 /* WJIssue_Ble.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = WJIssue_Ble.java; sourceTree = "<group>"; };
 		AE08698D1C7577F600887931 /* WJStructs.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = WJStructs.java; sourceTree = "<group>"; };
 		AE08698E1C7577F600887931 /* wjOBU.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = wjOBU.java; sourceTree = "<group>"; };
+		AE0869911C75B06E00887931 /* issue_Ble_recv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = issue_Ble_recv.c; sourceTree = "<group>"; };
+		AE0869921C75B06E00887931 /* issue_Ble_recv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = issue_Ble_recv.h; sourceTree = "<group>"; };
 		AE50A86D1C5B118100688BD6 /* MyWebVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyWebVC.h; path = ../MyWebVC.h; sourceTree = "<group>"; };
 		AE50A86E1C5B118100688BD6 /* MyWebVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyWebVC.m; path = ../MyWebVC.m; sourceTree = "<group>"; };
 		AE5D69BA1C5FA1CA00381955 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
@@ -271,6 +274,8 @@
 				AE0869811C74223E00887931 /* common.h */,
 				AE0869861C75646C00887931 /* issue_Ble_send.c */,
 				AE0869871C75646C00887931 /* issue_Ble_send.h */,
+				AE0869911C75B06E00887931 /* issue_Ble_recv.c */,
+				AE0869921C75B06E00887931 /* issue_Ble_recv.h */,
 			);
 			path = frame;
 			sourceTree = "<group>";
@@ -576,6 +581,7 @@
 				04EBACA51C6CED5800A456E6 /* MBProgressHUD.m in Sources */,
 				AEDB5B2A1C59177800902D17 /* WJTabBarController.m in Sources */,
 				AEDB5B1E1C590EBB00902D17 /* MinePageVC.m in Sources */,
+				AE0869931C75B06E00887931 /* issue_Ble_recv.c in Sources */,
 				AEDB5ACD1C58495A00902D17 /* main.m in Sources */,
 				AE0869741C741A8100887931 /* icc.c in Sources */,
 				04EBACBD1C6CFE4300A456E6 /* AFNetworkReachabilityManager.m in Sources */,
