@@ -9,6 +9,7 @@
 #import "ObuSDK.h"
 #import <UIKit/UIKit.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#import "issue_Ble_send.h"
 
 @interface ObuSDK()<CBCentralManagerDelegate,CBPeripheralManagerDelegate,CBPeripheralDelegate>
 
@@ -28,6 +29,8 @@
 @property (nonatomic, copy) obuCallBack getCardInfoBlock;//卡片信息
 @property (nonatomic, copy) obuCallBack getOBUInfoBlock;//obu信息
 
+@property (nonatomic,strong) dispatch_semaphore_t  obuSemaphore;
+
 @property (nonatomic,assign,getter=isBlueConnected) BOOL blueConnected;
 
 //连接成功失败
@@ -38,12 +41,6 @@
 @implementation ObuSDK
 
 static ObuSDK * _instance;
-
-
-
-
-
-//static CBCentralManager * _wjCentralManger;
 
 +(instancetype)allocWithZone:(struct _NSZone *)zone
 {
@@ -63,7 +60,13 @@ static ObuSDK * _instance;
     });
     return _instance;
 }
-
+-(dispatch_semaphore_t)obuSemaphore
+{
+    if (_obuSemaphore==nil) {
+        _obuSemaphore = dispatch_semaphore_create(1);
+    }
+    return _obuSemaphore;
+}
 -(instancetype)init
 {
     self = [super init];
@@ -280,6 +283,26 @@ static ObuSDK * _instance;
 -(void)getCardInformation:(obuCallBack)callBack
 {
     self.getCardInfoBlock = callBack;
+    //1.发c1
+    //成功
+    if ( dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+20) == 0) {
+        
+        
+        
+    }else{
+        //超时失败
+    }
+   
+    //2.等b1
+    
+    //3.发c9
+    
+    //4.等b9
+    
+    //5.发c5
+    
+    //6.等b4
+    
 }
 //7.读取OBU的设备信息
 -(void)getObuInformation:(obuCallBack)callBack

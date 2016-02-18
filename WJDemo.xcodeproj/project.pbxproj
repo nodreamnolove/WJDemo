@@ -23,10 +23,16 @@
 		AE0869731C741A8100887931 /* esam.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869681C741A8100887931 /* esam.c */; };
 		AE0869741C741A8100887931 /* icc.c in Sources */ = {isa = PBXBuildFile; fileRef = AE08696A1C741A8100887931 /* icc.c */; };
 		AE0869751C741A8100887931 /* lib2rsu.c in Sources */ = {isa = PBXBuildFile; fileRef = AE08696C1C741A8100887931 /* lib2rsu.c */; };
-		AE0869761C741A8100887931 /* ObuSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = AE08696E1C741A8100887931 /* ObuSDK.m */; };
+		AE0869761C741A8100887931 /* ObuSDK.mm in Sources */ = {isa = PBXBuildFile; fileRef = AE08696E1C741A8100887931 /* ObuSDK.mm */; };
 		AE0869771C741A8100887931 /* psam.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869701C741A8100887931 /* psam.c */; };
 		AE08697E1C74200200887931 /* crc.c in Sources */ = {isa = PBXBuildFile; fileRef = AE08697C1C74200200887931 /* crc.c */; };
 		AE0869821C74223E00887931 /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869801C74223E00887931 /* common.c */; };
+		AE0869851C755A6100887931 /* issue_Ble.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869841C755A6100887931 /* issue_Ble.c */; };
+		AE0869881C75646C00887931 /* issue_Ble_send.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869861C75646C00887931 /* issue_Ble_send.c */; };
+		AE08698A1C7577E100887931 /* WJInit.java in Sources */ = {isa = PBXBuildFile; fileRef = AE0869891C7577E100887931 /* WJInit.java */; };
+		AE08698C1C7577E900887931 /* WJIssue_Ble.java in Sources */ = {isa = PBXBuildFile; fileRef = AE08698B1C7577E900887931 /* WJIssue_Ble.java */; };
+		AE08698F1C7577F600887931 /* WJStructs.java in Sources */ = {isa = PBXBuildFile; fileRef = AE08698D1C7577F600887931 /* WJStructs.java */; };
+		AE0869901C7577F600887931 /* wjOBU.java in Sources */ = {isa = PBXBuildFile; fileRef = AE08698E1C7577F600887931 /* wjOBU.java */; };
 		AE50A86F1C5B118200688BD6 /* MyWebVC.m in Sources */ = {isa = PBXBuildFile; fileRef = AE50A86E1C5B118100688BD6 /* MyWebVC.m */; };
 		AE5D69BB1C5FA1CA00381955 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE5D69BA1C5FA1CA00381955 /* CoreBluetooth.framework */; };
 		AEDB5ACD1C58495A00902D17 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AEDB5ACC1C58495A00902D17 /* main.m */; };
@@ -107,7 +113,7 @@
 		AE08696B1C741A8100887931 /* lib2rsu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lib2rsu.h; sourceTree = "<group>"; };
 		AE08696C1C741A8100887931 /* lib2rsu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lib2rsu.c; sourceTree = "<group>"; };
 		AE08696D1C741A8100887931 /* ObuSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObuSDK.h; sourceTree = "<group>"; };
-		AE08696E1C741A8100887931 /* ObuSDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObuSDK.m; sourceTree = "<group>"; };
+		AE08696E1C741A8100887931 /* ObuSDK.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ObuSDK.mm; sourceTree = "<group>"; };
 		AE08696F1C741A8100887931 /* psam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = psam.h; sourceTree = "<group>"; };
 		AE0869701C741A8100887931 /* psam.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = psam.c; sourceTree = "<group>"; };
 		AE08697C1C74200200887931 /* crc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = crc.c; sourceTree = "<group>"; };
@@ -115,6 +121,14 @@
 		AE08697F1C74219600887931 /* lib2hd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lib2hd.h; sourceTree = "<group>"; };
 		AE0869801C74223E00887931 /* common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = common.c; sourceTree = "<group>"; };
 		AE0869811C74223E00887931 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		AE0869831C755A6100887931 /* issue_Ble.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = issue_Ble.h; sourceTree = "<group>"; };
+		AE0869841C755A6100887931 /* issue_Ble.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = issue_Ble.c; sourceTree = "<group>"; };
+		AE0869861C75646C00887931 /* issue_Ble_send.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = issue_Ble_send.c; sourceTree = "<group>"; };
+		AE0869871C75646C00887931 /* issue_Ble_send.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = issue_Ble_send.h; sourceTree = "<group>"; };
+		AE0869891C7577E100887931 /* WJInit.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = WJInit.java; sourceTree = "<group>"; };
+		AE08698B1C7577E900887931 /* WJIssue_Ble.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = WJIssue_Ble.java; sourceTree = "<group>"; };
+		AE08698D1C7577F600887931 /* WJStructs.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = WJStructs.java; sourceTree = "<group>"; };
+		AE08698E1C7577F600887931 /* wjOBU.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = wjOBU.java; sourceTree = "<group>"; };
 		AE50A86D1C5B118100688BD6 /* MyWebVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyWebVC.h; path = ../MyWebVC.h; sourceTree = "<group>"; };
 		AE50A86E1C5B118100688BD6 /* MyWebVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyWebVC.m; path = ../MyWebVC.m; sourceTree = "<group>"; };
 		AE5D69BA1C5FA1CA00381955 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
@@ -233,6 +247,12 @@
 		AE0869611C741A8100887931 /* frame */ = {
 			isa = PBXGroup;
 			children = (
+				AE08698B1C7577E900887931 /* WJIssue_Ble.java */,
+				AE0869891C7577E100887931 /* WJInit.java */,
+				AE08698D1C7577F600887931 /* WJStructs.java */,
+				AE08698E1C7577F600887931 /* wjOBU.java */,
+				AE0869831C755A6100887931 /* issue_Ble.h */,
+				AE0869841C755A6100887931 /* issue_Ble.c */,
 				AE0869661C741A8100887931 /* CToOcType.h */,
 				AE0869671C741A8100887931 /* esam.h */,
 				AE0869681C741A8100887931 /* esam.c */,
@@ -241,7 +261,7 @@
 				AE08696B1C741A8100887931 /* lib2rsu.h */,
 				AE08696C1C741A8100887931 /* lib2rsu.c */,
 				AE08696D1C741A8100887931 /* ObuSDK.h */,
-				AE08696E1C741A8100887931 /* ObuSDK.m */,
+				AE08696E1C741A8100887931 /* ObuSDK.mm */,
 				AE08696F1C741A8100887931 /* psam.h */,
 				AE0869701C741A8100887931 /* psam.c */,
 				AE08697C1C74200200887931 /* crc.c */,
@@ -249,6 +269,8 @@
 				AE08697F1C74219600887931 /* lib2hd.h */,
 				AE0869801C74223E00887931 /* common.c */,
 				AE0869811C74223E00887931 /* common.h */,
+				AE0869861C75646C00887931 /* issue_Ble_send.c */,
+				AE0869871C75646C00887931 /* issue_Ble_send.h */,
 			);
 			path = frame;
 			sourceTree = "<group>";
@@ -527,10 +549,14 @@
 				AEDB5AD01C58495A00902D17 /* AppDelegate.m in Sources */,
 				AE50A86F1C5B118200688BD6 /* MyWebVC.m in Sources */,
 				AEDB5B241C590F3800902D17 /* ExitPageVC.m in Sources */,
+				AE0869901C7577F600887931 /* wjOBU.java in Sources */,
 				AEDB5B421C59C83300902D17 /* AsyncSocket.m in Sources */,
+				AE0869881C75646C00887931 /* issue_Ble_send.c in Sources */,
 				AE0869821C74223E00887931 /* common.c in Sources */,
 				AEDB5B1B1C590EA400902D17 /* HomePageVC.m in Sources */,
-				AE0869761C741A8100887931 /* ObuSDK.m in Sources */,
+				AE08698A1C7577E100887931 /* WJInit.java in Sources */,
+				AE08698F1C7577F600887931 /* WJStructs.java in Sources */,
+				AE0869761C741A8100887931 /* ObuSDK.mm in Sources */,
 				AEDB5B701C5A256A00902D17 /* UIView+HMH.m in Sources */,
 				AE0869751C741A8100887931 /* lib2rsu.c in Sources */,
 				AE08697E1C74200200887931 /* crc.c in Sources */,
@@ -540,7 +566,9 @@
 				AEDB5B211C590EF600902D17 /* SetupPageVC.m in Sources */,
 				AE0869771C741A8100887931 /* psam.c in Sources */,
 				AE0869731C741A8100887931 /* esam.c in Sources */,
+				AE0869851C755A6100887931 /* issue_Ble.c in Sources */,
 				AEDB5B5B1C59F5EB00902D17 /* MineCellModel.m in Sources */,
+				AE08698C1C7577E900887931 /* WJIssue_Ble.java in Sources */,
 				04EBACBF1C6CFE4300A456E6 /* AFURLConnectionOperation.m in Sources */,
 				04EBACC01C6CFE4300A456E6 /* AFURLRequestSerialization.m in Sources */,
 				04EBACC21C6CFE4300A456E6 /* AFURLSessionManager.m in Sources */,

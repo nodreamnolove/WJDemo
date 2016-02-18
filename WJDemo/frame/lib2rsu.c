@@ -6,7 +6,7 @@
 
 
 int len_vehicleinfo;
-uint8 g_u8LLCFlag = 0x80;
+
 int IsVst(uint8 *pkg);
 /* 
 BST 
