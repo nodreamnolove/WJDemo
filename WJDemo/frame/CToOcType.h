@@ -14,6 +14,22 @@
 #define byte  unsigned char
 
 
+int g_timeout_cnt = 0;
+int g_timeout_max = 20;
+
+inline int checktimeout();
+int checktimeout(){
+    if(g_timeout_cnt < g_timeout_max){
+        
+        g_timeout_cnt++;
+        return 0;
+    }else{
+        g_timeout_cnt = g_timeout_max;
+        
+        return -1;
+    }
+}
+
 
 
 #endif /* CToOcType_h */

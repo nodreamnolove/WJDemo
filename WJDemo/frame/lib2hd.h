@@ -3,15 +3,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "CToOcType.h"
 
 //***************************** ˝æ›¿‡–Õ∂®“Â****************************//
-typedef unsigned char uint8;		//Œﬁ∑˚∫≈8Œª’˚–Õ±‰¡ø
-typedef signed char int8;		//”–∑˚∫≈8Œª’˚–Õ±‰¡ø
-typedef unsigned short uint16;		//Œﬁ∑˚∫≈16Œª’˚–Õ±‰¡ø
-typedef signed short int16;		//”–∑˚∫≈16Œª’˚–Õ±‰¡ø
-typedef unsigned int uint32;		//Œﬁ∑˚∫≈32Œª’˚–Õ±‰¡ø
-typedef signed int int32;		//”–∑˚∫≈32Œª’˚–Õ±‰¡ø
+//typedef unsigned char uint8;		//Œﬁ∑˚∫≈8Œª’˚–Õ±‰¡ø
+//typedef signed char int8;		//”–∑˚∫≈8Œª’˚–Õ±‰¡ø
+//typedef unsigned short uint16;		//Œﬁ∑˚∫≈16Œª’˚–Õ±‰¡ø
+//typedef signed short int16;		//”–∑˚∫≈16Œª’˚–Õ±‰¡ø
+//typedef unsigned int uint32;		//Œﬁ∑˚∫≈32Œª’˚–Õ±‰¡ø
+//typedef signed int int32;		//”–∑˚∫≈32Œª’˚–Õ±‰¡ø
 typedef float fp32;		//µ•æ´∂»∏°µ„ ˝£®32Œª≥§∂»£©
 typedef double fp64;		//À´æ´∂»∏°µ„ ˝£®64Œª≥§∂»£©
 

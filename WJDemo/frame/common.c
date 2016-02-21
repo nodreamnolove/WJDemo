@@ -224,7 +224,7 @@ uint32 pkt_code(uint8 *src_buf, uint8 *target_buf, uint32 len)
             target_buf[i++]=src_buf[j];
         }
     }
-    //÷°Œ≤
+    
     target_buf[i++]=0xFF;
     return i;
 }

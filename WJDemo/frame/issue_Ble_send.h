@@ -1,7 +1,11 @@
 #ifndef _ISSUE_BLE_SEND_H
 #define _ISSUE_BLE_SEND_H
 #include "lib2hd.h"
+#include "lib2rsu.h"
 
+//FRAME_SYSINFO_CHECK_RQ g_frame_syscheck_rq;
+//
+//FRAME_UPLOAD_TRADEINFO_RQ g_frame_uploadtradeinfo_rq;
 
 
 int send_c1_Ble_OC(PROG_COMM_C1 prog_c1);

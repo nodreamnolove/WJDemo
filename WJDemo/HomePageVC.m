@@ -96,7 +96,7 @@
 -(NSArray *)titleArr
 {
     if (_titleArr == nil) {
-        _titleArr = @[@"标签信息", @"标签激活", @"交易信息明细", @"IC卡信息", @"IC卡充值", @"OBU程序更新", @"程序升级", @"通讯测试", @"连接设备"];
+        _titleArr = @[@"蓝牙连接", @"蓝牙断开", @"读卡信息", @"读OBU信息", @"圈存初始化", @"圈存", @"交易记录", @"消费过程", @"持卡人信息"];
     }
     return _titleArr;
 }
@@ -244,22 +244,44 @@
 
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    //标签信息
+    //连接
     if (indexPath.row == 0) {
+        self.myObu = [ObuSDK sharedObuSDK];
         if (self.myObu) {
-            [self.myObu getObuInformation:^(BOOL status, NSObject *data, NSString *errorMsg) {
-              dispatch_async(dispatch_get_main_queue(), ^{
-                  [MBProgressHUD showSuccess:@"得到标签信息"];
-              });
+            [self.myObu connectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
+                if (status==NO) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [MBProgressHUD showError:@"连接失败"];
+                    });
+                }
+                else if (status == YES){
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [MBProgressHUD showSuccess:@"obu连接成功"];
+                    });
+                }
             }];
         }
-    }//卡片信息
+    }//断开
     else if(indexPath.row == 1){
-        
-    }
+        if (self.myObu) {
+            [self.myObu disconnectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
+                if (status == YES) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [MBProgressHUD showSuccess:@"断开成功"];
+                    });
+                }
+            }];
+        }
+    }//读卡
     else if(indexPath.row == 2){
-        
-    }
+        if (self.myObu) {
+            [self.myObu getCardInformation:^(BOOL status, NSObject *data, NSString *errorMsg) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD showSuccess:@"得到标签信息"];
+                });
+            }];
+        }
+    }//读OBU
     else if (indexPath.row == 3){
         
     }
@@ -270,31 +292,10 @@
         
     }
     else if (indexPath.row == 6){
-        if (self.myObu) {
-            [self.myObu disconnectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
-                if (status == YES) {
-                  dispatch_async(dispatch_get_main_queue(), ^{
-                    [MBProgressHUD showSuccess:@"断开成功"];
-                     });
-                }
-            }];
-        }
+      
     }
     else if (indexPath.row == 7){
-        if (self.myObu) {
-            [self.myObu connectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
-                if (status==NO) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                      [MBProgressHUD showError:@"连接失败"];
-                    });
-                }
-                else if (status == YES){
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [MBProgressHUD showSuccess:@"obu连接成功"];
-                    });
-                }
-            }];
-        }
+       
     }
     else if (indexPath.row == 8){
         //  测试

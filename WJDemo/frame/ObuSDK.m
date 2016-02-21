@@ -9,7 +9,8 @@
 #import "ObuSDK.h"
 #import <UIKit/UIKit.h>
 #import <CoreBluetooth/CoreBluetooth.h>
-#import "issue_Ble_send.h"
+#include "issue_Ble_send.h"
+#include "lib2hd.h"
 
 @interface ObuSDK()<CBCentralManagerDelegate,CBPeripheralManagerDelegate,CBPeripheralDelegate>
 
@@ -73,7 +74,7 @@ static ObuSDK * _instance;
     if (self) {
         NSLog(@"init%@",[NSThread currentThread]);
         _bluetoothQueue = dispatch_get_main_queue();//dispatch_queue_create("BlueQueue", NULL);
-        _wjCentralManger = [[CBCentralManager alloc]initWithDelegate:_instance queue:_bluetoothQueue options:@{CBCentralManagerOptionShowPowerAlertKey:@YES}];
+        _wjCentralManger = [[CBCentralManager alloc]initWithDelegate:self queue:_bluetoothQueue options:@{CBCentralManagerOptionShowPowerAlertKey:@YES}];
         _bluetoothState = NO;
         
     }
@@ -113,16 +114,14 @@ static ObuSDK * _instance;
     NSLog(@"centralManagerDidUpdateState%@",[NSThread currentThread]);
     if (central.state == CBCentralManagerStatePoweredOn) {
         _bluetoothState = YES;
-//        [self startScan];
+        [self startScan];
     }
     else if (central.state == CBCentralManagerStatePoweredOff){
         _bluetoothState = NO;
         if (self.connectBlock) {
             self.connectBlock(NO,@(1),@"蓝牙未开启");
         }
-        
     }
-   
 }
 
 //存储蓝牙状态
@@ -140,7 +139,7 @@ static ObuSDK * _instance;
     if (RSSI.integerValue > -15) {
         return;
     }
-    if (RSSI.integerValue < -35) {
+    if (RSSI.integerValue < -85) {
         return;
     }
  
@@ -148,30 +147,31 @@ static ObuSDK * _instance;
         if(self.isBlueConnected)
             return;
         else
-        {
-            //取 UUID
-            NSArray *keys = [advertisementData allKeys];
-            for (int i=0; i< [keys count]; ++i) {
-                id  key = [keys objectAtIndex:i];
-                NSString *keyName = (NSString *)key;
-                NSObject *value = [advertisementData objectForKey:key];
-                if ([value isKindOfClass:[NSArray class]]) {
-                    if ([keyName isEqualToString:@"kCBAdvDataServiceUUIDs"]) {
-                        NSArray *values = (NSArray *)value;
-                        for (int j=0; j<[values count]; j++) {
-                            if ([[values objectAtIndex:j] isKindOfClass:[CBUUID class]]) {
-                                CBUUID *obuuuid = [values objectAtIndex:j];
-                                self.deveice_uuid = [obuuuid UUIDString];
-                                break ;
-                            }
-                        }
-                    }
-                }
-            }
-            
+            ;
+//        {
+//            //取 UUID
+//            NSArray *keys = [advertisementData allKeys];
+//            for (int i=0; i< [keys count]; ++i) {
+//                id  key = [keys objectAtIndex:i];
+//                NSString *keyName = (NSString *)key;
+//                NSObject *value = [advertisementData objectForKey:key];
+//                if ([value isKindOfClass:[NSArray class]]) {
+//                    if ([keyName isEqualToString:@"kCBAdvDataServiceUUIDs"]) {
+//                        NSArray *values = (NSArray *)value;
+//                        for (int j=0; j<[values count]; j++) {
+//                            if ([[values objectAtIndex:j] isKindOfClass:[CBUUID class]]) {
+//                                CBUUID *obuuuid = [values objectAtIndex:j];
+//                                self.deveice_uuid = [obuuuid UUIDString];
+//                                break ;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            
             self.connectedPeripheral = peripheral;
             [self.wjCentralManger connectPeripheral:self.connectedPeripheral options:nil];//@{CBConnectPeripheralOptionNotifyOnConnectionKey:@(YES)}];
-        }
+//        }
     }
     else
         return ;
@@ -183,6 +183,9 @@ static ObuSDK * _instance;
 {
   
     self.connectedPeripheral.delegate = self;
+    if (!self.deveice_uuid) {
+        self.deveice_uuid = [peripheral.identifier UUIDString];
+    }
     [self.connectedPeripheral discoverServices:@[[CBUUID UUIDWithString:self.deveice_uuid]]];
     NSLog(@"%@",peripheral);
     [self stopScan]; //停止扫描
@@ -285,8 +288,9 @@ static ObuSDK * _instance;
     self.getCardInfoBlock = callBack;
     //1.发c1
     //成功
+    PROG_COMM_C1 progc1;
     if ( dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+20) == 0) {
-        send_c1_Ble_OC(<#PROG_COMM_C1 prog_c1#>);
+        send_c1_Ble_OC(progc1);
         
         
     }else{
