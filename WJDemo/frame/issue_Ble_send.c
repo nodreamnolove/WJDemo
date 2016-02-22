@@ -61,7 +61,8 @@ int  c5_init(PROG_COMM_C5 prog_c5)
     }
     return 1;
 }
-#pragma mark 发送C1帧
+#pragma mark 发送C1帧 
+//返回编码长度
 int send_c1_Ble_OC(PROG_COMM_C1 prog_c1) {
     int ret = SUCCESS, profile;
     c1_init(prog_c1);//C1初始化
@@ -84,7 +85,7 @@ int send_c1_Ble_OC(PROG_COMM_C1 prog_c1) {
     g_ObuInitMode = prog_c1.ObuInitMode;
 //    g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
     ret = INITIALISATION_rq_OC(g_bst_type, beacon_id, unix_time, profile,prog_c1.ObuInitMode);
-    return 1;
+    return ret;
 }
 #pragma mark 发送C5帧
 int send_c5_Ble_OC(PROG_COMM_C5 prog_c5) {
@@ -403,7 +404,7 @@ int INITIALISATION_rq_OC(int bst_type, char *beacon_id, char *unix_time, int pro
     sbuf[slen++] = 0xff;
     memset(&g_com_rx_buf,0,sizeof(g_com_rx_buf));
     g_com_tx_len = pkt_code(&sbuf[0], &g_com_tx_buf[0], slen);
-    return ret; 
+    return g_com_tx_len;
 }
 
 int SetMMI_rq_OC(int SetMMIPara)

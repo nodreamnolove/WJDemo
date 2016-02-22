@@ -12,6 +12,8 @@
 #define int32 int32_t
 
 #define byte  unsigned char
+//每包大小
+#define NOTIFY_MTU      20
 
 
 int g_timeout_cnt = 0;

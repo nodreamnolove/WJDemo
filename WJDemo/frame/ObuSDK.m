@@ -26,6 +26,8 @@
 
 @property (nonatomic,strong) CBCharacteristic * readwriteCharacter;
 
+@property (nonatomic,strong) CBCharacteristic * notifyCharacter;
+
 @property (nonatomic, copy) obuCallBack connectBlock;//连接block
 @property (nonatomic, copy) obuCallBack disconnectBlock;//断开
 @property (nonatomic, copy) obuCallBack getCardInfoBlock;//卡片信息
@@ -259,9 +261,12 @@ static ObuSDK * _instance;
     for (CBCharacteristic *characteristic in service.characteristics) {
         if(characteristic.properties == (CBCharacteristicPropertyWriteWithoutResponse|CBCharacteristicPropertyWrite))
         {
+            self.connectedPeripheral = peripheral;
+            self.readwriteCharacter = characteristic;
             
         }
-        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:self.characteristic_uuid]]) {
+        else if (characteristic.properties == CBCharacteristicPropertyNotify) {
+            self.notifyCharacter = characteristic;
             [peripheral setNotifyValue:YES forCharacteristic:characteristic];
             //找到需要的特征 预定成功
         }
@@ -270,8 +275,9 @@ static ObuSDK * _instance;
 //发送成功调用
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    NSLog(@"发现成功调用%s",__func__);
+    NSLog(@"发送成功调用%s，characteristic=%@",__func__,characteristic);
 }
+
 
 //处理蓝牙发过来的数据
 -(void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
@@ -280,10 +286,22 @@ static ObuSDK * _instance;
         NSLog(@"发现特征错误：%@",[error localizedDescription]);
         return;
     }
+    [characteristic.value getBytes:g_com_rx_buf+g_com_rx_len length:characteristic.value.length];
+    g_com_rx_len += characteristic.value.length;
     
-    NSString *getStringData = [[NSString alloc]initWithData:characteristic.value encoding:NSUTF8StringEncoding];
-    NSLog(@"收到的字符：%@",getStringData);
-    
+    if (g_com_rx_len>50) {
+        NSData *printData = [NSData dataWithBytes:g_com_rx_buf length:g_com_rx_len];
+        NSLog(@"接收到的数据：%@",printData);
+    }
+    NSLog(@"测试：%@",characteristic);
+}
+-(void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
+{
+    if (error) {
+        NSLog(@"通知更新成功%@",[error localizedDescription]);
+        return;
+    }
+    NSLog(@"通知更新成功%@---%@",characteristic,peripheral);
 }
 
 
@@ -309,11 +327,43 @@ static ObuSDK * _instance;
     //1.发c1
     //成功
     PROG_COMM_C1 progc1;
-    if ( dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+20) == 0) {
-        send_c1_Ble_OC(progc1);
+    if ( dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+20) == 0)
+    {
+        int length = send_c1_Ble_OC(progc1);
+        NSLog(@"length=%d",length);
+        NSData *sendData = [NSData dataWithBytes:g_com_tx_buf length:length];
+//         [self.connectedPeripheral writeValue:sendData forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
+//        NSLog(@"%@",sendData);
         
+        NSData *sendData2 = [NSData dataWithBytes:g_com_tx_buf+20 length:20];
+         [self.connectedPeripheral writeValue:sendData2 forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
+        NSLog(@"%@",sendData2);
+        BOOL didsend = YES;
+        NSInteger needToSend = 0 ;
+        NSInteger sendedIndex = 0;
+        while (didsend) {
+            needToSend = sendData.length-sendedIndex;
+            if (needToSend > NOTIFY_MTU) {
+                needToSend = NOTIFY_MTU;
+            }
+            NSData *dataChunk = [NSData dataWithBytes:g_com_tx_buf+sendedIndex length:needToSend];
+            [self.connectedPeripheral writeValue:dataChunk forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
+            
+            sendedIndex += NOTIFY_MTU;
+            if (sendedIndex >= sendData.length) {
+                didsend = NO;
+                g_com_rx_len = 0;
+            }
+            [NSThread sleepForTimeInterval:0.08];
+
+          
+        }
         
-    }else{
+//        [self.connectedPeripheral writeValue:sendData forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithoutResponse];
+        
+    }
+//    else
+    {
         //超时失败
         
         return;

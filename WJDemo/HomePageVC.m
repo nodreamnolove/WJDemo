@@ -360,34 +360,9 @@ static int timeCount = ScrollNum/2;
     
 }
 
--(void)blueInit
-{
-    CBCentralManager * wjCentralManger = [[CBCentralManager alloc]initWithDelegate:self queue:nil options:@{CBCentralManagerOptionShowPowerAlertKey:@YES}];
-    
-//    wjCentralManger.delegate = self;
-    [wjCentralManger scanForPeripheralsWithServices:nil options:@{CBCentralManagerScanOptionAllowDuplicatesKey:@YES}];
-}
 
-- (void)centralManagerDidUpdateState:(CBCentralManager *)central
-{
-    NSLog(@"centralManagerDidUpdateState---%@",central);
-  
-}
 
-- (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI
-{
-    NSLog(@"didDiscoverPeripheral---%@",peripheral);
-    [central connectPeripheral:peripheral options:nil];
-}
-- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
-{
-      NSLog(@"didConnectPeripheral---%@",peripheral);
-}
-- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(nullable NSError *)error
-{
-    NSLog(@"didFailToConnectPeripheral---%@",peripheral);
 
-}
 
 
 
