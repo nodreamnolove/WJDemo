@@ -24,6 +24,7 @@ char g_obu_mac[4];
 //¥Æø⁄
 int g_serial_fd = -5;		//¥Æø⁄Œƒº˛√Ë ˆ∑˚
 uint32 g_com_rx_len = 0;	//¥Æø⁄Ω” ’ ˝æ›≥§∂»
+uint32 g_com_needrx_len = 0;
 uint32 g_com_tx_len = 0;	//¥Æø⁄∑¢ÀÕ ˝æ›≥§∂»
 uint8 g_com_rx_buf[MAXCOMDATALENGHT];	//¥Æø⁄Ω” ’ ˝æ›
 uint8 g_com_tx_buf[MAXCOMDATALENGHT];	//¥Æø⁄∑¢ÀÕ ˝æ›
@@ -51,6 +52,15 @@ uint8 g_IsRecvUdpNetData = -1;//ºÏ≤ÈUDP «∑Ò ’µΩ ˝æ› add by w
 //0£∫Œ¥ ’µΩ
 //1£∫ ’µΩ ˝æ›£¨≤ª±£÷§ ˝æ› «∑Ò’˝»∑
 uint8 g_IsRecvUdpNetData_tmp = -1;
+
+FRAME_SYSINFO_CHECK_RQ g_frame_syscheck_rq;
+FRAME_UPLOAD_TRADEINFO_RQ g_frame_uploadtradeinfo_rq;
+FRAME_READ_VEHINFO_RQ g_frame_readveh_rq;
+FRAME_QUERY_BACKSTAGEINFO_RQ g_frame_querybackInfo_rq;
+FRAME_WRITE_VEHINFO_RQ g_frame_writeveh_rq;
+FRAME_WRITE_SYSINFO_RQ g_frame_writesys_rq;
+
+
 sem_t g_sem_udpnet_init_00;    //udpΩ” ’ ˝æ›–≈∫≈¡ø-ÃÙ’Ω÷°
 sem_t g_sem_udpnet_init_02;    //udpΩ” ’ ˝æ›–≈∫≈¡ø-»œ÷§”¶¥÷°
 sem_t g_sem_udpnet_init_14;    //udpΩ” ’ ˝æ›–≈∫≈¡ø-–¥≥µ¡æ–≈œ¢”¶¥÷°

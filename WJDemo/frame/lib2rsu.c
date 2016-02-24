@@ -802,7 +802,7 @@ int TransferChannel_rq_JinYi_0010_GetRand()
 * 返回结果：	0	--	成功
 *			非0	--	失败
 */
-static uint8 IsTransfer_rs(uint8 *pkg)
+uint8 IsTransfer_rs(uint8 *pkg)
 {
 	if(((vst.macid[0] == 0x02)&&((vst.sysinfo[9] == 0x00)||(vst.sysinfo[9] == 0x10))))
 	//金溢1版OBU(00、10版)

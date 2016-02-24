@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #include "issue_Ble_send.h"
+#include "issue_Ble_recv.h"
 #include "lib2hd.h"
 
 @interface ObuSDK()<CBCentralManagerDelegate,CBPeripheralManagerDelegate,CBPeripheralDelegate>
@@ -289,9 +290,10 @@ static ObuSDK * _instance;
     [characteristic.value getBytes:g_com_rx_buf+g_com_rx_len length:characteristic.value.length];
     g_com_rx_len += characteristic.value.length;
     
-    if (g_com_rx_len>50) {
+    if (g_com_rx_len > g_com_needrx_len) {
         NSData *printData = [NSData dataWithBytes:g_com_rx_buf length:g_com_rx_len];
         NSLog(@"接收到的数据：%@",printData);
+        dispatch_semaphore_signal(self.obuSemaphore);
     }
     NSLog(@"测试：%@",characteristic);
 }
@@ -327,14 +329,14 @@ static ObuSDK * _instance;
     //1.发c1
     //成功
     PROG_COMM_C1 progc1;
-    if ( dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+20) == 0)
+    PROG_COMM_B1 progb1;
+    if ( dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*20) == 0)
     {
         int length = send_c1_Ble_OC(progc1);
         NSLog(@"length=%d",length);
+        g_com_rx_len = 0;
+        g_com_needrx_len = 50;
         NSData *sendData = [NSData dataWithBytes:g_com_tx_buf length:length];
-//         [self.connectedPeripheral writeValue:sendData forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
-//        NSLog(@"%@",sendData);
-        
         NSData *sendData2 = [NSData dataWithBytes:g_com_tx_buf+20 length:20];
          [self.connectedPeripheral writeValue:sendData2 forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
         NSLog(@"%@",sendData2);
@@ -355,17 +357,33 @@ static ObuSDK * _instance;
                 g_com_rx_len = 0;
             }
             [NSThread sleepForTimeInterval:0.08];
-
-          
+        }
+        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) == 0) {
+            //1.解析bst
+            if(recv_b1_Ble_OC(&progb1, 20)==SUCCESS)
+            {
+                
+            }
+            else{
+                NSLog(@"解析出错");
+            }
+            //2.发送c9
+            
+            //3.解析b9
+            //4.发送c5
+            //5.解析b5
+        }
+        else{
+            NSLog(@"超时无响应");
+            return ;
         }
         
-//        [self.connectedPeripheral writeValue:sendData forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithoutResponse];
-        
+
     }
 //    else
     {
         //超时失败
-        
+         NSLog(@"超时无响应");
         return;
     }
    

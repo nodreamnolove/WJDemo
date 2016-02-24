@@ -1,5 +1,6 @@
 
 #include "issue_Ble_send.h"
+#include "issue_Ble_recv.h"
 #include "lib2hd.h"
 #include "common.h"
 #include "lib2rsu.h"
@@ -83,18 +84,18 @@ int send_c1_Ble_OC(PROG_COMM_C1 prog_c1) {
     unix_time[3] = ltime & 0xff;
     profile = prog_c1.Reserved[0];
     g_ObuInitMode = prog_c1.ObuInitMode;
-//    g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
+    g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
     ret = INITIALISATION_rq_OC(g_bst_type, beacon_id, unix_time, profile,prog_c1.ObuInitMode);
     return ret;
 }
-#pragma mark 发送C5帧
+#pragma mark 发送C5帧 返回帧长度
 int send_c5_Ble_OC(PROG_COMM_C5 prog_c5) {
-//    g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
+    g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
     c5_init(prog_c5);
     int ret;
-//    g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
+    g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
     ret = SetMMI_rq_OC(prog_c5.SetMMIMode);
-    return 1;
+    return ret;
 }
 #pragma mark 发送C9帧
 int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
@@ -103,7 +104,7 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
     uint8 data[128];
     ST_TRANSFER_CHANNEL transfer_rq;
     g_read_file.NumOfFiles = prog_c4.NumOfFiles;
-//    g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
+    g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
     for (i = 0; i < prog_c4.NumOfFiles; i++) {
         g_read_file.DIDnFID[i] = prog_c4.DIDnFID[i];
         g_read_file.offset[i] = prog_c4.Offset[i];
@@ -151,7 +152,7 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
             return -3 + ret * 100;
         }
         ret = esamCheckReadSysInfo(data, 1);
-        //print_info_Info(data,50,UDPNET);
+       
         
         if (ret != SUCCESS) {
             return -4 + ret * 100;
@@ -446,6 +447,6 @@ int SetMMI_rq_OC(int SetMMIPara)
     sbuf[slen++] = chk & 0xff;
     sbuf[slen++] = 0xff;
     g_com_tx_len = pkt_code(&sbuf[0],&g_com_tx_buf[0],slen);
-    return ret; 
+    return g_com_tx_len;
 }
 

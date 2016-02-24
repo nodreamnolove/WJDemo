@@ -34,6 +34,9 @@ int WriteVehFile_rs_JinYi(int TimeOut);
 int WriteSysFile_rq_Jinyi(int psam_slot,uint8 offset,uint8 length,uint8 * file);
 int WriteSysFile_rs_JinYi(int time_out);
 
+
+int IsVst(uint8 *pkg);
+uint8 IsTransfer_rs(uint8 *pkg);
 #endif
 
 

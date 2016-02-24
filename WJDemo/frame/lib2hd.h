@@ -24,7 +24,7 @@ typedef double fp64;		//À´æ´∂»∏°µ„ ˝£®64Œª≥§∂»£©
 /DEBUGP
 #endif
 
-#define SUCCESS							0	//÷¥––≥…π¶
+#define SUCCESS							0	
 
 #define BUF_LEN							512
 #define	GET_OBU_INFO					1
@@ -77,6 +77,7 @@ inline int checktimeout();
 //∂ØÃ¨ø‚∞Ê±æ∫≈
 extern char So_Version[30];
 //¥Æø⁄
+extern uint32 g_com_needrx_len;
 extern uint32 g_com_rx_len;				//¥Æø⁄Ω” ’ ˝æ›≥§∂»
 extern uint32 g_com_tx_len;				//¥Æø⁄∑¢ÀÕ ˝æ›≥§∂»
 extern uint8 g_com_rx_buf[MAXCOMDATALENGHT];			//¥Æø⁄Ω” ’ ˝æ›

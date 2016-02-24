@@ -3,13 +3,17 @@
 #ifndef CToOcType_h
 #define CToOcType_h
 
-#define uint8 uint8_t
-#define  int8 int8_t
-#define uint16 uint16_t
-#define int16 int16_t
 
-#define uint32 uint32_t
-#define int32 int32_t
+
+
+typedef unsigned char uint8;
+typedef signed char int8;
+typedef unsigned short uint16;
+typedef signed short int16;
+typedef unsigned int uint32;
+typedef signed int int32;
+
+
 
 #define byte  unsigned char
 //每包大小
