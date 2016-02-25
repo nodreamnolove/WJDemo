@@ -47,10 +47,10 @@ typedef void(^obuCallBack)(BOOL status,NSObject * data, NSString *errorMsg);
 -(void)loadCreditWriteCard:(NSString *)dateMAC2 callBack:(obuCallBack)callBack;
 
 //10.读终端交易记录文件
--(void)readCardTransactionRecord:(obuCallBack)callBack;;
+-(void)readCardTransactionRecord:(NSString *)pinCode maxNumber:(NSInteger)maxNumber callBack:(obuCallBack)callBack;
 
 //11.读联网收费复合消费过程文件
--(void)readCardConsumeRecord:(obuCallBack)callBack;;
+-(void)readCardConsumeRecord:(NSInteger)maxNumber callBack:(obuCallBack)callBack;;
 
 //12.读持卡人基本数据文件
 -(void)readCardOwnerRecord:(obuCallBack)callBack;;

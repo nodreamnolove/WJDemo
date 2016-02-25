@@ -17,5 +17,8 @@ extern int icc_enter_dir(ST_TRANSFER_CHANNEL *transfer_rq, uint16 did);
 extern int icc_select_file(ST_TRANSFER_CHANNEL *transfer_rq, uint8 data[], uint16 datalen);
 extern int icc_check_Pin(ST_TRANSFER_CHANNEL *transfer_rq, uint16 datalen, uint8 data[]);
 extern int icc_loadFrame(ST_TRANSFER_CHANNEL *transfer_rq, uint8 dealtime[], uint8 mac2[]);
+extern int icc_getOneDispersed(ST_TRANSFER_CHANNEL *transfer_rq);
+extern int iccCheckandGetData(uint8 *data, uint8 curlist, uint8 *resultInfo);
+extern int icc_getTwoDispersed(ST_TRANSFER_CHANNEL *transfer_rq);
 #endif
 

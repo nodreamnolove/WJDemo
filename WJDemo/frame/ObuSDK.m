@@ -12,6 +12,8 @@
 #include "issue_Ble_send.h"
 #include "issue_Ble_recv.h"
 #include "lib2hd.h"
+#include "icc.h"
+#include "NSString+NSStringHexToBytes.h"
 
 @interface ObuSDK()<CBCentralManagerDelegate,CBPeripheralManagerDelegate,CBPeripheralDelegate>
 
@@ -410,14 +412,65 @@ static ObuSDK * _instance;
 
 
 //8.充值写卡：获取Mac1等数据
--(void)loadCreditGetMac1:(NSString *)credit \
-cardId:(NSString*)cardId  \
-terminalNo:(NSString *)terminalNo \
-picCode:(NSString *)pinCode \
-procType:(NSString*)procType \
-keyIndex:(NSString *)keyIndex \
-callBack:(obuCallBack)callBack
+-(void)loadCreditGetMac1:(NSString *)credit    cardId:(NSString*)cardId     terminalNo:(NSString *)terminalNo  picCode:(NSString *)pinCode    procType:(NSString*)procType     keyIndex:(NSString *)keyIndex callBack:(obuCallBack)callBack
 {
+    //1.发送c1≥
+    PROG_COMM_C1 progc1;
+    PROG_COMM_B1 progb1;
+    if ( dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*20) == 0)
+    {
+        int length = send_c1_Ble_OC(progc1);
+        NSLog(@"length=%d",length);
+        g_com_rx_len = 0;
+        g_com_needrx_len = 50;
+        NSData *sendData = [NSData dataWithBytes:g_com_tx_buf length:length];
+        NSData *sendData2 = [NSData dataWithBytes:g_com_tx_buf+20 length:20];
+        [self.connectedPeripheral writeValue:sendData2 forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
+        NSLog(@"%@",sendData2);
+        BOOL didsend = YES;
+        NSInteger needToSend = 0 ;
+        NSInteger sendedIndex = 0;
+        while (didsend) {
+            needToSend = sendData.length-sendedIndex;
+            if (needToSend > NOTIFY_MTU) {
+                needToSend = NOTIFY_MTU;
+            }
+            NSData *dataChunk = [NSData dataWithBytes:g_com_tx_buf+sendedIndex length:needToSend];
+            [self.connectedPeripheral writeValue:dataChunk forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
+            
+            sendedIndex += NOTIFY_MTU;
+            if (sendedIndex >= sendData.length) {
+                didsend = NO;
+                g_com_rx_len = 0;
+            }
+            [NSThread sleepForTimeInterval:0.08];
+        }
+        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) == 0) {
+            //1.解析bst
+            if(recv_b1_Ble_OC(&progb1, 20)==SUCCESS)
+            {
+                //2.发送TransferChannel_rq≥
+                
+                //等待TransferChannel_rs≤
+                //3.发送TransferChannel_rq≥
+                //等待TransferChannel_rs≤
+                //4.发送TransferChannel_rq≥
+                //等待TransferChannel_rs≤
+            }
+            else{
+                NSLog(@"解析出错");
+            }
+            
+        }
+        else{
+            NSLog(@"超时无响应");
+            return ;
+        }
+        
+        
+    }
+    
+    
     
 }
 
@@ -428,19 +481,19 @@ callBack:(obuCallBack)callBack
 }
 
 //10.读终端交易记录文件
--(void)readCardTransactionRecord:(obuCallBack)callBack;
+-(void)readCardTransactionRecord:(NSString *)pinCode maxNumber:(NSInteger)maxNumber callBack:(obuCallBack)callBack
 {
     
 }
 
 //11.读联网收费复合消费过程文件
--(void)readCardConsumeRecord:(obuCallBack)callBack;
+-(void)readCardConsumeRecord:(NSInteger)maxNumber callBack:(obuCallBack)callBack
 {
     
 }
 
 //12.读持卡人基本数据文件
--(void)readCardOwnerRecord:(obuCallBack)callBack;
+-(void)readCardOwnerRecord:(obuCallBack)callBack
 {
     
 }
@@ -449,5 +502,174 @@ callBack:(obuCallBack)callBack
 -(void)transCommand:(NSData*)reqData callBack:(obuCallBack)callBack
 {
     
+}
+
+
+int jni2loadCreditGetMac1(uint8* cardId, int credit, uint8* terminalNo,
+                          uint8* pinCode, int procType, int keyIndex,
+                          loadCreditGetMac1Ret* data_ret, int TimeOut) {
+    
+    ST_TRANSFER_CHANNEL transfer_rq;
+    
+    int datalist;
+    uint8 data[128];
+    int did, i;
+    int ret;
+    int j = 0;
+    did = 0x01;
+    TimeOut = 1000;
+    uint8 addmoney[4] = { 0x00, 0x00, 0x00, 0x00 };
+    uint8 banlance[4] = { 0x00, 0x00, 0x00, 0x00 };		//(0, 4)”‡∂Ó
+    uint8 paySerial[2] = { 0x00, 0x00 };		//(4, 2)¡™ª˙Ωª“◊–Ú∫≈
+    uint8 passtyperand[4] = { 0x00, 0x00, 0x00, 0x00 };		//(8, 4)Œ±ÀÊª˙ ˝
+    
+    uint8 passkey[8] = { 0x00, 0x00, 0x00, 0x00 };	//π˝≥Ã√ÿ‘ø
+    
+    uint8 dealtime[9] = { 0x20, 0x15, 0x01, 0x01, 0x10, 0x10, 0x10 };//DateTime.Now.ToString("yyyyMMddHHmmss");
+    
+  
+    GetTimebufFunction(dealtime);
+    dealtime[4] = dealtime[5];
+    dealtime[5] = dealtime[6];
+    dealtime[6] = dealtime[7];
+    
+    uint8 mac1[10] = { 0 };	//(12,4)MAC1¬Î
+    uint8 mac2[10] = { 0 };	//MAC2¬Î
+    
+    uint8 RecvLen = 0;
+    uint8 RecvDate[128];
+    
+   
+    iccInitFrame(&transfer_rq);
+    
+ 
+    icc_getOneDispersed(&transfer_rq);	//ªÒ»°1º∂∑÷…¢“Ú◊”
+  
+   
+    ret = TransferChannel_rq(did, transfer_rq.channelid, transfer_rq.apdulist, transfer_rq.apdu);
+    if (ret != 0)	//¥Æø⁄∑¢ÀÕ ß∞‹
+        return -3 + ret * 100;
+    
+  
+    ret = TransferChannel_rs(&datalist, data, TimeOut);
+    if (ret != 0)	//Ω‚Œˆ ß∞‹ªÚ’ﬂ≥¨ ±
+        return -4 + ret * 100;
+    
+
+    ret = iccCheckandGetData(data, 0, g_frame_quancun_rq.OneDispersed);
+    
+    if (ret != 0)
+        return -5 + ret * 100;	//»°“ªº∂∑÷…¢“Ú◊” ß∞‹÷±Ω”ÕÀ≥ˆ
+ 
+ 
+    iccInitFrame(&transfer_rq);
+   
+    icc_getTwoDispersed(&transfer_rq);	//ªÒ»°2º∂∑÷…¢“Ú◊”
+
+    ret = TransferChannel_rq(did, transfer_rq.channelid, transfer_rq.apdulist,
+                             transfer_rq.apdu);
+    if (ret != 0)	//¥Æø⁄∑¢ÀÕ ß∞‹
+        return -6 + ret * 100;
+    
+    ret = TransferChannel_rs(&datalist, data, TimeOut);
+    if (ret != 0)	//Ω‚Œˆ ß∞‹ªÚ’ﬂ≥¨ ±
+        return -7 + ret * 100;
+    
+
+    ret = iccCheckandGetData(data, 0, g_frame_quancun_rq.TwoDispersed);
+    
+    if (ret != 0)
+        return -8 + ret * 100;	//»°∂˛º∂∑÷…¢“Ú◊” ß∞‹÷±Ω”ÕÀ≥ˆ
+
+    
+   
+    iccInitFrame(&transfer_rq);
+    icc_enter_dir(&transfer_rq, 0x1001);	//—°‘Ò1001
+    icc_check_Pin(&transfer_rq, 3, pinCode);	//—È÷§PIN
+ 
+    
+    ret = TransferChannel_rq(did, transfer_rq.channelid, transfer_rq.apdulist,
+                             transfer_rq.apdu);
+    if (ret != 0)	//¥Æø⁄∑¢ÀÕ ß∞‹
+        return -9 + ret * 100;
+    
+    ret = TransferChannel_rs(&datalist, data, TimeOut);
+    if (ret != 0)	//Ω‚Œˆ ß∞‹ªÚ’ﬂ≥¨ ±
+        return -10 + ret * 100;
+    
+  
+    ret = iccCheck(data, 0);
+    if (ret != 0)	//Ω” ’÷°–£—È ß∞‹
+        return -11 + ret * 100;
+    
+    ret = iccCheck(data, 1);
+
+    if (ret != 0)	//Ω” ’÷°–£—È ß∞‹
+        return -12 + ret * 100;
+    
+   
+    for (i = 0; i < 6; i++) {
+        
+        g_frame_quancun_init_rs.TerminalNO[i] = terminalNo[i];
+    }
+
+    iccInitFrame(&transfer_rq);
+  
+    
+    intToBytes2(credit, addmoney);
+    
+    iccinit_for_loadFrame(&transfer_rq, addmoney, terminalNo, procType,
+                          keyIndex);
+   
+    ret = TransferChannel_rq(did, transfer_rq.channelid, transfer_rq.apdulist,
+                             transfer_rq.apdu);
+  
+    if (ret != 0)	//¥Æø⁄∑¢ÀÕ ß∞‹
+        return -13 + ret * 100;
+    ret = TransferChannel_rs(&datalist, data, TimeOut);
+    for (i = 0; i < (data[0] + 1); i++) {
+      
+    }
+    if (ret != 0)	//Ω‚Œˆ ß∞‹ªÚ’ﬂ≥¨ ±
+        return -14 + ret * 100;
+    
+    ret = iccCheck(data, 0);
+    if (ret != 0)
+        return -15 + ret * 100;	//Ω” ’ ˝æ›–£—È ß∞‹÷±Ω”ÕÀ≥ˆ
+    
+    memcpy(RecvDate, &data[1], data[0]);
+    
+   
+    for (i = 0; i < 4; i++) {	//(0, 8)”‡∂Ó
+        banlance[i] = RecvDate[i];
+        data_ret->a_cbb[i] = RecvDate[i];
+    }
+    for (i = 0; i < 2; i++) {	//(8, 4)¡™ª˙Ωª“◊–Ú∫≈
+        paySerial[i] = RecvDate[4 + i];
+        data_ret->a_on[i] = RecvDate[4 + i];
+        g_frame_quancun_rq.QuancunTradeNo[i] = RecvDate[4 + i];
+      
+    }
+    for (i = 0; i < 4; i++) {	//16, 8)Œ±ÀÊª˙ ˝
+        passtyperand[i] = RecvDate[8 + i];
+        data_ret->a_rnd[i] = RecvDate[8 + i];
+        g_frame_quancun_rq.BogusRandNumber[i] = RecvDate[8 + i];
+        
+    }
+    for (i = 0; i < 4; i++) {	//(24, 8)MAC1¬Î
+        data_ret->a_m1[i] = RecvDate[12 + i];
+        mac1[i] = RecvDate[12 + i];
+       
+    }
+    
+    for (i = 0; i < 4; i++) {	//16, 8)Œ±ÀÊª˙ ˝
+        passtyperand[i] = RecvDate[8 + i];
+        data_ret->a_rnd[i] = RecvDate[8 + i];
+        g_frame_quancun_rq.BogusRandNumber[i] = RecvDate[8 + i];
+      
+    }
+    
+
+    return 0;
 }
 @end

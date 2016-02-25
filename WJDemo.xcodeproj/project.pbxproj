@@ -34,6 +34,7 @@
 		AE08698F1C7577F600887931 /* WJStructs.txt in Sources */ = {isa = PBXBuildFile; fileRef = AE08698D1C7577F600887931 /* WJStructs.txt */; };
 		AE0869901C7577F600887931 /* wjOBU.txt in Sources */ = {isa = PBXBuildFile; fileRef = AE08698E1C7577F600887931 /* wjOBU.txt */; };
 		AE0869931C75B06E00887931 /* issue_Ble_recv.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869911C75B06E00887931 /* issue_Ble_recv.c */; };
+		AE16638B1C7E848800E3F1BB /* NSString+NSStringHexToBytes.m in Sources */ = {isa = PBXBuildFile; fileRef = AE16638A1C7E848800E3F1BB /* NSString+NSStringHexToBytes.m */; };
 		AE50A86F1C5B118200688BD6 /* MyWebVC.m in Sources */ = {isa = PBXBuildFile; fileRef = AE50A86E1C5B118100688BD6 /* MyWebVC.m */; };
 		AE5D69BB1C5FA1CA00381955 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE5D69BA1C5FA1CA00381955 /* CoreBluetooth.framework */; };
 		AEDB5ACD1C58495A00902D17 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AEDB5ACC1C58495A00902D17 /* main.m */; };
@@ -132,6 +133,8 @@
 		AE08698E1C7577F600887931 /* wjOBU.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = wjOBU.txt; sourceTree = "<group>"; };
 		AE0869911C75B06E00887931 /* issue_Ble_recv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = issue_Ble_recv.c; sourceTree = "<group>"; };
 		AE0869921C75B06E00887931 /* issue_Ble_recv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = issue_Ble_recv.h; sourceTree = "<group>"; };
+		AE1663891C7E848800E3F1BB /* NSString+NSStringHexToBytes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+NSStringHexToBytes.h"; sourceTree = "<group>"; };
+		AE16638A1C7E848800E3F1BB /* NSString+NSStringHexToBytes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+NSStringHexToBytes.m"; sourceTree = "<group>"; };
 		AE50A86D1C5B118100688BD6 /* MyWebVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyWebVC.h; path = ../MyWebVC.h; sourceTree = "<group>"; };
 		AE50A86E1C5B118100688BD6 /* MyWebVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyWebVC.m; path = ../MyWebVC.m; sourceTree = "<group>"; };
 		AE5D69BA1C5FA1CA00381955 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
@@ -276,6 +279,8 @@
 				AE0869871C75646C00887931 /* issue_Ble_send.h */,
 				AE0869911C75B06E00887931 /* issue_Ble_recv.c */,
 				AE0869921C75B06E00887931 /* issue_Ble_recv.h */,
+				AE1663891C7E848800E3F1BB /* NSString+NSStringHexToBytes.h */,
+				AE16638A1C7E848800E3F1BB /* NSString+NSStringHexToBytes.m */,
 			);
 			path = frame;
 			sourceTree = "<group>";
@@ -585,6 +590,7 @@
 				AEDB5ACD1C58495A00902D17 /* main.m in Sources */,
 				AE0869741C741A8100887931 /* icc.c in Sources */,
 				04EBACBD1C6CFE4300A456E6 /* AFNetworkReachabilityManager.m in Sources */,
+				AE16638B1C7E848800E3F1BB /* NSString+NSStringHexToBytes.m in Sources */,
 				AEDB5B5C1C59F5EB00902D17 /* MineCellView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
