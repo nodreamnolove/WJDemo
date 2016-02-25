@@ -309,6 +309,31 @@ static ObuSDK * _instance;
 }
 
 
+-(void)sendData:(int )length andRepeat:(int )repeatNum
+{
+    BOOL didsend = YES;
+    NSInteger needToSend = 0 ;
+    NSInteger sendedIndex = 0;
+    NSData *sendData = [NSData dataWithBytes:g_com_tx_buf length:length];
+    while (didsend) {
+        needToSend = sendData.length-sendedIndex;
+        if (needToSend > NOTIFY_MTU) {
+            needToSend = NOTIFY_MTU;
+        }
+        NSData *dataChunk = [NSData dataWithBytes:g_com_tx_buf+sendedIndex length:needToSend];
+        [self.connectedPeripheral writeValue:dataChunk forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
+        
+        sendedIndex += NOTIFY_MTU;
+        if (sendedIndex >= sendData.length) {
+            didsend = NO;
+            g_com_rx_len = 0;
+        }
+        [NSThread sleepForTimeInterval:0.08];
+    }
+}
+
+
+
 //4.连接OBU
 -(void)connectDevice:(obuCallBack)callBack
 {
@@ -338,42 +363,26 @@ static ObuSDK * _instance;
         NSLog(@"length=%d",length);
         g_com_rx_len = 0;
         g_com_needrx_len = 50;
-        NSData *sendData = [NSData dataWithBytes:g_com_tx_buf length:length];
-        NSData *sendData2 = [NSData dataWithBytes:g_com_tx_buf+20 length:20];
-         [self.connectedPeripheral writeValue:sendData2 forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
-        NSLog(@"%@",sendData2);
-        BOOL didsend = YES;
-        NSInteger needToSend = 0 ;
-        NSInteger sendedIndex = 0;
-        while (didsend) {
-            needToSend = sendData.length-sendedIndex;
-            if (needToSend > NOTIFY_MTU) {
-                needToSend = NOTIFY_MTU;
-            }
-            NSData *dataChunk = [NSData dataWithBytes:g_com_tx_buf+sendedIndex length:needToSend];
-            [self.connectedPeripheral writeValue:dataChunk forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
-            
-            sendedIndex += NOTIFY_MTU;
-            if (sendedIndex >= sendData.length) {
-                didsend = NO;
-                g_com_rx_len = 0;
-            }
-            [NSThread sleepForTimeInterval:0.08];
-        }
+        [self sendData:length andRepeat:1];
+//        NSData *sendData2 = [NSData dataWithBytes:g_com_tx_buf+20 length:20];
+//         [self.connectedPeripheral writeValue:sendData2 forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
+        
         if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) == 0) {
             //1.解析bst
             if(recv_b1_Ble_OC(&progb1, 20)==SUCCESS)
             {
-                
+                //2.发送c9
+                PROG_COMM_C4 progc4;
+                c4_init(progc4, (byte)0x01);
+                send_c9_Ble_OC(progc4, 1000);
+                //3.解析b9
+                //4.发送c5
+                //5.解析b5
             }
             else{
                 NSLog(@"解析出错");
             }
-            //2.发送c9
             
-            //3.解析b9
-            //4.发送c5
-            //5.解析b5
         }
         else{
             NSLog(@"超时无响应");
@@ -423,33 +432,43 @@ static ObuSDK * _instance;
         NSLog(@"length=%d",length);
         g_com_rx_len = 0;
         g_com_needrx_len = 50;
-        NSData *sendData = [NSData dataWithBytes:g_com_tx_buf length:length];
-        NSData *sendData2 = [NSData dataWithBytes:g_com_tx_buf+20 length:20];
-        [self.connectedPeripheral writeValue:sendData2 forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
-        NSLog(@"%@",sendData2);
-        BOOL didsend = YES;
-        NSInteger needToSend = 0 ;
-        NSInteger sendedIndex = 0;
-        while (didsend) {
-            needToSend = sendData.length-sendedIndex;
-            if (needToSend > NOTIFY_MTU) {
-                needToSend = NOTIFY_MTU;
-            }
-            NSData *dataChunk = [NSData dataWithBytes:g_com_tx_buf+sendedIndex length:needToSend];
-            [self.connectedPeripheral writeValue:dataChunk forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
-            
-            sendedIndex += NOTIFY_MTU;
-            if (sendedIndex >= sendData.length) {
-                didsend = NO;
-                g_com_rx_len = 0;
-            }
-            [NSThread sleepForTimeInterval:0.08];
-        }
+        [self sendData:length andRepeat:1];
         if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) == 0) {
             //1.解析bst
             if(recv_b1_Ble_OC(&progb1, 20)==SUCCESS)
             {
                 //2.发送TransferChannel_rq≥
+                ST_TRANSFER_CHANNEL transfer_rq;
+                
+                int datalist;
+                uint8 data[128];
+                int did, i;
+                int ret;
+                int j = 0;
+                did = 0x01;
+                int TimeOut = 1000;
+                uint8 addmoney[4] = { 0x00, 0x00, 0x00, 0x00 };
+                uint8 banlance[4] = { 0x00, 0x00, 0x00, 0x00 };
+                uint8 paySerial[2] = { 0x00, 0x00 };
+                uint8 passtyperand[4] = { 0x00, 0x00, 0x00, 0x00 };
+                
+                uint8 passkey[8] = { 0x00, 0x00, 0x00, 0x00 };
+                
+                uint8 dealtime[9] = { 0x20, 0x15, 0x01, 0x01, 0x10, 0x10, 0x10 };//DateTime.Now.ToString("yyyyMMddHHmmss");
+                
+                
+                GetTimebufFunction(dealtime);
+                dealtime[4] = dealtime[5];
+                dealtime[5] = dealtime[6];
+                dealtime[6] = dealtime[7];
+                
+                uint8 mac1[10] = { 0 };
+                uint8 mac2[10] = { 0 };
+                uint8 RecvLen = 0;
+                uint8 RecvDate[128];
+                iccInitFrame(&transfer_rq);
+                icc_getOneDispersed(&transfer_rq);	//ªÒ»°1º∂∑÷…¢“Ú◊”
+                ret = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist, transfer_rq.apdu);
                 
                 //等待TransferChannel_rs≤
                 //3.发送TransferChannel_rq≥

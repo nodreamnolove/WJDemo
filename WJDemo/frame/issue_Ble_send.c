@@ -119,8 +119,6 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
             icc_offset = prog_c4.Offset[i];
             icc_Length = prog_c4.Length[i];
         }
-       
-        
     }
     
     if (sys_flag == 1) {
