@@ -8,9 +8,9 @@
 
 int recv_b1_Ble_OC(PROG_COMM_B1 *prog_b1, int time_out);
 
-int recv_b4_Ble_OC(PROG_COMM_C5 prog_c5);
+int recv_b4_Ble_OC(PROG_COMM_B4 *prog_b4, int time_out);
 
-int recv_b9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out);
+int recv_b9_Ble_OC(PROG_COMM_B3 *prog_b3, int time_out);
 
 //解析transferchannel
 int TransferChannel_rs_OC(int * DATALIST, char *Data, int time_out);

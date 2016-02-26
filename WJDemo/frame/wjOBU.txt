@@ -377,7 +377,7 @@ public class wjOBU {
 		}
 		// sendMsg(WJVariables.PROCESS_30);
 
-		// 发送C4,等待B3(读系统信息)
+		
 		WJInit.init_C4((byte) 0x01);
 		l_ret.ServiceCode  = WJIssue_Ble.send_c9_Ble(WJVariables.g_c4_data,
 				WJVariables.TIME_OUT);

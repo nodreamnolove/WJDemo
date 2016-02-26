@@ -97,11 +97,17 @@ int send_c5_Ble_OC(PROG_COMM_C5 prog_c5) {
     ret = SetMMI_rq_OC(prog_c5.SetMMIMode);
     return ret;
 }
-#pragma mark 发送C9帧
+#pragma mark 发送C9帧 :TransferChannel_rq_OC  TransferChannel_rs
 int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
     int i, ret, did, datalist, sys_flag = 0;
     int icc_flag = 0, icc_offset = 0, icc_Length = 0;
-    uint8 data[128];
+    int keyid_for_encrypt_op, keyid_for_encrypt, psam_slot = g_psam_slot;
+    int gs_veh_len;
+    char gs_veh_file[128];
+    char gs_authenticator[8];
+    char after_decrypt_vehinfo[128];
+    char after_decrypt_mac[8];
+    uint8 dataa[128];
     ST_TRANSFER_CHANNEL transfer_rq;
     g_read_file.NumOfFiles = prog_c4.NumOfFiles;
     g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
@@ -113,14 +119,13 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
             sys_flag = 1;
         }
         if ((prog_c4.DIDnFID[i] == 0x02) || (prog_c4.DIDnFID[i] == 0x12)
-            || (prog_c4.DIDnFID[i] == 0x15) || (prog_c4.DIDnFID[i] == 0x19))//∂¡ICø®–≈œ¢
+            || (prog_c4.DIDnFID[i] == 0x15) || (prog_c4.DIDnFID[i] == 0x19))
         {
             icc_flag = prog_c4.DIDnFID[i];
             icc_offset = prog_c4.Offset[i];
             icc_Length = prog_c4.Length[i];
         }
     }
-    
     if (sys_flag == 1) {
         if (prog_c4.C4Flag == 0) {
             did = 0x01;
@@ -134,38 +139,40 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
                              prog_c4.Length[0]);
         ret = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
         if (ret != SUCCESS) {
+            
             return -1 + ret * 100;
         }
         ret = TransferChannel_rs(&datalist, data, time_out);
         if (ret != SUCCESS) {
-          
+            
             return -2 + ret * 100;
         }
         
         int i = 0;
-        for (i = 0; i < 30; i++)
-          
-            ret = esamCheck(data, 0);
+        
+        
+        ret = esamCheck(data, 0);
         if (ret != SUCCESS) {
             return -3 + ret * 100;
         }
         ret = esamCheckReadSysInfo(data, 1);
-       
-        
+    
         if (ret != SUCCESS) {
             return -4 + ret * 100;
         }
+     
         if ((vst.obustatus[0] & 0x80) == 0x00)
-        {           
+        {
+          
             did = 0x01;
             iccInitFrame(&transfer_rq);
             iccReadMoneyFrame(&transfer_rq);
             iccReadFileFrame(&transfer_rq, 0x0015, 0x00, 0x2b);
-            ret = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist, transfer_rq.apdu);
+            ret = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
             if (ret != SUCCESS) {
                 return -5 + ret * 100;
             }
-            ret = TransferChannel_rs(&datalist, data, time_out);
+            ret = TransferChannel_rs_OC(&datalist, data, time_out);
             if (ret != SUCCESS) {
                 return -6 + ret * 100;
             }
@@ -177,49 +184,42 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
             if (ret != SUCCESS) {
                 return -8 + ret * 100;
             }
-            memcpy(icc_pib.Balance, &data[1], 4);	//0002Œƒº˛
-            memcpy(icc_pib.icc0015, &data[8], 43);	//0015Œƒº˛
+            memcpy(icc_pib.Balance, &data[1], 4);
+            memcpy(icc_pib.icc0015, &data[8], 43);
         }
-        int k;
         
+        int k;
         for (k = 0; k < 4; k++) {
-            g_frame_syscheck_rq.OBUContractSignedDate[k] = esam_read_sysinfo[k + 18 + g_read_file.offset[0]];
+            g_frame_syscheck_rq.OBUContractSignedDate[k] = esam_read_sysinfo[k+ 18 + g_read_file.offset[0]];
         }
         for (k = 0; k < 4; k++) {
-            g_frame_syscheck_rq.OBUContractExpiredDate[k] = esam_read_sysinfo[k + 22 + g_read_file.offset[0]];
+            g_frame_syscheck_rq.OBUContractExpiredDate[k] = esam_read_sysinfo[k+ 22 + g_read_file.offset[0]];
         }
         g_frame_syscheck_rq.DisassembleState = esam_read_sysinfo[k + 22 + g_read_file.offset[0]];
         
         return SUCCESS;
     }/* end if(sys_flag == 1) */
     
-    
+
     if (icc_flag != 0) {
-        
         if ((vst.obustatus[0] & 0x80) == 0x00) {
             did = 0x01;	//”¶”√÷˜ƒø¬º
             iccInitFrame(&transfer_rq);
             iccReadFileFrame(&transfer_rq, icc_flag, icc_offset, icc_Length);
-          
-            ret = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist, transfer_rq.apdu);
+        
+            ret = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
             if (ret != SUCCESS) {
-                
                 return -5 + ret * 100;
             }
-         
-            ret = TransferChannel_rs(&datalist, data, time_out);
-          
+        
+            ret = TransferChannel_rs_OC(&datalist, data, time_out);
             if (ret != SUCCESS) {
-               
-                return -6 + ret * 100;	//Ω‚Œˆ ß∞‹ªÚ’ﬂ≥¨ ±
+                return -6 + ret * 100;
             }
-            
             ret = iccCheck(data, 0);
             if (ret != SUCCESS) {
-                
                 return -7 + ret * 100;
             }
-          
             if (icc_flag == 0x0002) {
                 memcpy(icc_pib.Balance, &data[1], icc_Length);	//0002Œƒº˛
             } else if (icc_flag == 0x0012) {
@@ -233,7 +233,6 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
             return -8;
         }
     }
-    
     return SUCCESS;
 }
 

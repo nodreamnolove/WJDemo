@@ -92,16 +92,57 @@ int recv_b1_Ble_OC(PROG_COMM_B1 *prog_b1, int time_out)
     return ret;
 }
 
-int recv_b4_Ble_OC(PROG_COMM_C5 prog_c5)
-{
-    
-    return 1;
+int recv_b9_Ble_OC(PROG_COMM_B3 *prog_b3 ,int timeout) {
+    int i, k;
+    prog_b3->RSCTL = 0x13;
+    prog_b3->FrameType = 0xb3;
+    prog_b3->ErrorCode = 0x00;
+    prog_b3->NumOfFiles = g_read_file.NumOfFiles;
+    for (i = 0; i < prog_b3->NumOfFiles; i++) {
+        if (g_read_file.DIDnFID[i] == 0x01)
+        {
+            prog_b3->Length[i] = g_read_file.len[i];
+            for (k = 0; k < prog_b3->Length[i]; k++) {
+                prog_b3->FileContent[i][k] = esam_read_sysinfo[k + g_read_file.offset[i]];
+            }
+        }
+    }
+    if ((vst.obustatus[0] & 0x80) == 0x00)
+    {
+        i = 2;
+        prog_b3->Length[i] = 4;
+        for (k = 0; k < prog_b3->Length[i]; k++) {
+            prog_b3->FileContent[i][k] = icc_pib.Balance[k];
+        }
+        prog_b3->Length[i + 1] = 43;
+        for (k = 0; k < prog_b3->Length[i + 1]; k++) {
+            prog_b3->FileContent[i + 1][k] = icc_pib.icc0012[k];
+        }
+        prog_b3->Length[i + 2] = 43;
+        for (k = 0; k < prog_b3->Length[i + 2]; k++) {
+            prog_b3->FileContent[i + 2][k] = icc_pib.icc0015[k];
+        }
+        prog_b3->Length[i + 3] = 43;
+        for (k = 0; k < prog_b3->Length[i + 3]; k++) {
+            prog_b3->FileContent[i + 3][k] = icc_pib.icc0019[k];
+        }
+    }
+    return SUCCESS;
 }
 
-int recv_b9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out)
+int recv_b4_Ble_OC(PROG_COMM_B4 *prog_b4, int time_out)
 {
-    return 1;
+    int ret = SUCCESS;
+    ret = SetMMI_rs(g_timeout_max);
+    ret = EVENT_REPORT_rq(0, 0);
+    
+    prog_b4->RSCTL = 0x13;
+    prog_b4->FrameType = 0xb4;
+    prog_b4->ErrorCode = 0;
+    return SUCCESS;
+    
 }
+
 
 
 int TransferChannel_rs_OC(int * DATALIST, char *Data, int time_out)

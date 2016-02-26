@@ -3,7 +3,7 @@
 #include "common.h"
 #include "lib2hd.h"
 #include "psam.h"
-
+#include <semaphore.h>
 
 int len_vehicleinfo;
 
@@ -850,7 +850,7 @@ TransferChannel_Response
 		-1--超时，RSU设备无响应
 		其他--回复帧不是transfer帧
 */ 
-int TransferChannel_rs(int *DATALIST, char *Data, int time_out) 
+int TransferChannel_rs(int *DATALIST, char *Data, int time_out)
 {
 	//return 0;//lzb test
 	int ret = SUCCESS;
@@ -1229,7 +1229,7 @@ int SetMMI_rs(int time_out)
     	gettimeofday(&tt,NULL);
     	ts.tv_sec = tt.tv_sec+2;
     	ts.tv_nsec = tt.tv_usec*1000;
-//		ret = sem_timedwait(&g_sem_setmmi,&ts);hmh
+        ret = sem_timedwait();//    sem_timedwait(&g_sem_setmmi,&ts);//hmh
 		 
 		if(ret == SUCCESS)
 		{
@@ -1277,21 +1277,7 @@ int SetMMI_rs(int time_out)
 	return SUCCESS;
 }
  
-/* 
-EVENT_REPORT_Request 
-功能描述：释放OBU 
-输入参数：	fd--设备句柄号 
-		mode--确认模式，1：需应答，0：无需应答 
-		DID--DSRC-DID，目录号 
-		EventType--Release=0 
-		time_out--超时时间，范围1-1000ms 
-输出参数：	无 
-返回值：	0--命令执行成功 
-		-100--超时，RSU设备无响应 
-		-1000--输入参数错误 
-		-1001--设备未打开 
-		-2000--其他错误 
-*/ 
+
 int EVENT_REPORT_rq(uint8 event_type, uint8 ant_id) 
 {
 	int ret = SUCCESS;    
