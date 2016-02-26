@@ -4,12 +4,7 @@
 #include "psam.h"
 
 
-/*
-* 函数名称：iccInitFrame
-* 功能描述：初始化IC命令
-* 参数列表：*transfer_rq：命令结构
-* 返回结果：
-*/
+
 void iccInitFrame(ST_TRANSFER_CHANNEL *transfer_rq)
 {
 	transfer_rq->channelid = 0x01;
@@ -18,19 +13,14 @@ void iccInitFrame(ST_TRANSFER_CHANNEL *transfer_rq)
 	memset(transfer_rq->apdu, 0, MAX_ICC_APDU_LEN);
 }
 
-/*
-* 函数名称：iccReadFileFrame
-* 功能描述：构造读IC卡文件数据帧
-* 参数列表：
-* 返回结果：
-*/
+ 
 void iccReadFileFrame(ST_TRANSFER_CHANNEL *transfer_rq, uint8 fid, uint8 offset, uint8 length)
 {
 	uint8 len = 0;
 	uint8 i;
-	transfer_rq->apdulist++;	//命令数量+1
+	transfer_rq->apdulist++;
 	len = transfer_rq->frame_len;
-	transfer_rq->apdu[len++] = 0x05;	//读文件内容
+	transfer_rq->apdu[len++] = 0x05;	 
 	switch(fid)
 	{
 		case 0x02:
@@ -279,39 +269,27 @@ int iccPayFrame(ST_TRANSFER_CHANNEL *transfer_rq, uint8 *time)
 	return SUCCESS;
 }
 
-/*
-* 函数名称：iccReadMoneyFrame
-* 功能描述：获取钱包余额
-* 参数列表：
-* 返回结果：
-*/
+
 int iccReadMoneyFrame(ST_TRANSFER_CHANNEL *transfer_rq)
 {
 	uint8 len;
-	transfer_rq->apdulist++;	//命令数量+1
+	transfer_rq->apdulist++;
 	len = transfer_rq->frame_len;
-	//判越界
 	if((transfer_rq->frame_len + 0x05) > MAX_ICC_APDU_LEN)
 	{
 		return -1;
 	}
-	//获取钱包文件
-	transfer_rq->apdu[len++] = 0x05;
+    transfer_rq->apdu[len++] = 0x05;
 	transfer_rq->apdu[len++] = 0x80;
 	transfer_rq->apdu[len++] = 0x5c;
 	transfer_rq->apdu[len++] = 0x00;
 	transfer_rq->apdu[len++] = 0x02;
 	transfer_rq->apdu[len++] = 0x04;
-	transfer_rq->frame_len = len;	//设置总长度
+	transfer_rq->frame_len = len;
 	return SUCCESS;
 }
 
-/*
-* 函数名称：iccinit_for_loadFrame
-* 功能描述：圈存初始化
-* 参数列表：
-* 返回结果：
-*/
+ 
 int iccinit_for_loadFrame(ST_TRANSFER_CHANNEL *transfer_rq, uint8 Addmoney[], uint8 zhongduanhao[], uint8 miyaotype, uint8 miyaoFlag)
 {
 	uint8 len;

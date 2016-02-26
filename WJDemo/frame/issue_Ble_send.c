@@ -107,7 +107,7 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
     char gs_authenticator[8];
     char after_decrypt_vehinfo[128];
     char after_decrypt_mac[8];
-    uint8 dataa[128];
+    uint8 data[128];
     ST_TRANSFER_CHANNEL transfer_rq;
     g_read_file.NumOfFiles = prog_c4.NumOfFiles;
     g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
@@ -163,7 +163,6 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
      
         if ((vst.obustatus[0] & 0x80) == 0x00)
         {
-          
             did = 0x01;
             iccInitFrame(&transfer_rq);
             iccReadMoneyFrame(&transfer_rq);
@@ -198,12 +197,12 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
         g_frame_syscheck_rq.DisassembleState = esam_read_sysinfo[k + 22 + g_read_file.offset[0]];
         
         return SUCCESS;
-    }/* end if(sys_flag == 1) */
+    }
     
 
     if (icc_flag != 0) {
         if ((vst.obustatus[0] & 0x80) == 0x00) {
-            did = 0x01;	//”¶”√÷˜ƒø¬º
+            did = 0x01;
             iccInitFrame(&transfer_rq);
             iccReadFileFrame(&transfer_rq, icc_flag, icc_offset, icc_Length);
         
@@ -235,7 +234,74 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
     }
     return SUCCESS;
 }
+int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2 )
+{
+    int i,did,ret,sys_flag=0;
+    int icc_flag = 0, icc_offset = 0, icc_Length = 0;
+    ST_TRANSFER_CHANNEL transfer_rq;
+    g_read_file.NumOfFiles = prog_c4.NumOfFiles;
+    g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
+    for (i = 0; i < prog_c4.NumOfFiles; i++) {
+        g_read_file.DIDnFID[i] = prog_c4.DIDnFID[i];
+        g_read_file.offset[i] = prog_c4.Offset[i];
+        g_read_file.len[i] = prog_c4.Length[i];
+        if (prog_c4.DIDnFID[i] == 0x01) {
+            sys_flag = 1;
+        }
+        if ((prog_c4.DIDnFID[i] == 0x02) || (prog_c4.DIDnFID[i] == 0x12)
+            || (prog_c4.DIDnFID[i] == 0x15) || (prog_c4.DIDnFID[i] == 0x19))
+        {
+            icc_flag = prog_c4.DIDnFID[i];
+            icc_offset = prog_c4.Offset[i];
+            icc_Length = prog_c4.Length[i];
+        }
+    }
+    
+    if (sys_flag == 1) {
+        if (prog_c4.C4Flag == 0) {
+            did = 0x01;
+        } else {
+            did = 0x03;
+            vst.obustatus[0] = 0x80;
+        }
+        esamInitFrame(&transfer_rq);
+        esamEnterDirFrame(&transfer_rq, 0x3f00);
+        esamReadSysInfoFrame(&transfer_rq, prog_c4.Offset[0],
+                             prog_c4.Length[0]);
+        ret = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
+        if ((vst.obustatus[0] & 0x80) == 0x00)
+        {
+            *needble2 = 1;
+        }
+        return  ret;
+    }
+  /*************第二种***********/
+    if (icc_flag != 0) {
+        if ((vst.obustatus[0] & 0x80) == 0x00) {
+            did = 0x01;
+            iccInitFrame(&transfer_rq);
+            iccReadFileFrame(&transfer_rq, icc_flag, icc_offset, icc_Length);
+            
+            ret = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
+            return ret;
+        }
+        else
+            return  -8;
+    }
+    return SUCCESS;
+}
 
+int  send_c9_Ble2_OC()
+{
+    int ret,did;
+    ST_TRANSFER_CHANNEL transfer_rq;
+    did = 0x01;
+    iccInitFrame(&transfer_rq);
+    iccReadMoneyFrame(&transfer_rq);
+    iccReadFileFrame(&transfer_rq, 0x0015, 0x00, 0x2b);
+    ret = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
+    return ret;
+}
 
 int TransferChannel_rq_OC(int DID,int ChannelID,int APDULIST,uint8 * APDU)
 {
@@ -247,11 +313,10 @@ int TransferChannel_rq_OC(int DID,int ChannelID,int APDULIST,uint8 * APDU)
     sbuf[slen++] = 0xff;
     g_rsctl = (g_rsctl + 1) % 16;
     g_rsctl = g_rsctl | 0x00;
-    sbuf[slen++] = g_rsctl; //÷°–Ú∫≈
-    sbuf[slen++] = 0xf0; 	//√¸¡Ó∫≈,bst“‘º∞action‘≠”Ô
-    sbuf[slen++] = 0x02;	//transferchannel_rq
+    sbuf[slen++] = g_rsctl;
+    sbuf[slen++] = 0xf0;
+    sbuf[slen++] = 0x02;
     len_pos = slen++;
-    //◊È∞¸transferchannel_rq
     sbuf[slen++] = vst.macid[0];
     sbuf[slen++] = vst.macid[1];
     sbuf[slen++] = vst.macid[2];
@@ -289,7 +354,7 @@ int TransferChannel_rq_OC(int DID,int ChannelID,int APDULIST,uint8 * APDU)
     sbuf[slen++] = 0xff;
     g_com_tx_len = pkt_code(&sbuf[0], &g_com_tx_buf[0], slen);
     memset(&g_com_rx_buf,0,sizeof(g_com_rx_buf));
-    return 1;
+    return g_com_tx_len;
 }
 
 int INITIALISATION_rq_OC(int bst_type, char *beacon_id, char *unix_time, int profile, int obu_init_mode)

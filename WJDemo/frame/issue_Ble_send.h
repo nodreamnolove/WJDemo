@@ -15,6 +15,10 @@ int send_c5_Ble_OC(PROG_COMM_C5 prog_c5);
 
 int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out);
 
+int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2 );
+
+int  send_c9_Ble2_OC();
+
 int TransferChannel_rq_OC(int DID,int ChannelID,int APDULIST,uint8 * APDU);
 
 int INITIALISATION_rq_OC(int bst_type, char *beacon_id, char *unix_time, int profile, int obu_init_mode);

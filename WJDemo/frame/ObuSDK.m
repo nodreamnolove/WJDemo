@@ -375,6 +375,12 @@ static ObuSDK * _instance;
                 PROG_COMM_C4 progc4;
                 c4_init(progc4, (byte)0x01);
                 send_c9_Ble_OC(progc4, 1000);
+                int needble2;
+                send_c9_Ble1_OC(progc4, &needble2);
+                //等B9 1
+                //如果needble2 = 1
+                //发送                send_c9_Ble2_OC()
+                //等待 B9 2
                 //3.解析b9
                 //4.发送c5
                 //5.解析b5
