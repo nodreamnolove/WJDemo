@@ -69,14 +69,14 @@ typedef double fp64;		//À´æ´∂»∏°µ„ ˝£®64Œª≥§∂»£©
 #define Getbit(byt,num)					(((byt) >> (num))&1)
 #define Setbit(str,num,val)				do{if((val) == 1) ((str) |= (1 << (num))); else ((str) &= ~(1 << (num))) ;}while(0)
 
-
-//≥¨ ± ±º‰º∆ ˝
+extern uint8 g_u8LLCFlag;
+ 
 extern int g_timeout_cnt;
 extern int g_timeout_max;
 inline int checktimeout();
-//∂ØÃ¨ø‚∞Ê±æ∫≈
+
 extern char So_Version[30];
-//¥Æø⁄
+
 extern uint32 g_com_needrx_len;
 extern uint32 g_com_rx_len;				//¥Æø⁄Ω” ’ ˝æ›≥§∂»
 extern uint32 g_com_tx_len;				//¥Æø⁄∑¢ÀÕ ˝æ›≥§∂»

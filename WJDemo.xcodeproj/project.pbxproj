@@ -27,7 +27,7 @@
 		AE0869771C741A8100887931 /* psam.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869701C741A8100887931 /* psam.c */; };
 		AE08697E1C74200200887931 /* crc.c in Sources */ = {isa = PBXBuildFile; fileRef = AE08697C1C74200200887931 /* crc.c */; };
 		AE0869821C74223E00887931 /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869801C74223E00887931 /* common.c */; };
-		AE0869851C755A6100887931 /* issue_Blec.txt in Sources */ = {isa = PBXBuildFile; fileRef = AE0869841C755A6100887931 /* issue_Blec.txt */; };
+		AE0869851C755A6100887931 /* issue_Ble.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869841C755A6100887931 /* issue_Ble.c */; };
 		AE0869881C75646C00887931 /* issue_Ble_send.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869861C75646C00887931 /* issue_Ble_send.c */; };
 		AE08698A1C7577E100887931 /* WJInit.txt in Sources */ = {isa = PBXBuildFile; fileRef = AE0869891C7577E100887931 /* WJInit.txt */; };
 		AE08698C1C7577E900887931 /* WJIssue_Ble.txt in Sources */ = {isa = PBXBuildFile; fileRef = AE08698B1C7577E900887931 /* WJIssue_Ble.txt */; };
@@ -124,7 +124,7 @@
 		AE0869801C74223E00887931 /* common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = common.c; sourceTree = "<group>"; };
 		AE0869811C74223E00887931 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		AE0869831C755A6100887931 /* issue_Bleh.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = issue_Bleh.txt; sourceTree = "<group>"; };
-		AE0869841C755A6100887931 /* issue_Blec.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = issue_Blec.txt; sourceTree = "<group>"; };
+		AE0869841C755A6100887931 /* issue_Ble.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = issue_Ble.c; sourceTree = "<group>"; };
 		AE0869861C75646C00887931 /* issue_Ble_send.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = issue_Ble_send.c; sourceTree = "<group>"; };
 		AE0869871C75646C00887931 /* issue_Ble_send.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = issue_Ble_send.h; sourceTree = "<group>"; };
 		AE0869891C7577E100887931 /* WJInit.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = WJInit.txt; sourceTree = "<group>"; };
@@ -258,7 +258,7 @@
 				AE08698D1C7577F600887931 /* WJStructs.txt */,
 				AE08698E1C7577F600887931 /* wjOBU.txt */,
 				AE0869831C755A6100887931 /* issue_Bleh.txt */,
-				AE0869841C755A6100887931 /* issue_Blec.txt */,
+				AE0869841C755A6100887931 /* issue_Ble.c */,
 				AE0869661C741A8100887931 /* CToOcType.h */,
 				AE0869671C741A8100887931 /* esam.h */,
 				AE0869681C741A8100887931 /* esam.c */,
@@ -576,7 +576,7 @@
 				AEDB5B211C590EF600902D17 /* SetupPageVC.m in Sources */,
 				AE0869771C741A8100887931 /* psam.c in Sources */,
 				AE0869731C741A8100887931 /* esam.c in Sources */,
-				AE0869851C755A6100887931 /* issue_Blec.txt in Sources */,
+				AE0869851C755A6100887931 /* issue_Ble.c in Sources */,
 				AEDB5B5B1C59F5EB00902D17 /* MineCellModel.m in Sources */,
 				AE08698C1C7577E900887931 /* WJIssue_Ble.txt in Sources */,
 				04EBACBF1C6CFE4300A456E6 /* AFURLConnectionOperation.m in Sources */,

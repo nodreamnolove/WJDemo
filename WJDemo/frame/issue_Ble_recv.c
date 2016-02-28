@@ -129,21 +129,50 @@ int recv_b9_Ble_OC(PROG_COMM_B3 *prog_b3 ,int timeout) {
     }
     return SUCCESS;
 }
-
+//接收完B4 发送event_report_rq
 int recv_b4_Ble_OC(PROG_COMM_B4 *prog_b4, int time_out)
 {
     int ret = SUCCESS;
-    ret = SetMMI_rs(g_timeout_max);
-    ret = EVENT_REPORT_rq(0, 0);
-    
+    ret = SetMMI_rs_OC();
     prog_b4->RSCTL = 0x13;
     prog_b4->FrameType = 0xb4;
     prog_b4->ErrorCode = 0;
     return SUCCESS;
-    
 }
 
 
+
+int SetMMI_rs_OC()
+{
+    int ret = SUCCESS;
+    uint16 pos = 0 ;
+    uint8 setmmi_rs_len = 0, action_para;
+    is_setmmi_recved = 1;
+    ret = IsSetMMI_rs(g_com_rx_buf);
+    if(ret != SUCCESS)
+    {
+        return -2 + ret*10;
+    }
+    pos = 3;	//»•µÙ÷°–Ú∫≈°¢√¸¡Ó∫≈0xe0°¢‘≠”Ô¿‡–Õ0x03
+    setmmi_rs_len = g_com_rx_buf[pos++];
+    pos += 4;
+    pos++;
+    pos++;
+    pos++;
+    pos++;
+    action_para = g_com_rx_buf[pos++];
+    pos++;
+    if(Getbit(action_para,3))
+    {
+        pos++;
+    }
+    pos++;
+    if(setmmi_rs_len != pos - 4)
+    {
+        return -3;
+    }
+    return SUCCESS;
+}
 
 int TransferChannel_rs_OC(int * DATALIST, char *Data, int time_out)
 {

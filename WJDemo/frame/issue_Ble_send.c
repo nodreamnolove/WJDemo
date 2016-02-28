@@ -7,6 +7,7 @@
 #include "esam.h"
 #include "psam.h"
 #include "icc.h"
+extern uint8 g_u8LLCFlag;
 //c1初始化
 int c1_init(PROG_COMM_C1 prog_c1)
 {
@@ -53,6 +54,7 @@ int c4_init(PROG_COMM_C4 prog_c4,byte nType)
 }
 int  c5_init(PROG_COMM_C5 prog_c5)
 {
+
     short i = 0;
     prog_c5.RSCTL = (byte) 0x82;
     prog_c5.CMDType = (byte) 0xC5;
@@ -234,7 +236,7 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
     }
     return SUCCESS;
 }
-int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2 )
+int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2)
 {
     int i,did,ret,sys_flag=0;
     int icc_flag = 0, icc_offset = 0, icc_Length = 0;
@@ -269,10 +271,10 @@ int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2 )
         esamReadSysInfoFrame(&transfer_rq, prog_c4.Offset[0],
                              prog_c4.Length[0]);
         ret = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
-        if ((vst.obustatus[0] & 0x80) == 0x00)
-        {
-            *needble2 = 1;
-        }
+//        if ((vst.obustatus[0] & 0x80) == 0x00)
+//        {
+//            *needble2 = 1;
+//        }
         return  ret;
     }
   /*************第二种***********/
@@ -288,7 +290,7 @@ int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2 )
         else
             return  -8;
     }
-    return SUCCESS;
+    return 0;
 }
 
 int  send_c9_Ble2_OC()
@@ -511,4 +513,42 @@ int SetMMI_rq_OC(int SetMMIPara)
     g_com_tx_len = pkt_code(&sbuf[0],&g_com_tx_buf[0],slen);
     return g_com_tx_len;
 }
-
+//发送 event_report
+int EVENT_REPORT_rq_OC(uint8 event_type, uint8 ant_id)
+{
+    uint8 chk = 0;
+    uint8 sbuf[BUF_LEN] = {0};
+    uint16 slen = 0, len_pos = 0, i = 0;
+    sbuf[slen++] = 0xff;
+    sbuf[slen++] = 0xff;
+    g_rsctl = (g_rsctl + 1) % 16;
+    g_rsctl = g_rsctl | 0x00;
+    sbuf[slen++] = g_rsctl;
+    sbuf[slen++] = 0xf0;
+    sbuf[slen++] = 0x04;
+    len_pos = slen++;
+    sbuf[slen++] = vst.macid[0];
+    sbuf[slen++] = vst.macid[1];
+    sbuf[slen++] = vst.macid[2];
+    sbuf[slen++] = vst.macid[3];
+    sbuf[slen++] = 0x40;
+    sbuf[slen++] = 0x03;
+    sbuf[slen++] = 0x91;
+    sbuf[slen++] = 0x60;
+    sbuf[slen++] = 0x00;
+    sbuf[slen++] = event_type;
+    if(g_bst_type == BST_TRADE_ZYL)
+    {
+        sbuf[slen++] = ant_id;
+    }
+    sbuf[len_pos] = slen - len_pos - 1;
+    chk = sbuf[2];
+    for(i = 3; i < slen; i++)
+    {
+        chk = chk ^ sbuf[i];
+    }
+    sbuf[slen++] = chk & 0xff;
+    sbuf[slen++] = 0xff;
+    g_com_tx_len = pkt_code(&sbuf[0],&g_com_tx_buf[0],slen);
+    return g_com_tx_len;
+}

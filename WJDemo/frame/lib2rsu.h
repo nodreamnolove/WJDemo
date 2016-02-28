@@ -5,8 +5,8 @@
 #include "common.h"
 
 #define	CMD_WRITESYSFILE_JINYI	0x08
-uint8 g_u8LLCFlag = 0x80;
-/* **************************以下为INITIALISATION原语指令************************** */ 
+
+/* **************************以下为INITIALISATION原语指令************************** */
 int	INITIALISATION_rq(int bst_type, char *beacon_id, char *unix_time, int profile, int obu_init_mode);
 int	INITIALISATION_rs(char *obu_mac, char *sys_info, char *icc_info, char * rnd_info, char * reset_info, char *obu_status, int time_out);
 
@@ -37,6 +37,7 @@ int WriteSysFile_rs_JinYi(int time_out);
 
 int IsVst(uint8 *pkg);
 uint8 IsTransfer_rs(uint8 *pkg);
+uint8 IsSetMMI_rs(uint8 *pkg);
 #endif
 
 

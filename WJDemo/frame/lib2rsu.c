@@ -4,7 +4,7 @@
 #include "lib2hd.h"
 #include "psam.h"
 #include <semaphore.h>
-
+uint8 g_u8LLCFlag = 0x80;
 int len_vehicleinfo;
 
 int IsVst(uint8 *pkg);
@@ -146,10 +146,10 @@ int INITIALISATION_rq(int bst_type, char *beacon_id, char *unix_time, int profil
 	memset(&g_com_rx_buf,0,sizeof(g_com_rx_buf));
 	g_com_tx_len = pkt_code(&sbuf[0], &g_com_tx_buf[0], slen);
 	if (g_bst_type == BST_TRADE_ZYL) {
-		sem_init(&g_sem_prwrq, 0, 0);
+//		sem_init(&g_sem_prwrq, 0, 0);
 		is_prwrq_recved = 0;	//初始没有收到
 	} else {
-		sem_init(&g_sem_vst, 0, 0);
+//		sem_init(&g_sem_vst, 0, 0);
 		is_vst_recved = 0;	//初始没有收到
 	}
 	ret = serial_send();	//调用底层发送函数
@@ -422,7 +422,7 @@ int GetSecure_rq(char *AccessCredentials, int offset, int length, char *RandRSU,
 	sbuf[slen++] = vst.macid[2];
 	sbuf[slen++] = vst.macid[3];
 	sbuf[slen++] = 0x40;	//mac控制域
-	sbuf[slen++] = 0x77 | g_u8LLCFlag ;	//llc控制域,0xf7
+	sbuf[slen++] = 0x77 | g_u8LLCFlag ; 
 	if(g_u8LLCFlag == 0x80)
 		g_u8LLCFlag = 0x00;
 	else
@@ -662,7 +662,7 @@ int TransferChannel_rq(int DID,int ChannelID,int APDULIST,char *APDU)
 		g_u8LLCFlag = 0x00;
 	else
 		g_u8LLCFlag = 0x80;
-	sbuf[slen++] = 0x91;	//段字头 
+	sbuf[slen++] = 0x91;	//段字头
 	sbuf[slen++] = 0x05;	//action标识0x05 
 	sbuf[slen++] = DID;		//DID,根目录0x00,应用主目录0x01
 	sbuf[slen++] = 0x03;	//actiontype
@@ -1079,7 +1079,7 @@ int SetMMI_rq(int SetMMIPara)
 		g_u8LLCFlag = 0x00;
 	else
 		g_u8LLCFlag = 0x80;
-	sbuf[slen++] = 0x91;	//段字头 
+	sbuf[slen++] = 0x91;	//段字头
 	sbuf[slen++] = 0x05;	//action标识0x05 
 	sbuf[slen++] = 0x01;	//DID
 	sbuf[slen++] = 0x04;	//actiontype
@@ -1174,7 +1174,7 @@ int SetMMI_rq_new(int SetMMIPara , uint8 *IdentInfo)
 * 输出参数：  prog_trade_b5--成功交易结束帧
 * 返回值：	0--成功，非0--失败
 */
-static uint8 IsSetMMI_rs(uint8 *pkg)
+ uint8 IsSetMMI_rs(uint8 *pkg)
 {
 	if(!Getbit(pkg[12], 7) && !Getbit(pkg[12], 6) && !Getbit(pkg[12], 5) && Getbit(pkg[12], 4))
 	{
@@ -1229,7 +1229,7 @@ int SetMMI_rs(int time_out)
     	gettimeofday(&tt,NULL);
     	ts.tv_sec = tt.tv_sec+2;
     	ts.tv_nsec = tt.tv_usec*1000;
-        ret = sem_timedwait();//    sem_timedwait(&g_sem_setmmi,&ts);//hmh
+//        ret = sem_timedwait();//    sem_timedwait(&g_sem_setmmi,&ts);//hmh
 		 
 		if(ret == SUCCESS)
 		{

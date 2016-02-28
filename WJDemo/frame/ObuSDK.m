@@ -70,7 +70,7 @@ static ObuSDK * _instance;
 -(dispatch_semaphore_t)obuSemaphore
 {
     if (_obuSemaphore==nil) {
-        _obuSemaphore = dispatch_semaphore_create(1);
+        _obuSemaphore = dispatch_semaphore_create(0);
     }
     return _obuSemaphore;
 }
@@ -352,67 +352,29 @@ static ObuSDK * _instance;
 //6.读取OBU的卡片信息
 -(void)getCardInformation:(obuCallBack)callBack
 {
-    self.getCardInfoBlock = callBack;
-    //1.发c1
-    //成功
-    PROG_COMM_C1 progc1;
-    PROG_COMM_B1 progb1;
-    if ( dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*20) == 0)
-    {
-        int length = send_c1_Ble_OC(progc1);
-        NSLog(@"length=%d",length);
-        g_com_rx_len = 0;
-        g_com_needrx_len = 50;
+        self.getCardInfoBlock = callBack;
+        //1.发c1
+        [self sendC1AndWaitB1];
+            //2.发送c9
+       PROG_COMM_C4 progc4;
+       c4_init(progc4, (byte)0x01);
+       int needble2;
+      int length = send_c9_Ble1_OC(progc4, &needble2);
+        //等B9 1
         [self sendData:length andRepeat:1];
-//        NSData *sendData2 = [NSData dataWithBytes:g_com_tx_buf+20 length:20];
-//         [self.connectedPeripheral writeValue:sendData2 forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
-        
-        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) == 0) {
-            //1.解析bst
-            if(recv_b1_Ble_OC(&progb1, 20)==SUCCESS)
-            {
-                //2.发送c9
-                PROG_COMM_C4 progc4;
-                c4_init(progc4, (byte)0x01);
-                send_c9_Ble_OC(progc4, 1000);
-                int needble2;
-                send_c9_Ble1_OC(progc4, &needble2);
-                //等B9 1
-                //如果needble2 = 1
-                //发送                send_c9_Ble2_OC()
-                //等待 B9 2
-                //3.解析b9
-                //4.发送c5
-                //5.解析b5
-            }
-            else{
-                NSLog(@"解析出错");
-            }
-            
+        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+        {
+            return;
         }
-        else{
-            NSLog(@"超时无响应");
-            return ;
-        }
+         
         
-
-    }
-//    else
-    {
-        //超时失败
-         NSLog(@"超时无响应");
-        return;
-    }
-   
-    //2.等b1
+        
+        //如果needble2 = 1
+        //发送                send_c9_Ble2_OC()
+        //等待 B9 2
+        //3.解析b9
+        [self sendC5AndWaitB4];
     
-    //3.发c9
-    
-    //4.等b9
-    
-    //5.发c5
-    
-    //6.等b4
     
 }
 //7.读取OBU的设备信息
@@ -527,6 +489,46 @@ static ObuSDK * _instance;
 -(void)transCommand:(NSData*)reqData callBack:(obuCallBack)callBack
 {
     
+}
+-(BOOL)sendC1AndWaitB1
+{
+    int length = 0;
+    PROG_COMM_C1 progc1;
+    PROG_COMM_B1 progb1;
+    //发送C1
+    length = send_c1_Ble_OC(progc1);
+    g_com_rx_len = 0;
+    g_com_needrx_len = 50;
+    [self sendData:length andRepeat:1];
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)
+        return NO;//  NSLog(@"超时无响应");
+    //1.解析B1
+    if(recv_b1_Ble_OC(&progb1, 20)!=SUCCESS)
+        return NO;//b1解析出错
+ 
+    return YES;
+}
+-(BOOL)sendC5AndWaitB4
+{
+    int length=0;
+    //4.发送c5
+    PROG_COMM_C5 progc5;
+    length = send_c5_Ble_OC(progc5);
+    if (length<1) {
+        return NO;
+    }
+    //5.解析b4
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+        return NO;//超时未收到数据
+    PROG_COMM_B4 progb4;
+    if(recv_b4_Ble_OC(&progb4,1)!=SUCCESS)
+        return NO;//解析出错
+    length = EVENT_REPORT_rq_OC(0, 0);
+    if (length<1) {
+        return NO;
+    }
+    [self sendData:length andRepeat:1];
+    return YES;
 }
 
 
