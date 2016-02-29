@@ -236,10 +236,10 @@ int send_c9_Ble_OC(PROG_COMM_C4 prog_c4, int time_out) {
     }
     return SUCCESS;
 }
-int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2)
+int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2,int *icc_flag,int *icc_Length)
 {
     int i,did,ret,sys_flag=0;
-    int icc_flag = 0, icc_offset = 0, icc_Length = 0;
+    int  icc_offset = 0;
     ST_TRANSFER_CHANNEL transfer_rq;
     g_read_file.NumOfFiles = prog_c4.NumOfFiles;
     g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
@@ -253,9 +253,9 @@ int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2)
         if ((prog_c4.DIDnFID[i] == 0x02) || (prog_c4.DIDnFID[i] == 0x12)
             || (prog_c4.DIDnFID[i] == 0x15) || (prog_c4.DIDnFID[i] == 0x19))
         {
-            icc_flag = prog_c4.DIDnFID[i];
+            *icc_flag = prog_c4.DIDnFID[i];
             icc_offset = prog_c4.Offset[i];
-            icc_Length = prog_c4.Length[i];
+            *icc_Length = prog_c4.Length[i];
         }
     }
     
@@ -271,6 +271,7 @@ int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2)
         esamReadSysInfoFrame(&transfer_rq, prog_c4.Offset[0],
                              prog_c4.Length[0]);
         ret = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
+        * needble2 = 1;
 //        if ((vst.obustatus[0] & 0x80) == 0x00)
 //        {
 //            *needble2 = 1;
@@ -282,9 +283,9 @@ int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2)
         if ((vst.obustatus[0] & 0x80) == 0x00) {
             did = 0x01;
             iccInitFrame(&transfer_rq);
-            iccReadFileFrame(&transfer_rq, icc_flag, icc_offset, icc_Length);
-            
+            iccReadFileFrame(&transfer_rq, *icc_flag, icc_offset, icc_Length);
             ret = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
+            * needble2 = 0;
             return ret;
         }
         else
@@ -551,4 +552,133 @@ int EVENT_REPORT_rq_OC(uint8 event_type, uint8 ant_id)
     sbuf[slen++] = 0xff;
     g_com_tx_len = pkt_code(&sbuf[0],&g_com_tx_buf[0],slen);
     return g_com_tx_len;
+}
+
+
+void save_Info_OC() {
+    int i = 0;
+    int oppt = 0;
+    for (i = 0; i < WJVariables.g_b3_data.NumOfFiles; i++) {
+        if (WJVariables.g_c4_data.DIDnFID[i] == 0x01) {
+            for (oppt = 0; oppt < 8;) {
+                WJVariables.g_pkg_data.contractProvider[oppt] = WJVariables.g_b3_data.FileContent[i][oppt++];
+            }
+            WJVariables.g_pkg_data.contractType = WJVariables.g_b3_data.FileContent[i][oppt++];
+            WJVariables.g_pkg_data.contractVersion = WJVariables.g_b3_data.FileContent[i][oppt++];
+            for (int k = 0; k < 8;) {
+                WJVariables.g_pkg_data.contractSerialNumber[k++] = WJVariables.g_b3_data.FileContent[i][oppt++];
+            }
+            for (int k = 0; k < 4;) {
+                WJVariables.g_pkg_data.contractSignedDate[k++] = WJVariables.g_b3_data.FileContent[i][oppt++];
+            }
+            for (int k = 0; k < 4;) {
+                WJVariables.g_pkg_data.contractExpiredDate[k++] = WJVariables.g_b3_data.FileContent[i][oppt++];
+            }
+            WJVariables.g_pkg_data.tamperFlag = WJVariables.g_b3_data.FileContent[i][oppt++];
+        } else if (WJVariables.g_c4_data.DIDnFID[i] == 0x11) {
+            for (oppt = 0; oppt < 12;) {
+                WJVariables.g_pkg_data.vehicleLicencePlateNumber[oppt] = WJVariables.g_b3_data.FileContent[i][oppt++];
+            }
+            for (int k = 0; k < 2;) {
+                WJVariables.g_pkg_data.vehicleLicencePlateColor[k++] = WJVariables.g_b3_data.FileContent[i][oppt++];
+            }
+            WJVariables.g_pkg_data.vehicleClass = WJVariables.g_b3_data.FileContent[i][oppt++];
+            WJVariables.g_pkg_data.vehicleUserType = WJVariables.g_b3_data.FileContent[i][oppt++];
+            for (int k = 0; k < 2;) {
+                WJVariables.g_pkg_data.vehicleDimensions.vehicleLength[k++] = WJVariables.g_b3_data.FileContent[i][oppt++];
+            }
+            WJVariables.g_pkg_data.vehicleDimensions.vehicleWidth = WJVariables.g_b3_data.FileContent[i][oppt++];
+            WJVariables.g_pkg_data.vehicleDimensions.vehicleHeight = WJVariables.g_b3_data.FileContent[i][oppt++];
+            WJVariables.g_pkg_data.vehicleWheels = WJVariables.g_b3_data.FileContent[i][oppt++];
+            WJVariables.g_pkg_data.vehicleAxles = WJVariables.g_b3_data.FileContent[i][oppt++];
+            for (int k = 0; k < 2;) {
+                WJVariables.g_pkg_data.vehicleWheelBases[k++] = WJVariables.g_b3_data.FileContent[i][oppt++];
+            }
+            for (int k = 0; k < 3;) {
+                WJVariables.g_pkg_data.vehicleWeightLimits[k++] = WJVariables.g_b3_data.FileContent[i][oppt++];
+            }
+            for (int k = 0; k < 16;) {
+                WJVariables.g_pkg_data.vehicleSpecificInformation[k++] = WJVariables.g_b3_data.FileContent[i][oppt++];
+            }
+            for (int k = 0; k < 16;) {
+                WJVariables.g_pkg_data.vehicleEngineNumber[k++] = WJVariables.g_b3_data.FileContent[i][oppt++];
+            }
+        }
+    }
+    
+    // 0002
+    if (WJVariables.g_b3_data.Length[2] != 0) {
+        oppt = 0;
+        i = 2;
+        for (int k = 0; k < 4; k++) {
+            byte a = 0;
+            a = WJVariables.g_b3_data.FileContent[i][oppt++];
+            WJVariables.g_pkg_iccinfo_data.ICC0002_INFO.IccBanlance[k] = a;
+        }
+    }
+    
+    // 0012
+    if (WJVariables.g_b3_data.Length[3] != 0) {
+        oppt = 0;
+        i = 3;
+        for (int k = 0; k < 2; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InRoadNetID[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        for (int k = 0; k < 2; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InRoadID[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InRoadLandNO = WJVariables.g_b3_data.FileContent[i][oppt++];
+        for (int k = 0; k < 2; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InRoadTime[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.VehType = WJVariables.g_b3_data.FileContent[i][oppt++];
+        WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InOutStatus = WJVariables.g_b3_data.FileContent[i][oppt++];
+        for (int k = 0; k < 2; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.Identificationstation[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        for (int k = 0; k < 2; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.StaffID[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InRoadShift = WJVariables.g_b3_data.FileContent[i][oppt++];
+        for (int k = 0; k < 2; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.bindedPlate[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        for (int k = 0; k < 2; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.OtherInfo[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+    }
+    // 0015
+    if (WJVariables.g_b3_data.Length[4] != 0) {
+        oppt = 0;
+        i = 4;
+        for (int k = 0; k < 8; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.cardIssuerID[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.cardType = WJVariables.g_b3_data.FileContent[i][oppt++];
+        WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.cardVersion = WJVariables.g_b3_data.FileContent[i][oppt++];
+        for (int k = 0; k < 2; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.roadswebID[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        for (int k = 0; k < 8; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.cardNo[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        for (int k = 0; k < 4; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.SignedDate[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        for (int k = 0; k < 4; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.ExpiredDate[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        for (int k = 0; k < 12; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.bindedPlate[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+        WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.userType = WJVariables.g_b3_data.FileContent[i][oppt++];
+        for (int k = 0; k < 2; k++) {
+            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.OtherInfo[k] = WJVariables.g_b3_data.FileContent[i][oppt++];
+        }
+    }
+    // 0019
+    if (WJVariables.g_b3_data.Length[5] != 0) {
+        oppt = 0;
+        i = 5;
+    }
 }

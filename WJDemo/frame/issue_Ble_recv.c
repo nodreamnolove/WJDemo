@@ -137,7 +137,7 @@ int recv_b4_Ble_OC(PROG_COMM_B4 *prog_b4, int time_out)
     prog_b4->RSCTL = 0x13;
     prog_b4->FrameType = 0xb4;
     prog_b4->ErrorCode = 0;
-    return SUCCESS;
+    return ret;
 }
 
 

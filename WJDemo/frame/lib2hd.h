@@ -160,7 +160,7 @@ typedef struct _PROG_COMM_C6 {
     uint8 Length;			//”√”⁄MACº∆À„µƒ ˝æ›≥§∂»
     uint8 Content[255];		//”√”⁄MACº∆À„µƒ ˝æ›ƒ⁄»›
 } PROG_COMM_C6;
-//Ωª“◊º«¬º–≈œ¢,35∏ˆ◊÷Ω⁄£¨¿œ∞Â±æ «40∏ˆ◊÷Ω⁄
+
 typedef struct _PROG_COMM_C8 {
     uint8 Datetime[4];		//≥ˆ»Îø⁄ ±º‰(UNIX ±º‰)(Ωª“◊ ±º‰)
     uint8 psamid[6];
@@ -185,7 +185,7 @@ typedef struct _PROG_COMM_B0 {
     uint8 RSUVersion[2]; 		//OBU≥ı ºªØ±‡≥Ã∆˜»Ìº˛∞Ê±æ∫≈
     uint8 Reserved[10]; 		//±£¡Ù◊÷Ω⁄£¨ÃÓ≥‰0
 } PROG_COMM_B0;
-//B1 -- VSTœÏ”¶–≈œ¢÷°
+//B1
 typedef struct _PROG_COMM_B1 {
     uint8 RSCTL;					// ˝æ›÷°–Ú¡–∫≈
     uint8 FrameType;				//÷∏¡Ó¥˙¬Î
@@ -206,7 +206,7 @@ typedef struct _PROG_COMM_B2 {
     uint8 ErrorCode;			//÷¥––◊¥Ã¨¥˙¬Î£¨0x00--≥…π¶£¨∆‰À˚-- ß∞‹
     uint8 Reserved[5]; 			//±£¡Ù◊÷Ω⁄£¨ÃÓ≥‰0
 } PROG_COMM_B2;
-// B3 -- OBUŒƒº˛–≈œ¢÷°
+// B3
 typedef struct _PROG_COMM_B3 {
     uint8 RSCTL;				// ˝æ›÷°–Ú¡–∫≈
     uint8 FrameType;			//÷∏¡Ó¥˙¬Î

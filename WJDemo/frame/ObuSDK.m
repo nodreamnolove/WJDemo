@@ -13,6 +13,7 @@
 #include "issue_Ble_recv.h"
 #include "lib2hd.h"
 #include "icc.h"
+#include "esam.h"
 #include "NSString+NSStringHexToBytes.h"
 
 @interface ObuSDK()<CBCentralManagerDelegate,CBPeripheralManagerDelegate,CBPeripheralDelegate>
@@ -352,30 +353,115 @@ static ObuSDK * _instance;
 //6.读取OBU的卡片信息
 -(void)getCardInformation:(obuCallBack)callBack
 {
-        self.getCardInfoBlock = callBack;
-        //1.发c1
-        [self sendC1AndWaitB1];
-            //2.发送c9
-       PROG_COMM_C4 progc4;
-       c4_init(progc4, (byte)0x01);
-       int needble2;
-      int length = send_c9_Ble1_OC(progc4, &needble2);
-        //等B9 1
-        [self sendData:length andRepeat:1];
-        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+    int ret;
+    self.getCardInfoBlock = callBack;
+    //1.发c1
+    if([self sendC1AndWaitB1:callBack]!= YES)
+        return ; //结束
+        //2.发送c9
+   PROG_COMM_C4 progc4;
+   c4_init(progc4, (byte)0x01);
+   int needble2;
+    int icc_flag;
+    int icc_Length;
+   int length = send_c9_Ble1_OC(progc4, &needble2,&icc_flag,&icc_Length);
+    //等B9 1
+   [self sendData:length andRepeat:1];
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+    {
+        callBack(NO,nil,@"超时未接收到C9帧");
+        return;
+    }
+    uint8 data[128];
+    int datalist;
+    if(TransferChannel_rs_OC(&datalist, data, 100)!=SUCCESS)
+    {
+        callBack(NO,nil,@"B9帧1解析出错");
+        return ;//解析出错
+    }
+    if (needble2==0) {
+        if(iccCheck(data, 0)!=SUCCESS)
         {
-            return;
+            callBack(NO,nil,@"B9帧1icc校验失败");
+            return ;//icc校验失败
         }
-         
-        
-        
-        //如果needble2 = 1
-        //发送                send_c9_Ble2_OC()
-        //等待 B9 2
-        //3.解析b9
-        [self sendC5AndWaitB4];
+        if (icc_flag == 0x0002) {
+            memcpy(icc_pib.Balance, &data[1], icc_Length);	//0002Œƒº˛
+        } else if (icc_flag == 0x0012) {
+            memcpy(icc_pib.icc0012, &data[1], icc_Length);	//0012Œƒº˛
+        } else if (icc_flag == 0x0015) {
+            memcpy(icc_pib.icc0015, &data[1], icc_Length);	//0015Œƒº˛
+        } else if (icc_flag == 0x0019) {
+            memcpy(icc_pib.icc0019, &data[1], icc_Length);	//0019Œƒº˛
+        }
+    }
+    else
+    {
+         if(esamCheck(data, 0)!=SUCCESS)
+         {
+             callBack(NO,nil,@"B9帧esam校验失败");
+             return ;//esam校验失败
+         }
+         if(esamCheckReadSysInfo(data, 1)!=SUCCESS)
+         {
+             callBack(NO,nil,@"B9帧esam信息校验失败");
+             return; //esam信息校验失败
+         }
+        if ((vst.obustatus[0] & 0x80) == 0x00)
+        {
+            int did = 0x01;
+            ST_TRANSFER_CHANNEL transfer_rq;
+            iccInitFrame(&transfer_rq);
+            iccReadMoneyFrame(&transfer_rq);
+            iccReadFileFrame(&transfer_rq, 0x0015, 0x00, 0x2b);
+            
+            length = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
+            [self sendData:length andRepeat:1];
+            if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+            {
+                callBack(NO,nil,@"超时未接收到B9帧2");
+                return;
+            }
+            
+            if(TransferChannel_rs_OC(&datalist, data, 100)!=SUCCESS)
+            {
+                callBack(NO,nil,@"B9帧2解析出错");
+                return ;// -6 + ret * 100; 解析出错
+            }
+            
+            if(iccCheck(data, 0)!=SUCCESS){
+                callBack(NO,nil,@"超时未接收到B9帧2icc检验失败");
+                return ;//-7 + ret * 100;校验失败
+
+            }
+            if(iccCheck(data, 1)!=SUCCESS){
+               callBack(NO,nil,@"超时未接收到B9帧2icc检验1失败");
+               return ;// -8 + ret * 100;检验失败
+            }
+            memcpy(icc_pib.Balance, &data[1], 4);
+            memcpy(icc_pib.icc0015, &data[8], 43);
+        }
+    }
+    PROG_COMM_B3 prog_b3;
     
+    recv_b9_Ble_OC(&prog_b3 ,100);
     
+    if([self sendC5AndWaitB4:callBack]){
+        
+        NSMutableDictionary *reDict = [NSMutableDictionary dictionaryWithCapacity:11];
+        [reDict setObject:@"" forKey:@"cardId"];
+        [reDict setObject:@"" forKey:@"cardType"];
+        [reDict setObject:@"" forKey:@"cardVersion"];
+        [reDict setObject:@"" forKey:@"provider"];
+        [reDict setObject:@"" forKey:@"signedDate"];
+        [reDict setObject:@"" forKey:@"expiredDate"];
+        [reDict setObject:@"" forKey:@"vehicleNumber"];
+        [reDict setObject:@"" forKey:@"userType"];
+        [reDict setObject:@"" forKey:@"plateColor"];
+        [reDict setObject:@"" forKey:@"vehicleModel"];
+        [reDict setObject:@"" forKey:@"balance"];
+        callBack(YES,nil,@"成功");
+    }
 }
 //7.读取OBU的设备信息
 -(void)getObuInformation:(obuCallBack)callBack
@@ -490,9 +576,10 @@ static ObuSDK * _instance;
 {
     
 }
--(BOOL)sendC1AndWaitB1
+-(BOOL)sendC1AndWaitB1:(obuCallBack)callBack
 {
     int length = 0;
+    int ret ;
     PROG_COMM_C1 progc1;
     PROG_COMM_B1 progb1;
     //发送C1
@@ -501,14 +588,20 @@ static ObuSDK * _instance;
     g_com_needrx_len = 50;
     [self sendData:length andRepeat:1];
     if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)
+    {
+        callBack(NO,nil,@"超时没有收到BST");
         return NO;//  NSLog(@"超时无响应");
+    }
     //1.解析B1
-    if(recv_b1_Ble_OC(&progb1, 20)!=SUCCESS)
+    if((ret=recv_b1_Ble_OC(&progb1, 20))!=SUCCESS)
+    {
+        NSString *errMsg = [NSString stringWithFormat:@"BST解析出错:%d",ret];
+        callBack(NO,nil,errMsg);
         return NO;//b1解析出错
- 
+    }
     return YES;
 }
--(BOOL)sendC5AndWaitB4
+-(BOOL)sendC5AndWaitB4:(obuCallBack)callBack
 {
     int length=0;
     //4.发送c5
@@ -518,11 +611,16 @@ static ObuSDK * _instance;
         return NO;
     }
     //5.解析b4
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0){
+        callBack(NO,nil,@"超时没有收到B4");
         return NO;//超时未收到数据
+    }
     PROG_COMM_B4 progb4;
     if(recv_b4_Ble_OC(&progb4,1)!=SUCCESS)
+    {
+        callBack(NO,nil,@"B4解析出错");
         return NO;//解析出错
+    }
     length = EVENT_REPORT_rq_OC(0, 0);
     if (length<1) {
         return NO;

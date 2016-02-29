@@ -1738,16 +1738,13 @@ int send_c9_Ble(PROG_COMM_C4 prog_c4, int time_out) {
 		esamEnterDirFrame(&transfer_rq, 0x3f00);
 		esamReadSysInfoFrame(&transfer_rq, prog_c4.Offset[0],
 				prog_c4.Length[0]);
-		ret = TransferChannel_rq(did, transfer_rq.channelid,
-				transfer_rq.apdulist, transfer_rq.apdu);
+		ret = TransferChannel_rq(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
 		if (ret != SUCCESS) {
-
-			return -1 + ret * 100;	//串口发送失败
+			return -1 + ret * 100;
 		}
 		ret = TransferChannel_rs(&datalist, data, time_out);
 		if (ret != SUCCESS) {
-
-			return -2 + ret * 100;	//解析失败或者超时
+			return -2 + ret * 100;
 		}
 
 		int i = 0;
@@ -1818,8 +1815,7 @@ int send_c9_Ble(PROG_COMM_C4 prog_c4, int time_out) {
 			iccInitFrame(&transfer_rq);
 			iccReadFileFrame(&transfer_rq, icc_flag, icc_offset, icc_Length);
 //			__android_log_print(ANDROID_LOG_INFO,"wjjar.log", "send_c9_Ble iccReadFileFrame rq");
-			ret = TransferChannel_rq(did, transfer_rq.channelid,
-					transfer_rq.apdulist, transfer_rq.apdu);
+			ret = TransferChannel_rq(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
 			if (ret != SUCCESS) {
 //				__android_log_print(ANDROID_LOG_INFO,"wjjar.log", "send_c9_Ble iccReadFileFrame failed");
 				return -5 + ret * 100;	//串口发送失败
