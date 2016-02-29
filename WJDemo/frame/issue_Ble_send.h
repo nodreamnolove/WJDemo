@@ -30,7 +30,7 @@ int SetMMI_rq_OC(int SetMMIPara);
 
 int EVENT_REPORT_rq_OC(uint8 event_type, uint8 ant_id);
 
-int save_Info_OC();
+void save_Info_OC(PROG_COMM_C4 prog_c4,PROG_COMM_B3 prog_b3);
 
 #endif
 
