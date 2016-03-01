@@ -65,6 +65,44 @@ int  c5_init(PROG_COMM_C5 prog_c5)
     }
     return 1;
 }
+
+
+void init_C4_ReadIccInfo_OC(byte nType,byte index,PROG_COMM_C4 prog_c4)
+{
+    prog_c4.RSCTL = (byte) 0x81;
+    prog_c4.CMDType = (byte) 0xC4;
+    prog_c4.C4Flag = 0;
+    prog_c4.NumOfFiles = index;
+    prog_c4.DIDnFID[0] = nType;
+    switch (nType) {
+        case 0x02://
+            prog_c4.Offset[0] = 0x02;
+            prog_c4.Length[0] = 4;
+            break;
+        case 0x12:
+            prog_c4.Offset[0] = 0x00;
+            prog_c4.Length[0] = 40;
+            break;
+        case 0x15:
+            prog_c4.Offset[0] = 0x00;
+            prog_c4.Length[0] = 43;
+            break;
+        case 0x16:
+            prog_c4.Offset[0] = 0x00;
+            prog_c4.Length[0] = 55;
+            break;
+        case 0x18:
+            prog_c4.Offset[0] = (byte)0xC4;
+            prog_c4.Length[0] = 0x17;
+            break;
+        case 0x19:
+            prog_c4.Offset[0] = (byte) 0xCC;
+            prog_c4.Length[0] = 43;
+            break;
+        default:
+            break;
+    }
+}
 #pragma mark 发送C1帧 
 //返回编码长度
 int send_c1_Ble_OC(PROG_COMM_C1 prog_c1) {
@@ -686,3 +724,215 @@ void save_Info_OC(PROG_COMM_C4 prog_c4,PROG_COMM_B3 prog_b3)
         i = 5;
     }
 }
+
+//TransferChannel_rq TransferChannel_rs
+int send_c90016file_Ble(PROG_COMM_C4 prog_c4, uint8 pinCode[], int TimeOut) {
+    
+    int ret = 0;
+    int datalist;
+    ST_TRANSFER_CHANNEL transfer_rq;
+    uint8 data[128];
+    int did, i;
+    int icc_flag = 0, icc_offset = 0, icc_Length = 0;
+    int j = 0;
+    did = 0x01;
+    iccInitFrame(&transfer_rq);
+    icc_enter_dir(&transfer_rq, 0x1001);	
+    icc_check_Pin(&transfer_rq, 3, pinCode);
+    
+    ret = TransferChannel_rq(did, transfer_rq.channelid, transfer_rq.apdulist,
+                             transfer_rq.apdu);
+    if (ret != 0)
+    {
+        return -1 + ret * 100;
+    }
+    ret = TransferChannel_rs(&datalist, data, TimeOut);
+    if (ret != 0)
+    {
+        return -2 + ret * 100;
+    }
+    
+    ret = iccCheck(data, 0);
+    if (ret != 0)
+    {
+        return -3 + ret * 100;
+    }
+    
+    ret = iccCheck(data, 1);
+    if (ret != 0) {
+        return -4 + ret * 100;
+    }
+    
+    for (i = 0; i < prog_c4.NumOfFiles; i++) {
+        g_read_file.DIDnFID[i] = prog_c4.DIDnFID[i];
+        g_read_file.offset[i] = prog_c4.Offset[i];
+        g_read_file.len[i] = prog_c4.Length[i];
+        if ((prog_c4.DIDnFID[i] == 0x02) || (prog_c4.DIDnFID[i] == 0x12)
+            || (prog_c4.DIDnFID[i] == 0x15) || (prog_c4.DIDnFID[i] == 0x16)
+            || (prog_c4.DIDnFID[i] == 0x18) || (prog_c4.DIDnFID[i] == 0x19))//∂¡ICø®–≈œ¢
+        {
+            icc_flag = prog_c4.DIDnFID[i];
+            icc_offset = prog_c4.Offset[i];
+            icc_Length = prog_c4.Length[i];
+           
+        } else
+            return -1;
+      
+        
+    }
+    
+    if ((vst.obustatus[0] & 0x80) == 0x00) {
+        iccInitFrame(&transfer_rq);
+        icc_enter_dir(&transfer_rq, 0x3F00);
+        ret = TransferChannel_rq(did, transfer_rq.channelid,
+                                 transfer_rq.apdulist, transfer_rq.apdu);
+        if (ret != 0)
+        {
+            return -1 + ret * 100;
+        }
+        
+        
+        ret = TransferChannel_rs(&datalist, data, TimeOut);
+        if (ret != 0)
+        {
+            return -2 + ret * 100;
+        }
+        did = 0x00;
+        iccInitFrame(&transfer_rq);
+        iccReadFileFrame(&transfer_rq, icc_flag, icc_offset, icc_Length);
+        ret = TransferChannel_rq(did, transfer_rq.channelid,
+                                 transfer_rq.apdulist, transfer_rq.apdu);
+        if (ret != SUCCESS) {
+            return -5 + ret * 100;
+        }
+        ret = TransferChannel_rs(&datalist, data, TimeOut);
+       
+        if (ret != SUCCESS){
+            return -6 + ret * 100;	//Ω‚Œˆ ß∞‹ªÚ’ﬂ≥¨ ±
+        }
+        ret = iccCheck(data, 0);
+        if (ret != SUCCESS) {
+            return -7 + ret * 100;
+        }
+        if (icc_flag == 0x0002) {
+            memcpy(icc_pib.Balance, &data[1], icc_Length);
+        } else if (icc_flag == 0x0012) {
+            memcpy(icc_pib.icc0012, &data[1], icc_Length);
+        } else if (icc_flag == 0x0015) {
+            memcpy(icc_pib.icc0015, &data[1], icc_Length);
+        } else if (icc_flag == 0x0016) {
+            memcpy(icc_pib.icc0016, &data[1], icc_Length);
+        } else if (icc_flag == 0x0018) {
+            memcpy(icc_pib.icc0018, &data[1], icc_Length);
+        } else if (icc_flag == 0x0019) {
+            memcpy(icc_pib.icc0019, &data[1], icc_Length);
+        }
+    } else {
+        return -8;
+    }
+    
+    return ret;
+}
+
+void save_CpuCardinfo_OC(PROG_COMM_B3 prog_b3)
+{
+    int i = 0;
+    int oppt = 0;
+    // 0002
+    if (  prog_b3.Length[2] != 0) {
+        oppt = 0;
+        i = 2;
+        for (int k = 0; k < 4; k++) {
+            byte a = 0;
+            a =   prog_b3.FileContent[i][oppt++];
+             g_pkg_iccinfo_data.ICC0002_INFO.IccBanlance[k] = a;
+        }
+    }
+    // 0012
+    if (  prog_b3.Length[3] != 0) {
+        oppt = 0;
+        i = 3;
+        int k;
+        for ( k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.InRoadNetID[k] =   prog_b3.FileContent[i][oppt++];
+        }
+        for ( k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.InRoadID[k] =   prog_b3.FileContent[i][oppt++];
+        }
+         g_pkg_iccinfo_data.ICC0012_INFO.InRoadLandNO =   prog_b3.FileContent[i][oppt++];
+        for ( k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.InRoadTime[k] =   prog_b3.FileContent[i][oppt++];
+        }
+         g_pkg_iccinfo_data.ICC0012_INFO.VehType =   prog_b3.FileContent[i][oppt++];
+         g_pkg_iccinfo_data.ICC0012_INFO.InOutStatus =   prog_b3.FileContent[i][oppt++];
+        for ( k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.Identificationstation[k] =   prog_b3.FileContent[i][oppt++];
+        }
+        for ( k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.StaffID[k] =   prog_b3.FileContent[i][oppt++];
+        }
+         g_pkg_iccinfo_data.ICC0012_INFO.InRoadShift =   prog_b3.FileContent[i][oppt++];
+        for ( k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.bindedPlate[k] =   prog_b3.FileContent[i][oppt++];
+        }
+        for ( k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.OtherInfo[k] =   prog_b3.FileContent[i][oppt++];
+        }
+    }
+    // 0015
+    if (  prog_b3.Length[4] != 0) {
+        oppt = 0;
+        i = 4;
+        int k;
+        for ( k = 0; k < 8; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.cardIssuerID[k] =   prog_b3.FileContent[i][oppt++];
+        }
+         g_pkg_iccinfo_data.ICC0015_INFO.cardType =   prog_b3.FileContent[i][oppt++];
+         g_pkg_iccinfo_data.ICC0015_INFO.cardVersion =   prog_b3.FileContent[i][oppt++];
+        for ( k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.roadswebID[k] =   prog_b3.FileContent[i][oppt++];
+        }
+        for ( k = 0; k < 8; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.cardNo[k] =   prog_b3.FileContent[i][oppt++];
+        }
+        for ( k = 0; k < 4; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.SignedDate[k] =   prog_b3.FileContent[i][oppt++];
+        }
+        for ( k = 0; k < 4; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.ExpiredDate[k] =   prog_b3.FileContent[i][oppt++];
+        }
+        for ( k = 0; k < 12; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.bindedPlate[k] =   prog_b3.FileContent[i][oppt++];
+        }
+         g_pkg_iccinfo_data.ICC0015_INFO.userType =   prog_b3.FileContent[i][oppt++];
+        for ( k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.OtherInfo[k] =   prog_b3.FileContent[i][oppt++];
+        }
+    }
+    // 0019
+    if (  prog_b3.Length[5] != 0) {
+        oppt = 0;
+        i = 5;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

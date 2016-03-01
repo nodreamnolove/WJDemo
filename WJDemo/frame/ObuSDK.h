@@ -2,7 +2,7 @@
 #import <Foundation/Foundation.h>
 @class CBPeripheral;
 //1.回调函数
-typedef void(^obuCallBack)(BOOL status,NSObject * data, NSString *errorMsg);
+typedef void(^obuCallBack)(BOOL status,id data, NSString *errorMsg);
 
 @protocol ObuSDKDelegate <NSObject>
 

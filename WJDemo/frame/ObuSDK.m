@@ -445,18 +445,18 @@ static ObuSDK * _instance;
     if([self sendC5AndWaitB4:callBack]){
         
         NSMutableDictionary *reDict = [NSMutableDictionary dictionaryWithCapacity:11];
-        [reDict setObject:@"" forKey:@"cardId"];
-        [reDict setObject:@"" forKey:@"cardType"];
-        [reDict setObject:@"" forKey:@"cardVersion"];
-        [reDict setObject:@"" forKey:@"provider"];
-        [reDict setObject:@"" forKey:@"signedDate"];
-        [reDict setObject:@"" forKey:@"expiredDate"];
-        [reDict setObject:@"" forKey:@"vehicleNumber"];
-        [reDict setObject:@"" forKey:@"userType"];
-        [reDict setObject:@"" forKey:@"plateColor"];
-        [reDict setObject:@"" forKey:@"vehicleModel"];
-        [reDict setObject:@"" forKey:@"balance"];
-        callBack(YES,nil,@"成功");
+        [reDict setObject:[NSString byteToNSString:g_pkg_iccinfo_data.ICC0015_INFO.cardIssuerID andLength:8] forKey:@"cardId"];
+        [reDict setObject:[NSString stringByByte:g_pkg_iccinfo_data.ICC0015_INFO.cardType] forKey:@"cardType"];
+        [reDict setObject:[NSString stringByByte:g_pkg_iccinfo_data.ICC0015_INFO.cardVersion] forKey:@"cardVersion"];
+        [reDict setObject:[NSString byteToNSString:g_pkg_data.contractProvider andLength:8] forKey:@"provider"];
+        [reDict setObject:[NSString byteToNSString:g_pkg_iccinfo_data.ICC0015_INFO.SignedDate andLength:4] forKey:@"signedDate"];
+        [reDict setObject:[NSString byteToNSString:g_pkg_iccinfo_data.ICC0015_INFO.ExpiredDate andLength:4] forKey:@"expiredDate"];
+        [reDict setObject:[NSString byteToNSString:g_pkg_data.vehicleLicencePlateNumber andLength:16] forKey:@"vehicleNumber"];
+        [reDict setObject:[NSString stringByByte:g_pkg_data.vehicleUserType] forKey:@"userType"];
+        [reDict setObject:[NSString byteToNSString:g_pkg_data.vehicleLicencePlateColor andLength:2] forKey:@"plateColor"];
+        [reDict setObject:[NSString stringByByte:g_pkg_data.vehicleClass] forKey:@"vehicleModel"];
+        [reDict setObject:[NSString byteToNSString:g_pkg_iccinfo_data.ICC0002_INFO.IccBanlance andLength:4] forKey:@"balance"];
+        callBack(YES,reDict,@"成功");
     }
 }
 //7.读取OBU的设备信息
@@ -553,6 +553,7 @@ static ObuSDK * _instance;
 -(void)readCardTransactionRecord:(NSString *)pinCode maxNumber:(NSInteger)maxNumber callBack:(obuCallBack)callBack
 {
     
+    
 }
 
 //11.读联网收费复合消费过程文件
@@ -564,6 +565,134 @@ static ObuSDK * _instance;
 //12.读持卡人基本数据文件
 -(void)readCardOwnerRecord:(obuCallBack)callBack
 {
+    
+    self.getCardInfoBlock = callBack;
+    //1.发c1
+    if([self sendC1AndWaitB1:callBack]!= YES)
+        return ; //结束
+    PROG_COMM_C4 prog_c4;
+    init_C4_ReadIccInfo_OC(0x01,(byte)1,prog_c4);
+    int ret = 0;
+    int datalist;
+    ST_TRANSFER_CHANNEL transfer_rq;
+    uint8 data[128];
+    uint8 pinCode[4];
+    int did, i;
+    int icc_flag = 0, icc_offset = 0, icc_Length = 0;
+    int j = 0;
+    did = 0x01;
+    iccInitFrame(&transfer_rq);
+    icc_enter_dir(&transfer_rq, 0x1001);
+    icc_check_Pin(&transfer_rq, 3, pinCode);
+    int length;
+    length = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist,
+                             transfer_rq.apdu);
+    
+    [self sendData:length andRepeat:1];
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+    {
+        callBack(NO,nil,@"超时未接收到TransferChannel");
+        return;
+    }
+    
+    if(TransferChannel_rs_OC(&datalist, data, 100)!= SUCCESS)
+    {
+        callBack(NO,nil,@"TransferChannel解析错误1");
+        return;
+    }
+   
+    if(iccCheck(data, 0)!=SUCCESS)
+    {
+        callBack(NO,nil,@"iccCheck检验错误");
+        return;
+//        return -3 + ret * 100;
+    }
+    
+    if(iccCheck(data, 1)!=SUCCESS)
+    {
+        callBack(NO,nil,@"iccCheck检验错误2");
+        return ;
+//        return -4 + ret * 100;
+    }
+    
+    for (int i = 0; i < prog_c4.NumOfFiles; i++) {
+        g_read_file.DIDnFID[i] = prog_c4.DIDnFID[i];
+        g_read_file.offset[i] = prog_c4.Offset[i];
+        g_read_file.len[i] = prog_c4.Length[i];
+        if ((prog_c4.DIDnFID[i] == 0x02) || (prog_c4.DIDnFID[i] == 0x12)
+            || (prog_c4.DIDnFID[i] == 0x15) || (prog_c4.DIDnFID[i] == 0x16)
+            || (prog_c4.DIDnFID[i] == 0x18) || (prog_c4.DIDnFID[i] == 0x19))//∂¡ICø®–≈œ¢
+        {
+            icc_flag = prog_c4.DIDnFID[i];
+            icc_offset = prog_c4.Offset[i];
+            icc_Length = prog_c4.Length[i];
+            
+        } else
+        {
+            callBack(NO,nil,@"NumOfFiles 不存在02 12 15 16 18 19 文件");
+            return ;
+        }
+    }
+    
+    if ((vst.obustatus[0] & 0x80) == 0x00) {
+        iccInitFrame(&transfer_rq);
+        icc_enter_dir(&transfer_rq, 0x3F00);
+        length =TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
+        [self sendData:length andRepeat:1];
+        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+        {
+            callBack(NO,nil,@"超时未接收到TransferChannel2");
+            return;
+        }
+       
+        if(TransferChannel_rs(&datalist, data, 100)!=SUCCESS)
+        {
+            callBack(NO,nil,@" TransferChannel2解析错误");
+            return;
+        }
+        did = 0x00;
+        iccInitFrame(&transfer_rq);
+        iccReadFileFrame(&transfer_rq, icc_flag, icc_offset, icc_Length);
+        length = TransferChannel_rq(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
+        [self sendData:length andRepeat:1];
+        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+        {
+            callBack(NO,nil,@"超时未接收到TransferChannel3");
+            return;
+        }
+        if(TransferChannel_rs(&datalist, data, 100)!=SUCCESS)
+        {
+            callBack(NO,nil,@"TransferChannel3解析错误");
+            return;
+        }
+        
+        if(iccCheck(data, 0) != SUCCESS)
+        {
+            callBack(NO,nil,@"iccCheck 3解析错误");
+            return ;
+        }
+        if (icc_flag == 0x0002) {
+            memcpy(icc_pib.Balance, &data[1], icc_Length);
+        } else if (icc_flag == 0x0012) {
+            memcpy(icc_pib.icc0012, &data[1], icc_Length);
+        } else if (icc_flag == 0x0015) {
+            memcpy(icc_pib.icc0015, &data[1], icc_Length);
+        } else if (icc_flag == 0x0016) {
+            memcpy(icc_pib.icc0016, &data[1], icc_Length);
+        } else if (icc_flag == 0x0018) {
+            memcpy(icc_pib.icc0018, &data[1], icc_Length);
+        } else if (icc_flag == 0x0019) {
+            memcpy(icc_pib.icc0019, &data[1], icc_Length);
+        }
+    } else {
+        callBack(NO,nil,@"VST状态位错误");
+        return ;
+    }
+    PROG_COMM_B3 prog_b3;
+    recv_b9_Blefile_OC(&prog_b3,0x01);//READ_CPUCARD_FILE_0016
+    save_CpuCardinfo_OC(prog_b3);
+    
+    callBack(YES,nil,nil);
     
 }
 

@@ -387,3 +387,30 @@ int INITIALISATION_rs_OC(char *obu_mac, char *sys_info, char *icc_info, char *rn
     }
     return 0;
 }
+
+int recv_b9_Blefile_OC(PROG_COMM_B3 *prog_b3, uint8 DidFid)
+{
+    int k;
+    prog_b3->RSCTL = 0x13;
+    prog_b3->FrameType = 0xb3;
+    prog_b3->ErrorCode = 0x00;
+    prog_b3->NumOfFiles = g_read_file.NumOfFiles;
+    if (DidFid == 0x19) {
+        prog_b3->Length[0] = 43;
+        for (k = 0; k < prog_b3->Length[0]; k++) {
+            prog_b3->FileContent[0][k] = icc_pib.icc0019[k];
+        }
+    }else if(DidFid == 0x16){
+        prog_b3->Length[0] = 55;
+        for (k = 0; k < prog_b3->Length[0]; k++) {
+            prog_b3->FileContent[0][k] = icc_pib.icc0016[k];
+        }
+    }
+    else if (DidFid == 0x18) {
+        prog_b3->Length[0] = 23;
+        for (k = 0; k < prog_b3->Length[0]; k++) {
+            prog_b3->FileContent[0][k] = icc_pib.icc0018[k];
+        }
+    }
+    return SUCCESS;
+}

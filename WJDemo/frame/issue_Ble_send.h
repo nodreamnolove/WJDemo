@@ -7,6 +7,7 @@
 //
 //FRAME_UPLOAD_TRADEINFO_RQ g_frame_uploadtradeinfo_rq;
 
+void init_C4_ReadIccInfo_OC(byte nType,byte index,PROG_COMM_C4 prog_c4);
 
 int c4_init(PROG_COMM_C4 prog_c4,byte nType);
 
@@ -31,6 +32,8 @@ int SetMMI_rq_OC(int SetMMIPara);
 int EVENT_REPORT_rq_OC(uint8 event_type, uint8 ant_id);
 
 void save_Info_OC(PROG_COMM_C4 prog_c4,PROG_COMM_B3 prog_b3);
+
+void save_CpuCardinfo_OC(PROG_COMM_B3 prog_b3);
 
 #endif
 

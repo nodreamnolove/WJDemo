@@ -158,12 +158,13 @@ int DtoHex(int data);
 
 extern  PKG_DATA  g_pkg_data;
 extern  PKG_ICCINFO_DATA g_pkg_iccinfo_data;
-
-
+//extern  PROG_COMM_C4   g_c4_data;
+//extern  PROG_COMM_B3   g_b3_data;
 
 
 //*****************************RSU ÷≥÷…Ë±∏»´æ÷±‰¡ø…˘√˜*****************************//
-//OBU»´æ÷±‰¡ø
+
+
 extern char gtf_veh_file[128];//≥µ¡æ–≈œ¢buf£¨Ω“Ê¿œ∞ÊOBU–Ë“™Õ®π˝–¥≥µ¡æ–≈œ¢ÕÍ≥…º§ªÓ£¨œ»Ω´±Í«©÷–≥µ¡æ–≈œ¢∂¡≥ˆ£¨‘Ÿ–¥»Î°£2013-8-20 by gaotf
 extern uint8 g_OBU_ContractVersion;	// OBU∫œÕ¨∞Ê±æ
 extern uint8 g_psam_slot;			//	psamø®≤€

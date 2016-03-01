@@ -162,7 +162,8 @@ char filename_usbcom[100] = {0};
 
 PKG_DATA  g_pkg_data;
 PKG_ICCINFO_DATA g_pkg_iccinfo_data;
-
+//PROG_COMM_C4   g_c4_data;
+//PROG_COMM_B3   g_b3_data;
 //add by wll 2014-12-11
 //JNIEnv *g_pobjenv;
 /*

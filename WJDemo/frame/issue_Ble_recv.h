@@ -21,4 +21,5 @@ int INITIALISATION_rs_OC(char *obu_mac, char *sys_info, char *icc_info, char *rn
 
 int SetMMI_rs_OC();
 
+int recv_b9_Blefile_OC(PROG_COMM_B3 *prog_b3, uint8 DidFid);
 #endif
