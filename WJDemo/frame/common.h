@@ -37,7 +37,7 @@
 #include <string.h>
 #include <netinet/in.h>
 #include "lib2hd.h"
-
+#include "saveStruct.h"
 
 //***************************** ÷≥÷…Ë±∏∫Í∂®“Â*****************************//
 #define 	BACKLOG 				10				// Õ¯¬Á◊Ó¥ÛÕ¨ ±¡¨Ω”«Î«Û ˝
@@ -153,6 +153,14 @@ uint8 pkt_decode_udp(uint8 *buf, uint32 len, uint8 port);
 void print_info(int,int);
 void print_info_Info(char Info[],int Len,int dev_type);
 int DtoHex(int data);
+
+
+
+extern  PKG_DATA  g_pkg_data;
+extern  PKG_ICCINFO_DATA g_pkg_iccinfo_data;
+
+
+
 
 //*****************************RSU ÷≥÷…Ë±∏»´æ÷±‰¡ø…˘√˜*****************************//
 //OBU»´æ÷±‰¡ø

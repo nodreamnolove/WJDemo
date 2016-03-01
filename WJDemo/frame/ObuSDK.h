@@ -1,11 +1,4 @@
-//
-//  ObuSDK.h
-//  WJDemo
-//
-//  Created by 段瑞权 on 16/2/1.
-//  Copyright © 2016年 WanJi. All rights reserved.
-//
-
+ 
 #import <Foundation/Foundation.h>
 @class CBPeripheral;
 //1.回调函数

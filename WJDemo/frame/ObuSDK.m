@@ -1,10 +1,4 @@
-//
-//  ObuSDK.m
-//  WJDemo
-//
-//  Created by 段瑞权 on 16/2/1.
-//  Copyright © 2016年 WanJi. All rights reserved.
-//
+
 
 #import "ObuSDK.h"
 #import <UIKit/UIKit.h>
@@ -445,6 +439,8 @@ static ObuSDK * _instance;
     PROG_COMM_B3 prog_b3;
     
     recv_b9_Ble_OC(&prog_b3 ,100);
+    
+    save_Info_OC(progc4,prog_b3);
     
     if([self sendC5AndWaitB4:callBack]){
         

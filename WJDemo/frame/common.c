@@ -159,6 +159,10 @@ char filename_com[100] = {0};
 char filename_net[100] = {0};
 char filename_usbcom[100] = {0};
 
+
+PKG_DATA  g_pkg_data;
+PKG_ICCINFO_DATA g_pkg_iccinfo_data;
+
 //add by wll 2014-12-11
 //JNIEnv *g_pobjenv;
 /*

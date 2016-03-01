@@ -7,6 +7,7 @@
 #include "esam.h"
 #include "psam.h"
 #include "icc.h"
+#include "saveStruct.h"
 extern uint8 g_u8LLCFlag;
 //c1初始化
 int c1_init(PROG_COMM_C1 prog_c1)
@@ -559,51 +560,52 @@ void save_Info_OC(PROG_COMM_C4 prog_c4,PROG_COMM_B3 prog_b3)
 {
     int i = 0;
     int oppt = 0;
+    int k;
     for (i = 0; i < prog_b3.NumOfFiles; i++) {
         if (prog_c4.DIDnFID[i] == 0x01) {
             for (oppt = 0; oppt < 8;) {
-                WJVariables.g_pkg_data.contractProvider[oppt] = prog_b3.FileContent[i][oppt++];
+                 g_pkg_data.contractProvider[oppt] = prog_b3.FileContent[i][oppt++];
             }
-            WJVariables.g_pkg_data.contractType = prog_b3.FileContent[i][oppt++];
-            WJVariables.g_pkg_data.contractVersion = prog_b3.FileContent[i][oppt++];
-            for (int k = 0; k < 8;) {
-                WJVariables.g_pkg_data.contractSerialNumber[k++] = prog_b3.FileContent[i][oppt++];
+             g_pkg_data.contractType = prog_b3.FileContent[i][oppt++];
+             g_pkg_data.contractVersion = prog_b3.FileContent[i][oppt++];
+            for (k = 0; k < 8;) {
+                 g_pkg_data.contractSerialNumber[k++] = prog_b3.FileContent[i][oppt++];
             }
-            for (int k = 0; k < 4;) {
-                WJVariables.g_pkg_data.contractSignedDate[k++] = prog_b3.FileContent[i][oppt++];
+            for (k = 0; k < 4;) {
+                 g_pkg_data.contractSignedDate[k++] = prog_b3.FileContent[i][oppt++];
             }
-            for (int k = 0; k < 4;) {
-                WJVariables.g_pkg_data.contractExpiredDate[k++] = prog_b3.FileContent[i][oppt++];
+            for (k = 0; k < 4;) {
+                 g_pkg_data.contractExpiredDate[k++] = prog_b3.FileContent[i][oppt++];
             }
-            WJVariables.g_pkg_data.tamperFlag = prog_b3.FileContent[i][oppt++];
+             g_pkg_data.tamperFlag = prog_b3.FileContent[i][oppt++];
         }
         else if (prog_c4.DIDnFID[i] == 0x11) {
             for (oppt = 0; oppt < 12;) {
-                WJVariables.g_pkg_data.vehicleLicencePlateNumber[oppt] = prog_b3.FileContent[i][oppt++];
+                 g_pkg_data.vehicleLicencePlateNumber[oppt] = prog_b3.FileContent[i][oppt++];
             }
-            for (int k = 0; k < 2;) {
-                WJVariables.g_pkg_data.vehicleLicencePlateColor[k++] = prog_b3.FileContent[i][oppt++];
+            for (k = 0; k < 2;) {
+                 g_pkg_data.vehicleLicencePlateColor[k++] = prog_b3.FileContent[i][oppt++];
             }
-            WJVariables.g_pkg_data.vehicleClass = prog_b3.FileContent[i][oppt++];
-            WJVariables.g_pkg_data.vehicleUserType = prog_b3.FileContent[i][oppt++];
-            for (int k = 0; k < 2;) {
-                WJVariables.g_pkg_data.vehicleDimensions.vehicleLength[k++] = prog_b3.FileContent[i][oppt++];
+             g_pkg_data.vehicleClass = prog_b3.FileContent[i][oppt++];
+             g_pkg_data.vehicleUserType = prog_b3.FileContent[i][oppt++];
+            for (k = 0; k < 2;) {
+                 g_pkg_data.vehicleDimensions.vehicleLength[k++] = prog_b3.FileContent[i][oppt++];
             }
-            WJVariables.g_pkg_data.vehicleDimensions.vehicleWidth = prog_b3.FileContent[i][oppt++];
-            WJVariables.g_pkg_data.vehicleDimensions.vehicleHeight = prog_b3.FileContent[i][oppt++];
-            WJVariables.g_pkg_data.vehicleWheels = prog_b3.FileContent[i][oppt++];
-            WJVariables.g_pkg_data.vehicleAxles = prog_b3.FileContent[i][oppt++];
-            for (int k = 0; k < 2;) {
-                WJVariables.g_pkg_data.vehicleWheelBases[k++] = prog_b3.FileContent[i][oppt++];
+             g_pkg_data.vehicleDimensions.vehicleWidth = prog_b3.FileContent[i][oppt++];
+             g_pkg_data.vehicleDimensions.vehicleHeight = prog_b3.FileContent[i][oppt++];
+             g_pkg_data.vehicleWheels = prog_b3.FileContent[i][oppt++];
+             g_pkg_data.vehicleAxles = prog_b3.FileContent[i][oppt++];
+            for (k = 0; k < 2;) {
+                 g_pkg_data.vehicleWheelBases[k++] = prog_b3.FileContent[i][oppt++];
             }
-            for (int k = 0; k < 3;) {
-                WJVariables.g_pkg_data.vehicleWeightLimits[k++] = prog_b3.FileContent[i][oppt++];
+            for (k = 0; k < 3;) {
+                 g_pkg_data.vehicleWeightLimits[k++] = prog_b3.FileContent[i][oppt++];
             }
-            for (int k = 0; k < 16;) {
-                WJVariables.g_pkg_data.vehicleSpecificInformation[k++] = prog_b3.FileContent[i][oppt++];
+            for (k = 0; k < 16;) {
+                 g_pkg_data.vehicleSpecificInformation[k++] = prog_b3.FileContent[i][oppt++];
             }
-            for (int k = 0; k < 16;) {
-                WJVariables.g_pkg_data.vehicleEngineNumber[k++] = prog_b3.FileContent[i][oppt++];
+            for (k = 0; k < 16;) {
+                 g_pkg_data.vehicleEngineNumber[k++] = prog_b3.FileContent[i][oppt++];
             }
         }
     }
@@ -615,7 +617,7 @@ void save_Info_OC(PROG_COMM_C4 prog_c4,PROG_COMM_B3 prog_b3)
         for (int k = 0; k < 4; k++) {
             byte a = 0;
             a = prog_b3.FileContent[i][oppt++];
-            WJVariables.g_pkg_iccinfo_data.ICC0002_INFO.IccBanlance[k] = a;
+             g_pkg_iccinfo_data.ICC0002_INFO.IccBanlance[k] = a;
         }
     }
     
@@ -623,59 +625,59 @@ void save_Info_OC(PROG_COMM_C4 prog_c4,PROG_COMM_B3 prog_b3)
     if (prog_b3.Length[3] != 0) {
         oppt = 0;
         i = 3;
-        for (int k = 0; k < 2; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InRoadNetID[k] = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 2; k++) {
+            g_pkg_iccinfo_data.ICC0012_INFO.InRoadNetID[k] = prog_b3.FileContent[i][oppt++];
         }
-        for (int k = 0; k < 2; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InRoadID[k] = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 2; k++) {
+            g_pkg_iccinfo_data.ICC0012_INFO.InRoadID[k] = prog_b3.FileContent[i][oppt++];
         }
-        WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InRoadLandNO = prog_b3.FileContent[i][oppt++];
-        for (int k = 0; k < 2; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InRoadTime[k] = prog_b3.FileContent[i][oppt++];
+         g_pkg_iccinfo_data.ICC0012_INFO.InRoadLandNO = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.InRoadTime[k] = prog_b3.FileContent[i][oppt++];
         }
-        WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.VehType = prog_b3.FileContent[i][oppt++];
-        WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InOutStatus = prog_b3.FileContent[i][oppt++];
-        for (int k = 0; k < 2; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.Identificationstation[k] = prog_b3.FileContent[i][oppt++];
+         g_pkg_iccinfo_data.ICC0012_INFO.VehType = prog_b3.FileContent[i][oppt++];
+         g_pkg_iccinfo_data.ICC0012_INFO.InOutStatus = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.Identificationstation[k] = prog_b3.FileContent[i][oppt++];
         }
-        for (int k = 0; k < 2; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.StaffID[k] = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.StaffID[k] = prog_b3.FileContent[i][oppt++];
         }
-        WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.InRoadShift = prog_b3.FileContent[i][oppt++];
-        for (int k = 0; k < 2; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.bindedPlate[k] = prog_b3.FileContent[i][oppt++];
+         g_pkg_iccinfo_data.ICC0012_INFO.InRoadShift = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.bindedPlate[k] = prog_b3.FileContent[i][oppt++];
         }
-        for (int k = 0; k < 2; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0012_INFO.OtherInfo[k] = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0012_INFO.OtherInfo[k] = prog_b3.FileContent[i][oppt++];
         }
     }
     // 0015
     if (prog_b3.Length[4] != 0) {
         oppt = 0;
         i = 4;
-        for (int k = 0; k < 8; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.cardIssuerID[k] = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 8; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.cardIssuerID[k] = prog_b3.FileContent[i][oppt++];
         }
-        WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.cardType = prog_b3.FileContent[i][oppt++];
-        WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.cardVersion = prog_b3.FileContent[i][oppt++];
-        for (int k = 0; k < 2; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.roadswebID[k] = prog_b3.FileContent[i][oppt++];
+         g_pkg_iccinfo_data.ICC0015_INFO.cardType = prog_b3.FileContent[i][oppt++];
+         g_pkg_iccinfo_data.ICC0015_INFO.cardVersion = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.roadswebID[k] = prog_b3.FileContent[i][oppt++];
         }
-        for (int k = 0; k < 8; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.cardNo[k] = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 8; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.cardNo[k] = prog_b3.FileContent[i][oppt++];
         }
-        for (int k = 0; k < 4; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.SignedDate[k] = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 4; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.SignedDate[k] = prog_b3.FileContent[i][oppt++];
         }
-        for (int k = 0; k < 4; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.ExpiredDate[k] = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 4; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.ExpiredDate[k] = prog_b3.FileContent[i][oppt++];
         }
-        for (int k = 0; k < 12; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.bindedPlate[k] = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 12; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.bindedPlate[k] = prog_b3.FileContent[i][oppt++];
         }
-        WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.userType = prog_b3.FileContent[i][oppt++];
-        for (int k = 0; k < 2; k++) {
-            WJVariables.g_pkg_iccinfo_data.ICC0015_INFO.OtherInfo[k] = prog_b3.FileContent[i][oppt++];
+         g_pkg_iccinfo_data.ICC0015_INFO.userType = prog_b3.FileContent[i][oppt++];
+        for (k = 0; k < 2; k++) {
+             g_pkg_iccinfo_data.ICC0015_INFO.OtherInfo[k] = prog_b3.FileContent[i][oppt++];
         }
     }
     // 0019
