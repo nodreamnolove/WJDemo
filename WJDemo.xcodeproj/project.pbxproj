@@ -20,6 +20,7 @@
 		04EBACC11C6CFE4300A456E6 /* AFURLResponseSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBACB71C6CFE4300A456E6 /* AFURLResponseSerialization.m */; };
 		04EBACC21C6CFE4300A456E6 /* AFURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBACB91C6CFE4300A456E6 /* AFURLSessionManager.m */; };
 		04EBACC41C70969600A456E6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EBACC31C70969500A456E6 /* UIKit.framework */; };
+		04EEA7AF1C88DBF900709FA0 /* CardOwnerRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EEA7AE1C88DBF900709FA0 /* CardOwnerRecord.m */; };
 		AE0869731C741A8100887931 /* esam.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869681C741A8100887931 /* esam.c */; };
 		AE0869741C741A8100887931 /* icc.c in Sources */ = {isa = PBXBuildFile; fileRef = AE08696A1C741A8100887931 /* icc.c */; };
 		AE0869751C741A8100887931 /* lib2rsu.c in Sources */ = {isa = PBXBuildFile; fileRef = AE08696C1C741A8100887931 /* lib2rsu.c */; };
@@ -109,6 +110,8 @@
 		04EBACB81C6CFE4300A456E6 /* AFURLSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLSessionManager.h; sourceTree = "<group>"; };
 		04EBACB91C6CFE4300A456E6 /* AFURLSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFURLSessionManager.m; sourceTree = "<group>"; };
 		04EBACC31C70969500A456E6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		04EEA7AD1C88DBF900709FA0 /* CardOwnerRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CardOwnerRecord.h; sourceTree = "<group>"; };
+		04EEA7AE1C88DBF900709FA0 /* CardOwnerRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CardOwnerRecord.m; sourceTree = "<group>"; };
 		AE0869661C741A8100887931 /* CToOcType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CToOcType.h; sourceTree = "<group>"; };
 		AE0869671C741A8100887931 /* esam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = esam.h; sourceTree = "<group>"; };
 		AE0869681C741A8100887931 /* esam.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = esam.c; sourceTree = "<group>"; };
@@ -289,6 +292,8 @@
 				AE1663891C7E848800E3F1BB /* NSString+NSStringHexToBytes.h */,
 				AE16638A1C7E848800E3F1BB /* NSString+NSStringHexToBytes.m */,
 				AE727B891C83EB6B00E181BA /* CardTransactionRecord.h */,
+				04EEA7AD1C88DBF900709FA0 /* CardOwnerRecord.h */,
+				04EEA7AE1C88DBF900709FA0 /* CardOwnerRecord.m */,
 				AE727B8A1C83EB6B00E181BA /* CardTransactionRecord.m */,
 				AE727B8C1C83EC4400E181BA /* CardConsumeRecord.h */,
 				AE727B8D1C83EC4400E181BA /* CardConsumeRecord.m */,
@@ -587,6 +592,7 @@
 				AEDB5B441C59C83300902D17 /* NetFunction.m in Sources */,
 				04EBACBC1C6CFE4300A456E6 /* AFHTTPSessionManager.m in Sources */,
 				AEDB5B211C590EF600902D17 /* SetupPageVC.m in Sources */,
+				04EEA7AF1C88DBF900709FA0 /* CardOwnerRecord.m in Sources */,
 				AE0869771C741A8100887931 /* psam.c in Sources */,
 				AE0869731C741A8100887931 /* esam.c in Sources */,
 				AE0869851C755A6100887931 /* issue_Ble.c in Sources */,

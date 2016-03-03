@@ -689,12 +689,12 @@ public class wjOBU {
 		// Arrays.fill(WJVariables.g_b3_data.FileContent, 0);
 		//
 		// }
-		for (int i = 0; i < maxNumber; i++) {
+		for (int j = 0; j < maxNumber; j++) {
 			WJInit.init_C4_ReadIccInfo(
 					(byte) WJVariables.READ_CPUCARD_FILE_0019, (byte) 1);
 			l_ret.ServiceCode = WJIssue_Ble.send_c9_Ble(WJVariables.g_c4_data,
 					WJVariables.TIME_OUT);
-			Log.v("c9:", "mid:" + i);
+			Log.v("c9:", "mid:" + j);
 			if (l_ret.ServiceCode != WJVariables.SUCCESS) {
 				return l_ret;
 			}

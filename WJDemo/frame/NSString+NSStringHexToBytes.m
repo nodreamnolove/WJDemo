@@ -30,7 +30,20 @@
     }
     return  hexStr;
 }
-
++(NSString *)byteToNSString:(Byte *)byteArr fromIndex:(int)startPos andLength:(int )length
+{
+    NSString *hexStr=@"";
+    //&&i<sizeof(byteArr)/sizeof(byteArr[0])
+    for (int i=startPos; i<length; i++) {
+        NSString *newHexStr = [NSString stringWithFormat:@"%x",byteArr[i]&0xff];
+        if (newHexStr.length==1) {
+            hexStr = [NSString stringWithFormat:@"%@0%@",hexStr,newHexStr];
+        }
+        else
+            hexStr = [NSString stringWithFormat:@"%@%@",hexStr,newHexStr];
+    }
+    return  hexStr;
+}
 +(NSString *)stringByByte:(Byte)oneByte
 {
     NSString * hexStr = @"";

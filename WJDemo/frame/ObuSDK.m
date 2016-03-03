@@ -9,6 +9,9 @@
 #include "icc.h"
 #include "esam.h"
 #include "NSString+NSStringHexToBytes.h"
+#import "CardOwnerRecord.h"
+#import "CardConsumeRecord.h"
+#import "CardTransactionRecord.h"
 
 @interface ObuSDK()<CBCentralManagerDelegate,CBPeripheralManagerDelegate,CBPeripheralDelegate>
 
@@ -329,13 +332,13 @@ static ObuSDK * _instance;
 
 
 
-//4.连接OBU
+#pragma mark 4.连接OBU
 -(void)connectDevice:(obuCallBack)callBack
 {
      self.connectBlock = callBack;
     [self startScan];       //开始扫描
 }
-//5.断开连接
+#pragma mark 5.断开连接
 -(void)disconnectDevice:(obuCallBack)callBack
 {
     self.disconnectBlock = callBack;
@@ -344,7 +347,7 @@ static ObuSDK * _instance;
     }
     
 }
-//6.读取OBU的卡片信息
+#pragma mark 6.读取OBU的卡片信息 ok
 -(void)getCardInformation:(obuCallBack)callBack
 {
     int ret;
@@ -459,18 +462,23 @@ static ObuSDK * _instance;
         callBack(YES,reDict,@"成功");
     }
 }
-//7.读取OBU的设备信息
+#pragma mark  7.读取OBU的设备信息 ok
 -(void)getObuInformation:(obuCallBack)callBack
 {
     self.getOBUInfoBlock = callBack;
     //发送数据
-//    NSData *sendData;
-//    [peripheral writeValue:datastr forCharacteristic:writeCharacteristic type:CBCharacteristicWriteWithResponse];
-//    [self.connectedPeripheral writeValue:sendData forCharacteristic:nil type:CBCharacteristicWriteWithoutResponse];
+    if (![self sendC1AndWaitB1:callBack]) {
+        return;
+    }
+    
+    NSString *obuMAC = [NSString byteToNSString:vst.macid andLength:4];
+    NSDictionary *dict = @{@"mac":obuMAC,@"name":@"WanJi_303",@"indentify":self.deveice_uuid,@"sn":@""};
+    callBack(YES,dict,nil);
+    
 }
 
 
-//8.充值写卡：获取Mac1等数据
+#pragma mark  8.充值写卡：获取Mac1等数据
 -(void)loadCreditGetMac1:(NSString *)credit    cardId:(NSString*)cardId     terminalNo:(NSString *)terminalNo  picCode:(NSString *)pinCode    procType:(NSString*)procType     keyIndex:(NSString *)keyIndex callBack:(obuCallBack)callBack
 {
     //1.发送c1≥
@@ -543,40 +551,153 @@ static ObuSDK * _instance;
     
 }
 
-//9.充值写卡：执行写卡操作
+#pragma mark 9.充值写卡：执行写卡操作
 -(void)loadCreditWriteCard:(NSString *)dateMAC2 callBack:(obuCallBack)callBack
 {
     
 }
 
-//10.读终端交易记录文件
+#pragma mark 10.读终端交易记录文件
 -(void)readCardTransactionRecord:(NSString *)pinCode maxNumber:(NSInteger)maxNumber callBack:(obuCallBack)callBack
 {
     
     
 }
 
-//11.读联网收费复合消费过程文件
+#pragma mark 11.读联网收费复合消费过程文件 ok
 -(void)readCardConsumeRecord:(NSInteger)maxNumber callBack:(obuCallBack)callBack
 {
+    if([self sendC1AndWaitB1:callBack]!= YES)
+        return ; //结束
+    NSMutableArray *consumeRecordsArr = [NSMutableArray array];
+    for (int i=0; i<maxNumber; i++) {
+        PROG_COMM_C4 progc4;
+        init_C4_ReadIccInfo_OC(0x0019, 0x01, progc4);
+        
+        int needble2;
+        int icc_flag;
+        int icc_Length;
+        int length = send_c9_Ble1_OC(progc4, &needble2,&icc_flag,&icc_Length);
+        //等B9 1
+        [self sendData:length andRepeat:1];
+        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+        {
+            callBack(NO,nil,@"超时未接收到C9帧");
+            return;
+        }
+        uint8 data[128];
+        int datalist;
+        if(TransferChannel_rs_OC(&datalist, data, 100)!=SUCCESS)
+        {
+            callBack(NO,nil,@"B9帧1解析出错");
+            return ;//解析出错
+        }
+        if (needble2==0) {
+            if(iccCheck(data, 0)!=SUCCESS)
+            {
+                callBack(NO,nil,@"B9帧1icc校验失败");
+                return ;//icc校验失败
+            }
+            if (icc_flag == 0x0002) {
+                memcpy(icc_pib.Balance, &data[1], icc_Length);	//0002Œƒº˛
+            } else if (icc_flag == 0x0012) {
+                memcpy(icc_pib.icc0012, &data[1], icc_Length);	//0012Œƒº˛
+            } else if (icc_flag == 0x0015) {
+                memcpy(icc_pib.icc0015, &data[1], icc_Length);	//0015Œƒº˛
+            } else if (icc_flag == 0x0019) {
+                memcpy(icc_pib.icc0019, &data[1], icc_Length);	//0019Œƒº˛
+            }
+        }
+        else
+        {
+            if(esamCheck(data, 0)!=SUCCESS)
+            {
+                callBack(NO,nil,@"B9帧esam校验失败");
+                return ;//esam校验失败
+            }
+            if(esamCheckReadSysInfo(data, 1)!=SUCCESS)
+            {
+                callBack(NO,nil,@"B9帧esam信息校验失败");
+                return; //esam信息校验失败
+            }
+            if ((vst.obustatus[0] & 0x80) == 0x00)
+            {
+                int did = 0x01;
+                ST_TRANSFER_CHANNEL transfer_rq;
+                iccInitFrame(&transfer_rq);
+                iccReadMoneyFrame(&transfer_rq);
+                iccReadFileFrame(&transfer_rq, 0x0015, 0x00, 0x2b);
+                
+                length = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
+                [self sendData:length andRepeat:1];
+                if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+                {
+                    callBack(NO,nil,@"超时未接收到B9帧2");
+                    return;
+                }
+                
+                if(TransferChannel_rs_OC(&datalist, data, 100)!=SUCCESS)
+                {
+                    callBack(NO,nil,@"B9帧2解析出错");
+                    return ;// -6 + ret * 100; 解析出错
+                }
+                
+                if(iccCheck(data, 0)!=SUCCESS){
+                    callBack(NO,nil,@"超时未接收到B9帧2icc检验失败");
+                    return ;//-7 + ret * 100;校验失败
+                    
+                }
+                if(iccCheck(data, 1)!=SUCCESS){
+                    callBack(NO,nil,@"超时未接收到B9帧2icc检验1失败");
+                    return ;// -8 + ret * 100;检验失败
+                }
+                memcpy(icc_pib.Balance, &data[1], 4);
+                memcpy(icc_pib.icc0015, &data[8], 43);
+            }
+        }
+        PROG_COMM_B3 prog_b3;
+        recv_b9_Blefile_OC(&prog_b3,0x0019);//READ_CPUCARD_FILE_0019
+        CardConsumeRecord *consumeRecord = [CardConsumeRecord new];
+        consumeRecord.applicationId = [NSString stringByByte:prog_b3.FileContent[0][0]];
+        consumeRecord.recordLength = [NSString stringByByte:prog_b3.FileContent[0][1]];
+        consumeRecord.applicationLockFlag = [NSString stringByByte:prog_b3.FileContent[0][2]];
+        consumeRecord.tollRoadNetworkId = [[NSString stringByByte:prog_b3.FileContent[0][3]]stringByAppendingString:[NSString stringByByte:prog_b3.FileContent[0][4]]];
+        
+        consumeRecord.tollStationId = [[NSString stringByByte:prog_b3.FileContent[0][5]]stringByAppendingString:[NSString stringByByte:prog_b3.FileContent[0][6]]];
+        
+        consumeRecord.tollLaneId = [NSString stringByByte:prog_b3.FileContent[0][7]];
+        consumeRecord.timeUnix = [NSString byteToNSString:prog_b3.FileContent[0] fromIndex:8 andLength:4];
+        consumeRecord.vehicleModel = [NSString stringByByte:prog_b3.FileContent[0][12]];
+        consumeRecord.passStatus = [NSString stringByByte:prog_b3.FileContent[0][13]];
+        consumeRecord.reserve1 = [NSString byteToNSString:prog_b3.FileContent[0] fromIndex:14 andLength:9];
+        consumeRecord.staffNo = [NSString byteToNSString:prog_b3.FileContent[0] fromIndex:23 andLength:3];;
+        consumeRecord.mtcSequenceNo = [NSString stringByByte:prog_b3.FileContent[0][26]];
+        consumeRecord.vehicleNumber = [NSString byteToNSString:prog_b3.FileContent[0] fromIndex:27 andLength:12];
+
+        consumeRecord.reserve2 = [NSString byteToNSString:prog_b3.FileContent[0] fromIndex:39 andLength:4];
+
+        [consumeRecordsArr addObject:consumeRecord];
+        save_CpuCardinfo_OC(prog_b3);
+    }
+    callBack(YES,consumeRecordsArr,nil);
     
+     [self sendC5AndWaitB4:callBack];
 }
 
-//12.读持卡人基本数据文件
+#pragma mark  12.读持卡人基本数据文件 ok
 -(void)readCardOwnerRecord:(obuCallBack)callBack
 {
-    
     self.getCardInfoBlock = callBack;
     //1.发c1
     if([self sendC1AndWaitB1:callBack]!= YES)
         return ; //结束
     PROG_COMM_C4 prog_c4;
-    init_C4_ReadIccInfo_OC(0x01,(byte)1,prog_c4);
+    init_C4_ReadIccInfo_OC(0x0016,(byte)1,prog_c4);
     int ret = 0;
     int datalist;
     ST_TRANSFER_CHANNEL transfer_rq;
     uint8 data[128];
-    uint8 pinCode[4];
+    uint8 pinCode[4]={0};
     int did, i;
     int icc_flag = 0, icc_offset = 0, icc_Length = 0;
     int j = 0;
@@ -689,14 +810,19 @@ static ObuSDK * _instance;
         return ;
     }
     PROG_COMM_B3 prog_b3;
-    recv_b9_Blefile_OC(&prog_b3,0x01);//READ_CPUCARD_FILE_0016
+    recv_b9_Blefile_OC(&prog_b3,0x0016);//READ_CPUCARD_FILE_0016
     save_CpuCardinfo_OC(prog_b3);
-    
-    callBack(YES,nil,nil);
-    
+    CardOwnerRecord *ower = [CardOwnerRecord new];
+    ower.ownerId = [NSString stringByByte:prog_b3.FileContent[0][0]];
+    ower.staffId = [NSString stringByByte:prog_b3.FileContent[0][1]];;
+    ower.ownerName = [NSString byteToNSString:prog_b3.FileContent[0] andLength:20];;
+    ower.ownerLicenseNumber = [NSString byteToNSString:prog_b3.FileContent[0] fromIndex:22 andLength:32];
+    ower.ownerLicenseType = [NSString stringByByte:prog_b3.FileContent[0][54]];
+    callBack(YES,ower,nil);
+    [self sendC5AndWaitB4:callBack];
 }
 
-//13.数据透传
+#pragma mark 13.数据透传
 -(void)transCommand:(NSData*)reqData callBack:(obuCallBack)callBack
 {
     
