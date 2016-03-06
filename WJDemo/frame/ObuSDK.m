@@ -481,87 +481,458 @@ static ObuSDK * _instance;
 #pragma mark  8.充值写卡：获取Mac1等数据
 -(void)loadCreditGetMac1:(NSString *)credit    cardId:(NSString*)cardId     terminalNo:(NSString *)terminalNo  picCode:(NSString *)pinCode    procType:(NSString*)procType     keyIndex:(NSString *)keyIndex callBack:(obuCallBack)callBack
 {
-    //1.发送c1≥
-    PROG_COMM_C1 progc1;
-    PROG_COMM_B1 progb1;
-    if ( dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*20) == 0)
+    
+    if([self sendC1AndWaitB1:callBack]!= YES)
+        return ; //结束
+    
+    cardId = @"00000000000000000001";
+    
+    byte* l_abcardId = [[cardId hexToBytes] bytes];
+    
+    int l_nprocType = 0x01;
+    if ([procType isEqualToString:@"ED"]) {
+        
+        l_nprocType = 0x01;
+    } else if ([procType isEqualToString:@"EP"]) {
+        
+        l_nprocType = 0x02;
+    }
+    
+    int l_nkeyIndex =  [keyIndex integerValue];
+    byte* l_abterminalNo = [[terminalNo hexToBytes] bytes];
+    byte* l_abpinCode = [[pinCode hexToBytes]bytes];
+    
+    
+    ST_TRANSFER_CHANNEL transfer_rq;
+    
+    int datalist;
+    uint8 data[128];
+    int did, i;
+    int ret;
+    int j = 0;
+    did = 0x01;
+    int TimeOut = 1000;
+    uint8 addmoney[4] = { 0x00, 0x00, 0x00, 0x00 };
+    uint8 banlance[4] = { 0x00, 0x00, 0x00, 0x00 };
+    uint8 paySerial[2] = { 0x00, 0x00 };
+    uint8 passtyperand[4] = { 0x00, 0x00, 0x00, 0x00 };
+    uint8 passkey[8] = { 0x00, 0x00, 0x00, 0x00 };
+    uint8 dealtime[9] = { 0x20, 0x15, 0x01, 0x01, 0x10, 0x10, 0x10 };
+    GetTimebufFunction(dealtime);
+    dealtime[4] = dealtime[5];
+    dealtime[5] = dealtime[6];
+    dealtime[6] = dealtime[7];
+    uint8 mac1[10] = { 0 };
+    uint8 mac2[10] = { 0 };
+    uint8 RecvLen = 0;
+    uint8 RecvDate[128];
+    iccInitFrame(&transfer_rq);
+    icc_getOneDispersed(&transfer_rq);
+    int length = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist, transfer_rq.apdu);
+    [self sendData:length andRepeat:1];
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)
     {
-        int length = send_c1_Ble_OC(progc1);
-        NSLog(@"length=%d",length);
-        g_com_rx_len = 0;
-        g_com_needrx_len = 50;
-        [self sendData:length andRepeat:1];
-        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) == 0) {
-            //1.解析bst
-            if(recv_b1_Ble_OC(&progb1, 20)==SUCCESS)
-            {
-                //2.发送TransferChannel_rq≥
-                ST_TRANSFER_CHANNEL transfer_rq;
-                
-                int datalist;
-                uint8 data[128];
-                int did, i;
-                int ret;
-                int j = 0;
-                did = 0x01;
-                int TimeOut = 1000;
-                uint8 addmoney[4] = { 0x00, 0x00, 0x00, 0x00 };
-                uint8 banlance[4] = { 0x00, 0x00, 0x00, 0x00 };
-                uint8 paySerial[2] = { 0x00, 0x00 };
-                uint8 passtyperand[4] = { 0x00, 0x00, 0x00, 0x00 };
-                
-                uint8 passkey[8] = { 0x00, 0x00, 0x00, 0x00 };
-                
-                uint8 dealtime[9] = { 0x20, 0x15, 0x01, 0x01, 0x10, 0x10, 0x10 };//DateTime.Now.ToString("yyyyMMddHHmmss");
-                
-                
-                GetTimebufFunction(dealtime);
-                dealtime[4] = dealtime[5];
-                dealtime[5] = dealtime[6];
-                dealtime[6] = dealtime[7];
-                
-                uint8 mac1[10] = { 0 };
-                uint8 mac2[10] = { 0 };
-                uint8 RecvLen = 0;
-                uint8 RecvDate[128];
-                iccInitFrame(&transfer_rq);
-                icc_getOneDispersed(&transfer_rq);	//ªÒ»°1º∂∑÷…¢“Ú◊”
-                ret = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist, transfer_rq.apdu);
-                
-                //等待TransferChannel_rs≤
-                //3.发送TransferChannel_rq≥
-                //等待TransferChannel_rs≤
-                //4.发送TransferChannel_rq≥
-                //等待TransferChannel_rs≤
-            }
-            else{
-                NSLog(@"解析出错");
-            }
-            
-        }
-        else{
-            NSLog(@"超时无响应");
-            return ;
-        }
-        
-        
+        callBack(NO,nil,@"超时没有收到TransferChannel_rs");
+        return ;//  NSLog(@"超时无响应");
+    }
+ 
+    ret = TransferChannel_rs_OC(&datalist, data, TimeOut);
+    if (ret != SUCCESS)
+    {
+        callBack(NO,nil,@" TransferChannel_rs解析出错");
+        return ;
+    }
+    
+    ret = iccCheckandGetData(data, 0, g_frame_quancun_rq.OneDispersed);
+    
+    if (ret != 0)
+    {
+          callBack(NO,nil,@" iccCheckandGetData解析出错");
+        return  ;
+    }
+    
+    iccInitFrame(&transfer_rq);
+    
+    icc_getTwoDispersed(&transfer_rq);	//ªÒ»°2º∂∑÷…¢“Ú◊”
+    
+    length = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist,transfer_rq.apdu);
+    [self sendData:length andRepeat:1];
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)
+    {
+        callBack(NO,nil,@"超时没有收到TransferChannel_rs 2");
+        return ;//  NSLog(@"超时无响应");
+    }
+
+    
+    
+    ret = TransferChannel_rs_OC(&datalist, data, TimeOut);
+    if (ret != SUCCESS)
+    {
+        callBack(NO,nil,@"TransferChannel_rs解析出错2");
+        return ;
+    }
+    
+    ret = iccCheckandGetData(data, 0, g_frame_quancun_rq.TwoDispersed);
+    
+    if (ret != SUCCESS)
+    {
+        callBack(NO,nil,@"iccCheckandGetData解析出错2");
+        return ;
+    }
+    
+    iccInitFrame(&transfer_rq);
+    icc_enter_dir(&transfer_rq, 0x1001);
+    icc_check_Pin(&transfer_rq, 3, l_abpinCode);
+    
+    
+    length = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist,
+                             transfer_rq.apdu);
+ 
+    [self sendData:length andRepeat:1];
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)
+    {
+        callBack(NO,nil,@"超时没有收到TransferChannel_rs 3");
+        return ;//  NSLog(@"超时无响应");
+    }
+    
+    ret = TransferChannel_rs_OC(&datalist, data, TimeOut);
+    if (ret != SUCCESS)
+    {
+        callBack(NO,nil,@" TransferChannel_rs解析出错3");
+        return ;
     }
     
     
+    ret = iccCheck(data, 0);
+    if (ret != SUCCESS)
+    {
+        callBack(NO,nil,@" iccCheck校验出错0");
+        return ;
+        
+    }
+    
+    ret = iccCheck(data, 1);
+    if (ret != SUCCESS)
+    {
+        callBack(NO,nil,@" iccCheck校验出错1");
+        return ;
+        
+    }
+    
+    for (i = 0; i < 6; i++) {
+        g_frame_quancun_init_rs.TerminalNO[i] = l_abterminalNo[i];
+    }
+    
+    iccInitFrame(&transfer_rq);
+    
+    
+//    intToBytes2(l_abcardId, addmoney);
+    memcpy(addmoney, l_abcardId, 4);
+    
+    iccinit_for_loadFrame(&transfer_rq, addmoney, l_abterminalNo, l_nprocType,
+                          l_nkeyIndex);
+    
+    length = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist,
+                             transfer_rq.apdu);
+    [self sendData:length andRepeat:1];
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)
+    {
+        callBack(NO,nil,@"超时没有收到TransferChannel_rs 4");
+        return ;//  NSLog(@"超时无响应");
+    }
+    ret = TransferChannel_rs_OC(&datalist, data, TimeOut);
+    if (ret != SUCCESS)
+    {
+        callBack(NO,nil,@" TransferChannel_rs解析出错4");
+        return ;
+    }
+   
+    
+    ret = iccCheck(data, 0);
+ 
+    if (ret != SUCCESS)
+    {
+        callBack(NO,nil,@"iccCheck校验出错4");
+        return ;
+    }
+    
+    memcpy(RecvDate, &data[1], data[0]);
+    
+    
+    for (i = 0; i < 4; i++) {
+        banlance[i] = RecvDate[i];
+        g_loadCredit_GetMac1.a_cbb[i] = RecvDate[i];
+    }
+    for (i = 0; i < 2; i++) {
+        paySerial[i] = RecvDate[4 + i];
+        g_loadCredit_GetMac1.a_on[i] = RecvDate[4 + i];
+        g_frame_quancun_rq.QuancunTradeNo[i] = RecvDate[4 + i];
+        
+    }
+    for (i = 0; i < 4; i++) {
+        passtyperand[i] = RecvDate[8 + i];
+        g_loadCredit_GetMac1.a_rnd[i] = RecvDate[8 + i];
+        g_frame_quancun_rq.BogusRandNumber[i] = RecvDate[8 + i];
+        
+    }
+    for (i = 0; i < 4; i++) {
+        g_loadCredit_GetMac1.a_m1[i] = RecvDate[12 + i];
+        mac1[i] = RecvDate[12 + i];
+        
+    }
+    
+    for (i = 0; i < 4; i++) {
+        passtyperand[i] = RecvDate[8 + i];
+        g_loadCredit_GetMac1.a_rnd[i] = RecvDate[8 + i];
+        g_frame_quancun_rq.BogusRandNumber[i] = RecvDate[8 + i];
+    }
+    NSMutableDictionary *getMac1Dict = [NSMutableDictionary dictionary];
+    NSString *acbb = [NSString byteToNSString:g_loadCredit_GetMac1.a_cbb andLength:4];
+    [getMac1Dict setObject:[NSString byteToNSString:g_loadCredit_GetMac1.a_cbb andLength:4] forKey:@"a_cbb"];
+    [getMac1Dict setObject:[NSString byteToNSString:g_loadCredit_GetMac1.a_on andLength:2] forKey:@"a_on"];
+    [getMac1Dict setObject:[NSString byteToNSString:g_loadCredit_GetMac1.a_rnd andLength:8] forKey:@"a_rnd"];
+    [getMac1Dict setObject:[NSString byteToNSString:g_loadCredit_GetMac1.a_m1 andLength:10] forKey:@"a_m1"];
+    [getMac1Dict setObject:[NSString byteToNSString:g_loadCredit_GetMac1.a_cid andLength:10] forKey:@"a_cid"];
+    [getMac1Dict setObject:[NSString byteToNSString:g_loadCredit_GetMac1.a_on andLength:2] forKey:@"a_pt"];
+    callBack(YES,getMac1Dict,nil);
+    
     
 }
 
-#pragma mark 9.充值写卡：执行写卡操作
+#pragma mark 9.充值写卡：执行写卡操作 FD_SingleMAC tac
 -(void)loadCreditWriteCard:(NSString *)dateMAC2 callBack:(obuCallBack)callBack
 {
     
+    NSData *macData = [dateMAC2 hexToBytes];
+    uint8 *mac2 = [macData bytes];
+        
+    ST_TRANSFER_CHANNEL transfer_rq;
+    int datalist;
+    uint8 data[128];
+    int did, i;
+    int ret;
+    did = 0x01;
+    int TimeOut = 1000;
+  
+    uint8 l_dealtime[7];
+    uint8 l_mac2[11];
+    memcpy(l_dealtime, mac2, 7);
+    memcpy(l_mac2, &mac2[7], 4);
+        
+#ifdef	WJOBUTEST
+      
+    uint8 passkey[8] = { 0x00, 0x00, 0x00, 0x00 };
+    uint8 dealtime[9] = { 0x20, 0x15, 0x01, 0x01, 0x10, 0x10, 0x10 };//
+    GetTimebufFunction(dealtime);
+    dealtime[4] = dealtime[5];
+    dealtime[5] = dealtime[6];
+    dealtime[6] = dealtime[7];
+      
+    memcpy(l_dealtime, dealtime, 7);
+    
+    memcpy(passkey, g_frame_quancun_rs.PassKey, 8);
+        
+        
+    uint8 MacData[30] = { 0 };
+    memcpy(&MacData[0], &g_sret.a_pt[0], 4);
+    
+    MacData[4] = 0x02;
+    memcpy(&MacData[5], &g_frame_quancun_init_rs.TerminalNO[0], 6);
+   
+    memcpy(&MacData[11], &l_dealtime[0], 7);
+    
+    uint8 Macinit[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+   
+//    FD_SingleMAC(passkey, Macinit, 18, MacData, l_mac2);?????
+    
+#endif
+        
+    uint8 RecvLen = 0;
+    uint8 RecvDate[128];
+    iccInitFrame(&transfer_rq);
+    icc_loadFrame(&transfer_rq, l_dealtime, l_mac2);	 
+    int length = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist,transfer_rq.apdu);
+    //等B9 1
+    [self sendData:length andRepeat:1];
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+    {
+        callBack(NO,nil,@"超时未接收到TransferChannel帧");
+        return;
+    }
+    
+    
+    ret = TransferChannel_rs_OC(&datalist, data, TimeOut);
+    
+    if (ret != SUCCESS)
+    {
+        callBack(NO,nil,@"解析帧TransferChannel出错");
+        return;
+    }
+    
+    
+    ret = iccCheck(data, 0);
+    if (ret != SUCCESS)
+    {
+        
+        callBack(NO,nil,@"iccCheck检验出错");
+        return;
+        
+    }
+    callBack(YES,@{@"tac":@""},nil);
+    [self sendC5AndWaitB4:callBack];
+    
+   
 }
 
-#pragma mark 10.读终端交易记录文件
+#pragma mark 10.读终端交易记录文件 OK
 -(void)readCardTransactionRecord:(NSString *)pinCode maxNumber:(NSInteger)maxNumber callBack:(obuCallBack)callBack
 {
+    if([self sendC1AndWaitB1:callBack]!= YES)
+        return ; //结束
+    NSData *pinData = [pinCode hexToBytes];
+    PROG_COMM_C4 prog_c4;
+    NSMutableArray *transactionRecordsArr = [NSMutableArray array];
+    for (int i = 0; i < maxNumber; i++) {
+        PROG_COMM_C4 progc4;
+        init_C4_ReadIccInfo_OC(0x0018,0x01,progc4);
+        
+        int ret = 0;
     
+        int datalist;
+        ST_TRANSFER_CHANNEL transfer_rq;
+        uint8 data[128];
+        int did, i;
+        int icc_flag = 0, icc_offset = 0, icc_Length = 0;
+        int j = 0;
+        did = 0x01;
+     
+        iccInitFrame(&transfer_rq);
+        icc_enter_dir(&transfer_rq, 0x1001);
+        icc_check_Pin(&transfer_rq, 3, [pinData bytes]);
+     
+        
+       int length = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist,
+                                 transfer_rq.apdu);
+      
+        //等B9 1
+        [self sendData:length andRepeat:1];
+        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+        {
+            callBack(NO,nil,@"超时未接收到C9帧");
+            return;
+        }
+        ret = TransferChannel_rs_OC(&datalist, data, 100);
+        if (ret != 0)
+        {
+             callBack(NO,nil,@"B9帧1解析出错");
+            return ;
+        }
+        
+        ret = iccCheck(data, 0);
+        if (ret != 0)
+        {
+            callBack(NO,nil,@"ICC检验1失败");
+            return  ;
+        }
+        
+        ret = iccCheck(data, 1);
+        
+        if (ret != 0) {
+            callBack(NO,nil,@"ICC检验2失败");
+            return ;
+        }
+        
+        for (i = 0; i < prog_c4.NumOfFiles; i++) {
+            g_read_file.DIDnFID[i] = prog_c4.DIDnFID[i];
+            g_read_file.offset[i] = prog_c4.Offset[i];
+            g_read_file.len[i] = prog_c4.Length[i];
+            
+            
+            if ((prog_c4.DIDnFID[i] == 0x02) || (prog_c4.DIDnFID[i] == 0x12)
+                || (prog_c4.DIDnFID[i] == 0x15) || (prog_c4.DIDnFID[i] == 0x18)
+                || (prog_c4.DIDnFID[i] == 0x19))	//∂¡ICø®–≈œ¢
+            {
+                icc_flag = prog_c4.DIDnFID[i];
+               
+                icc_offset = prog_c4.Offset[i];
+               
+                icc_Length = prog_c4.Length[i];
+               
+            }
+            else
+            {
+                callBack(false,nil,@"DIDnFID错误");
+                return ;
+            }
+            
+        }
+        
+        if ((vst.obustatus[0] & 0x80) == 0x00) {
+            did = 0x01;
+            iccInitFrame(&transfer_rq);
+            iccReadFileFrame(&transfer_rq, icc_flag, icc_offset, icc_Length);
+            length  = TransferChannel_rq_OC(did, transfer_rq.channelid,
+                                     transfer_rq.apdulist, transfer_rq.apdu);
+            [self sendData:length andRepeat:1];
+            if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+            {
+                callBack(NO,nil,@"超时未接收到C9帧2");
+                return;
+            }
+            
+            ret = TransferChannel_rs_OC(&datalist, data, 100);
+            
+            if (ret != SUCCESS) {
+                callBack(NO,nil,@"B9帧2解析出错");
+                return  ;	//Ω‚Œˆ ß∞‹ªÚ’ﬂ≥¨ ±
+            }
+            ret = iccCheck(data, 0);
+            if (ret != SUCCESS) {
+                callBack(NO,nil,@"ICC2检验出错");
+                return  ;
+            }
+            if (icc_flag == 0x0002) {
+                memcpy(icc_pib.Balance, &data[1], icc_Length);	//0002Œƒº˛
+            } else if (icc_flag == 0x0012) {
+                memcpy(icc_pib.icc0012, &data[1], icc_Length);	//0012Œƒº˛
+            } else if (icc_flag == 0x0015) {
+                memcpy(icc_pib.icc0015, &data[1], icc_Length);	//0015Œƒº˛
+            } else if (icc_flag == 0x0018) {
+                memcpy(icc_pib.icc0018, &data[1], icc_Length);	//0019Œƒº˛
+            } else if (icc_flag == 0x0019) {
+                memcpy(icc_pib.icc0019, &data[1], icc_Length);	//0019Œƒº˛
+            }
+        } else {
+            callBack(NO,nil,@"icc_pib文件异常");
+            return ;
+        }
+        PROG_COMM_B3 prog_b3;
+        recv_b9_Blefile_OC(&prog_b3,0x0018);//READ_CPUCARD_FILE_0018
+        CardTransactionRecord *transactionRecord = [CardTransactionRecord new];
+        transactionRecord.onlineSn = [[NSString stringByByte:prog_b3.FileContent[0][0]]stringByAppendingString:[NSString stringByByte:prog_b3.FileContent[0][1]]];
+        byte bmoney[4];
+        bmoney[0] = prog_b3.FileContent[0][2];
+        bmoney[1] = prog_b3.FileContent[0][3];
+        bmoney[2] = prog_b3.FileContent[0][4];
+        bmoney[3] = 0;
+        float money = byteToFloat(bmoney);
+        transactionRecord.overdrawLimit = [NSString stringWithFormat:@"%f",money];
+        transactionRecord.terminalNo = [NSString byteToNSString:prog_b3.FileContent[0] fromIndex:10 andLength:6];
+        bmoney[0] = prog_b3.FileContent[0][5];
+        bmoney[1] = prog_b3.FileContent[0][6];
+        bmoney[2] = prog_b3.FileContent[0][7];
+        bmoney[3] = prog_b3.FileContent[0][8];
+        money = byteToFloat(bmoney);
+        transactionRecord.transAmount = [NSString stringWithFormat:@"%f",money];
+        transactionRecord.transDate = [NSString stringWithFormat:@"%@%@%@",[NSString stringByByte:prog_b3.FileContent[0][17]],[NSString stringByByte:prog_b3.FileContent[0][18]],[NSString stringByByte:prog_b3.FileContent[0][19]]];
+        transactionRecord.transTime = [NSString stringWithFormat:@"%@%@%@",[NSString stringByByte:prog_b3.FileContent[0][20]],[NSString stringByByte:prog_b3.FileContent[0][21]],[NSString stringByByte:prog_b3.FileContent[0][22]]];;
+        transactionRecord.transType = [NSString stringByByte:prog_b3.FileContent[0][9]];
+        [transactionRecordsArr addObject:transactionRecord];
+        save_CpuCardinfo_OC(prog_b3);
+    }
+    callBack(YES,transactionRecordsArr,nil);
     
+    [self sendC5AndWaitB4:callBack];
 }
 
 #pragma mark 11.读联网收费复合消费过程文件 ok
@@ -679,6 +1050,7 @@ static ObuSDK * _instance;
         [consumeRecordsArr addObject:consumeRecord];
         save_CpuCardinfo_OC(prog_b3);
     }
+    
     callBack(YES,consumeRecordsArr,nil);
     
      [self sendC5AndWaitB4:callBack];
@@ -881,171 +1253,4 @@ static ObuSDK * _instance;
 }
 
 
-int jni2loadCreditGetMac1(uint8* cardId, int credit, uint8* terminalNo,
-                          uint8* pinCode, int procType, int keyIndex,
-                          loadCreditGetMac1Ret* data_ret, int TimeOut) {
-    
-    ST_TRANSFER_CHANNEL transfer_rq;
-    
-    int datalist;
-    uint8 data[128];
-    int did, i;
-    int ret;
-    int j = 0;
-    did = 0x01;
-    TimeOut = 1000;
-    uint8 addmoney[4] = { 0x00, 0x00, 0x00, 0x00 };
-    uint8 banlance[4] = { 0x00, 0x00, 0x00, 0x00 };		//(0, 4)”‡∂Ó
-    uint8 paySerial[2] = { 0x00, 0x00 };		//(4, 2)¡™ª˙Ωª“◊–Ú∫≈
-    uint8 passtyperand[4] = { 0x00, 0x00, 0x00, 0x00 };		//(8, 4)Œ±ÀÊª˙ ˝
-    
-    uint8 passkey[8] = { 0x00, 0x00, 0x00, 0x00 };	//π˝≥Ã√ÿ‘ø
-    
-    uint8 dealtime[9] = { 0x20, 0x15, 0x01, 0x01, 0x10, 0x10, 0x10 };//DateTime.Now.ToString("yyyyMMddHHmmss");
-    
-  
-    GetTimebufFunction(dealtime);
-    dealtime[4] = dealtime[5];
-    dealtime[5] = dealtime[6];
-    dealtime[6] = dealtime[7];
-    
-    uint8 mac1[10] = { 0 };	//(12,4)MAC1¬Î
-    uint8 mac2[10] = { 0 };	//MAC2¬Î
-    
-    uint8 RecvLen = 0;
-    uint8 RecvDate[128];
-    
-   
-    iccInitFrame(&transfer_rq);
-    
- 
-    icc_getOneDispersed(&transfer_rq);	//ªÒ»°1º∂∑÷…¢“Ú◊”
-  
-   
-    ret = TransferChannel_rq(did, transfer_rq.channelid, transfer_rq.apdulist, transfer_rq.apdu);
-    if (ret != 0)	//¥Æø⁄∑¢ÀÕ ß∞‹
-        return -3 + ret * 100;
-    
-  
-    ret = TransferChannel_rs(&datalist, data, TimeOut);
-    if (ret != 0)	//Ω‚Œˆ ß∞‹ªÚ’ﬂ≥¨ ±
-        return -4 + ret * 100;
-    
-
-    ret = iccCheckandGetData(data, 0, g_frame_quancun_rq.OneDispersed);
-    
-    if (ret != 0)
-        return -5 + ret * 100;	//»°“ªº∂∑÷…¢“Ú◊” ß∞‹÷±Ω”ÕÀ≥ˆ
- 
- 
-    iccInitFrame(&transfer_rq);
-   
-    icc_getTwoDispersed(&transfer_rq);	//ªÒ»°2º∂∑÷…¢“Ú◊”
-
-    ret = TransferChannel_rq(did, transfer_rq.channelid, transfer_rq.apdulist,
-                             transfer_rq.apdu);
-    if (ret != 0)	//¥Æø⁄∑¢ÀÕ ß∞‹
-        return -6 + ret * 100;
-    
-    ret = TransferChannel_rs(&datalist, data, TimeOut);
-    if (ret != 0)	//Ω‚Œˆ ß∞‹ªÚ’ﬂ≥¨ ±
-        return -7 + ret * 100;
-    
-
-    ret = iccCheckandGetData(data, 0, g_frame_quancun_rq.TwoDispersed);
-    
-    if (ret != 0)
-        return -8 + ret * 100;	//»°∂˛º∂∑÷…¢“Ú◊” ß∞‹÷±Ω”ÕÀ≥ˆ
-
-    
-   
-    iccInitFrame(&transfer_rq);
-    icc_enter_dir(&transfer_rq, 0x1001);	//—°‘Ò1001
-    icc_check_Pin(&transfer_rq, 3, pinCode);	//—È÷§PIN
- 
-    
-    ret = TransferChannel_rq(did, transfer_rq.channelid, transfer_rq.apdulist,
-                             transfer_rq.apdu);
-    if (ret != 0)	//¥Æø⁄∑¢ÀÕ ß∞‹
-        return -9 + ret * 100;
-    
-    ret = TransferChannel_rs(&datalist, data, TimeOut);
-    if (ret != 0)	//Ω‚Œˆ ß∞‹ªÚ’ﬂ≥¨ ±
-        return -10 + ret * 100;
-    
-  
-    ret = iccCheck(data, 0);
-    if (ret != 0)	//Ω” ’÷°–£—È ß∞‹
-        return -11 + ret * 100;
-    
-    ret = iccCheck(data, 1);
-
-    if (ret != 0)	//Ω” ’÷°–£—È ß∞‹
-        return -12 + ret * 100;
-    
-   
-    for (i = 0; i < 6; i++) {
-        
-        g_frame_quancun_init_rs.TerminalNO[i] = terminalNo[i];
-    }
-
-    iccInitFrame(&transfer_rq);
-  
-    
-    intToBytes2(credit, addmoney);
-    
-    iccinit_for_loadFrame(&transfer_rq, addmoney, terminalNo, procType,
-                          keyIndex);
-   
-    ret = TransferChannel_rq(did, transfer_rq.channelid, transfer_rq.apdulist,
-                             transfer_rq.apdu);
-  
-    if (ret != 0)	//¥Æø⁄∑¢ÀÕ ß∞‹
-        return -13 + ret * 100;
-    ret = TransferChannel_rs(&datalist, data, TimeOut);
-    for (i = 0; i < (data[0] + 1); i++) {
-      
-    }
-    if (ret != 0)	//Ω‚Œˆ ß∞‹ªÚ’ﬂ≥¨ ±
-        return -14 + ret * 100;
-    
-    ret = iccCheck(data, 0);
-    if (ret != 0)
-        return -15 + ret * 100;	//Ω” ’ ˝æ›–£—È ß∞‹÷±Ω”ÕÀ≥ˆ
-    
-    memcpy(RecvDate, &data[1], data[0]);
-    
-   
-    for (i = 0; i < 4; i++) {	//(0, 8)”‡∂Ó
-        banlance[i] = RecvDate[i];
-        data_ret->a_cbb[i] = RecvDate[i];
-    }
-    for (i = 0; i < 2; i++) {	//(8, 4)¡™ª˙Ωª“◊–Ú∫≈
-        paySerial[i] = RecvDate[4 + i];
-        data_ret->a_on[i] = RecvDate[4 + i];
-        g_frame_quancun_rq.QuancunTradeNo[i] = RecvDate[4 + i];
-      
-    }
-    for (i = 0; i < 4; i++) {	//16, 8)Œ±ÀÊª˙ ˝
-        passtyperand[i] = RecvDate[8 + i];
-        data_ret->a_rnd[i] = RecvDate[8 + i];
-        g_frame_quancun_rq.BogusRandNumber[i] = RecvDate[8 + i];
-        
-    }
-    for (i = 0; i < 4; i++) {	//(24, 8)MAC1¬Î
-        data_ret->a_m1[i] = RecvDate[12 + i];
-        mac1[i] = RecvDate[12 + i];
-       
-    }
-    
-    for (i = 0; i < 4; i++) {	//16, 8)Œ±ÀÊª˙ ˝
-        passtyperand[i] = RecvDate[8 + i];
-        data_ret->a_rnd[i] = RecvDate[8 + i];
-        g_frame_quancun_rq.BogusRandNumber[i] = RecvDate[8 + i];
-      
-    }
-    
-
-    return 0;
-}
 @end

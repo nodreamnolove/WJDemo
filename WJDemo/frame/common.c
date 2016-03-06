@@ -159,9 +159,31 @@ char filename_com[100] = {0};
 char filename_net[100] = {0};
 char filename_usbcom[100] = {0};
 
-
+FRAME_QUANCUN_RQ g_frame_quancun_rq;
+loadCreditGetMac1Ret g_sret;
+FRAME_QUANCUN_RS g_frame_quancun_rs;
+FRAME_QUANCUN_INIT_RS g_frame_quancun_init_rs;
+loadCreditGetMac1Ret g_loadCredit_GetMac1;
 PKG_DATA  g_pkg_data;
 PKG_ICCINFO_DATA g_pkg_iccinfo_data;
+
+
+
+int g_timeout_cnt = 0;
+int g_timeout_max = 20;
+
+inline int checktimeout();
+int checktimeout(){
+    if(g_timeout_cnt < g_timeout_max){
+        
+        g_timeout_cnt++;
+        return 0;
+    }else{
+        g_timeout_cnt = g_timeout_max;
+        
+        return -1;
+    }
+}
 //PROG_COMM_C4   g_c4_data;
 //PROG_COMM_B3   g_b3_data;
 //add by wll 2014-12-11

@@ -155,7 +155,7 @@ void print_info_Info(char Info[],int Len,int dev_type);
 int DtoHex(int data);
 
 
-
+extern loadCreditGetMac1Ret g_loadCredit_GetMac1;
 extern  PKG_DATA  g_pkg_data;
 extern  PKG_ICCINFO_DATA g_pkg_iccinfo_data;
 //extern  PROG_COMM_C4   g_c4_data;

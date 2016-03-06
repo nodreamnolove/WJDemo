@@ -11,7 +11,7 @@
 int g_ndid;
 loadCreditGetMac1Ret g_sret;
 int g_timeout_cnt = 0;
-int g_timeout_max = 20;
+ 
 
 inline int checktimeout();
 int checktimeout(){

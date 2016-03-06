@@ -916,7 +916,12 @@ void save_CpuCardinfo_OC(PROG_COMM_B3 prog_b3)
     }
 }
 
-
+float byteToFloat(byte * bytearr)
+{
+    float   floatVariable;
+    memcpy(&floatVariable, bytearr, 4);
+    return  floatVariable;
+}
 
 
 

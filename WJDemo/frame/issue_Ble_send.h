@@ -35,5 +35,7 @@ void save_Info_OC(PROG_COMM_C4 prog_c4,PROG_COMM_B3 prog_b3);
 
 void save_CpuCardinfo_OC(PROG_COMM_B3 prog_b3);
 
+float byteToFloat(byte* bytearr);
+
 #endif
 
