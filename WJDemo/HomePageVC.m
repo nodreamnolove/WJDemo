@@ -256,7 +256,9 @@
                 }
                 else if (status == YES){
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [MBProgressHUD showSuccess:@"obu连接成功"];
+//                [MBProgressHUD showSuccess:[NSString stringWithFormat:@"obu连接成功/r/n,%@",data]];
+                        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"连接成功" message: [NSString stringWithFormat:@"%@",data] delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                        [alert show];
                     });
                 }
             }];
@@ -283,19 +285,109 @@
         }
     }//读OBU
     else if (indexPath.row == 3){
-        
+        if(self.myObu){
+            [self.myObu getObuInformation:^(BOOL status, id data, NSString *errorMsg) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSString *title;
+                    NSString *message;
+                    if (status) {
+                        title = @"读取OBU成功";
+                        message = [NSString stringWithFormat:@"%@",data];
+                    }
+                    else{
+                        title = @"读取OBU失败";
+                        message = errorMsg;
+                    }
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                    [alert show];
+                });
+            }];
+        }
     }
     else if (indexPath.row == 4){
-        
+        if(self.myObu){
+            [self.myObu loadCreditGetMac1:@"" cardId:@"" terminalNo:@"" picCode:@"" procType:@"" keyIndex:@"" callBack:^(BOOL status, id data, NSString *errorMsg) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSString *title;
+                    NSString *message;
+                    if (status) {
+                        title = @"圈存初始化成功";
+                        message = [NSString stringWithFormat:@"%@",data];
+                    }
+                    else{
+                        title = @"圈存初始化失败";
+                        message = errorMsg;
+                    }
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                    [alert show];
+                });
+            }];
+        }
     }
     else if (indexPath.row == 5){
-        
+        if(self.myObu){
+            [self.myObu loadCreditWriteCard:@"" callBack:^(BOOL status, id data, NSString *errorMsg) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSString *title;
+                    NSString *message;
+                    if (status) {
+                        title = @"圈存成功";
+                        message = [NSString stringWithFormat:@"%@",data];
+                    }
+                    else{
+                        title = @"圈存失败";
+                        message = errorMsg;
+                    }
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                    [alert show];
+                });
+            }];
+        }
     }
     else if (indexPath.row == 6){
-      
+        if(self.myObu){
+            [self.myObu readCardTransactionRecord:@"" maxNumber:5 callBack:^(BOOL status, id data, NSString *errorMsg) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSString *title;
+                    NSString *message;
+                    if (status) {
+                        title = @"读取交易记录成功";
+                        message = [NSString stringWithFormat:@"%@",data];
+                    }
+                    else{
+                        title = @"读取交易记录失败";
+                        message = errorMsg;
+                    }
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                    [alert show];
+                });
+            }];
+        }
     }
     else if (indexPath.row == 7){
-       
+        if(self.myObu){
+            [self.myObu readCardOwnerRecord:^(BOOL status, id data, NSString *errorMsg) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSString *title;
+                    NSString *message;
+                    if (status) {
+                        title = @"读取持卡人信息成功";
+                        message = [NSString stringWithFormat:@"%@",data];
+                    }
+                    else{
+                        title = @"读取持卡人信息失败";
+                        message = errorMsg;
+                    }
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                    [alert show];
+                });
+            }];
+        }
     }
     else if (indexPath.row == 8){
         //  测试

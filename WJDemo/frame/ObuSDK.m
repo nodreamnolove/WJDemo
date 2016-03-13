@@ -140,13 +140,14 @@ static ObuSDK * _instance;
 //    NSLog(@"%@++%@----%@",[NSThread currentThread],central,peripheral.name);
 //    NSLog(@"&&&&%@",advertisementData);
     // 过滤信号强度范围
+    NSLog(@"1、%s",__FUNCTION__);
     if (RSSI.integerValue > -15) {
         return;
     }
     if (RSSI.integerValue < -85) {
         return;
     }
- 
+    NSLog(@"2、%s",__FUNCTION__);
     if ([[advertisementData objectForKey:@"kCBAdvDataLocalName"] isEqualToString:@"WanJi_303"]) {
         if(self.isBlueConnected)
             return;
@@ -186,7 +187,7 @@ static ObuSDK * _instance;
 //连接上设备
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
 {
-  
+   NSLog(@"1、%s",__FUNCTION__);
     self.connectedPeripheral.delegate = self;
     if (!self.deveice_uuid) {
         self.deveice_uuid = [peripheral.identifier UUIDString];
@@ -195,10 +196,8 @@ static ObuSDK * _instance;
 //    NSLog(@"%@",peripheral);
     [self stopScan]; //停止扫描
     
-    
-    if (self.connectBlock) {
-        self.connectBlock(YES,nil,nil);
-    }
+    NSLog(@"%s",__FUNCTION__);
+   
 }
 
 //连接失败
@@ -287,6 +286,7 @@ static ObuSDK * _instance;
         NSLog(@"发现特征错误：%@",[error localizedDescription]);
         return;
     }
+    NSLog(@"特征值：%@",characteristic.value);
     [characteristic.value getBytes:g_com_rx_buf+g_com_rx_len length:characteristic.value.length];
     g_com_rx_len += characteristic.value.length;
     
@@ -304,30 +304,39 @@ static ObuSDK * _instance;
         return;
     }
     NSLog(@"通知更新成功%@---%@",characteristic,peripheral);
+    if (self.connectBlock) {
+        self.connectBlock(YES,@{@"character":characteristic,@"deceive":peripheral},nil);
+    }
 }
 
 
 -(void)sendData:(int )length andRepeat:(int )repeatNum
 {
-    BOOL didsend = YES;
-    NSInteger needToSend = 0 ;
-    NSInteger sendedIndex = 0;
-    NSData *sendData = [NSData dataWithBytes:g_com_tx_buf length:length];
-    while (didsend) {
-        needToSend = sendData.length-sendedIndex;
-        if (needToSend > NOTIFY_MTU) {
-            needToSend = NOTIFY_MTU;
-        }
-        NSData *dataChunk = [NSData dataWithBytes:g_com_tx_buf+sendedIndex length:needToSend];
-        [self.connectedPeripheral writeValue:dataChunk forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
-        
-        sendedIndex += NOTIFY_MTU;
-        if (sendedIndex >= sendData.length) {
-            didsend = NO;
-            g_com_rx_len = 0;
-        }
-        [NSThread sleepForTimeInterval:0.08];
-    }
+//    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+    for (int i=0; i<repeatNum; i++) {
+            BOOL didsend = YES;
+            NSInteger needToSend = 0 ;
+            NSInteger sendedIndex = 0;
+            NSData *sendData = [NSData dataWithBytes:g_com_tx_buf length:length];
+            while (didsend) {
+                needToSend = sendData.length-sendedIndex;
+                if (needToSend > NOTIFY_MTU) {
+                    needToSend = NOTIFY_MTU;
+                }
+                NSData *dataChunk = [NSData dataWithBytes:g_com_tx_buf+sendedIndex length:needToSend];
+                [self.connectedPeripheral writeValue:dataChunk forCharacteristic:self.readwriteCharacter type:CBCharacteristicWriteWithResponse];
+                
+                sendedIndex += NOTIFY_MTU;
+                if (sendedIndex >= sendData.length) {
+                    didsend = NO;
+                    g_com_rx_len = 0;
+                }
+                [NSThread sleepForTimeInterval:0.08];
+            }
+        NSLog(@"%@",[NSThread currentThread]);
+           [NSThread sleepForTimeInterval:0.3];
+         }
+//    });
 }
 
 
@@ -467,14 +476,16 @@ static ObuSDK * _instance;
 {
     self.getOBUInfoBlock = callBack;
     //发送数据
-    if (![self sendC1AndWaitB1:callBack]) {
-        return;
-    }
-    
-    NSString *obuMAC = [NSString byteToNSString:vst.macid andLength:4];
-    NSDictionary *dict = @{@"mac":obuMAC,@"name":@"WanJi_303",@"indentify":self.deveice_uuid,@"sn":@""};
-    callBack(YES,dict,nil);
-    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        if (![self sendC1AndWaitB1:callBack]) {
+            NSLog(@"失败1");
+            return;
+        }
+          NSLog(@"失败2");
+        NSString *obuMAC = [NSString byteToNSString:vst.macid andLength:4];
+        NSDictionary *dict = @{@"mac":obuMAC,@"name":@"WanJi_303",@"indentify":self.deveice_uuid,@"sn":@""};
+        callBack(YES,dict,nil);
+    });
 }
 
 
@@ -1210,16 +1221,19 @@ static ObuSDK * _instance;
     g_com_rx_len = 0;
     g_com_needrx_len = 50;
     [self sendData:length andRepeat:1];
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_FOREVER) != 0)//
     {
+        NSLog(@"超时没有收到BST");
         callBack(NO,nil,@"超时没有收到BST");
         return NO;//  NSLog(@"超时无响应");
     }
+      NSLog(@"第3步");
     //1.解析B1
     if((ret=recv_b1_Ble_OC(&progb1, 20))!=SUCCESS)
     {
         NSString *errMsg = [NSString stringWithFormat:@"BST解析出错:%d",ret];
         callBack(NO,nil,errMsg);
+        NSLog(@"b1解析出错");
         return NO;//b1解析出错
     }
     return YES;

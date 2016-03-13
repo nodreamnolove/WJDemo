@@ -68,7 +68,7 @@ int recv_b1_Ble_OC(PROG_COMM_B1 *prog_b1, int time_out)
         }
     }
     if (ret != SUCCESS) {
-        return -1 + ret * 100;
+        return -1 + ret * 100;//-201
     }
     for (i = 0; i < 4; i++) {
         prog_b1->Reserved[i] = vst.macid[i];
