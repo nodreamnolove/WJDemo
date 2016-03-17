@@ -63,8 +63,8 @@ typedef double fp64;		//À´æ´∂»∏°µ„ ˝£®64Œª≥§∂»£©
 #define NING_XIA_REGION					0x0a
 #define GUI_ZHOU_REGION					0x0b
 
-#define MAXUDPDATALENGHT 5024
-#define MAXCOMDATALENGHT 1024
+#define MAXUDPDATALENGHT 1024
+#define MAXCOMDATALENGHT 512
 
 #define Getbit(byt,num)					(((byt) >> (num))&1)
 #define Setbit(str,num,val)				do{if((val) == 1) ((str) |= (1 << (num))); else ((str) &= ~(1 << (num))) ;}while(0)

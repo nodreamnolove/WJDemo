@@ -39,12 +39,13 @@
 @property (nonatomic,assign,getter=isBlueConnected) BOOL blueConnected;
 
 //连接成功失败
--(void)setConnectBlockWithSuccess:(void (^)(BOOL status,NSDictionary *data, NSString *errorMsg))success failure:(void (^)(BOOL status,NSDictionary *data, NSString *errorMsg))failure;
+//-(void)setConnectBlockWithSuccess:(void (^)(BOOL status,NSDictionary *data, NSString *errorMsg))success failure:(void (^)(BOOL status,NSDictionary *data, NSString *errorMsg))failure;
 
 @end
 
 @implementation ObuSDK
 
+static bool isStart;
 static ObuSDK * _instance;
 
 +(instancetype)allocWithZone:(struct _NSZone *)zone
@@ -278,7 +279,8 @@ static ObuSDK * _instance;
     NSLog(@"发送成功调用%s，characteristic=%@",__func__,characteristic);
 }
 
-
+uint8 recvBuffer[40];
+int recvLen;
 //处理蓝牙发过来的数据
 -(void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
@@ -287,15 +289,60 @@ static ObuSDK * _instance;
         return;
     }
     NSLog(@"特征值：%@",characteristic.value);
-    [characteristic.value getBytes:g_com_rx_buf+g_com_rx_len length:characteristic.value.length];
-    g_com_rx_len += characteristic.value.length;
-    
-    if (g_com_rx_len > g_com_needrx_len) {
-        NSData *printData = [NSData dataWithBytes:g_com_rx_buf length:g_com_rx_len];
-        NSLog(@"接收到的数据：%@",printData);
-        dispatch_semaphore_signal(self.obuSemaphore);
+    recvLen = (int)characteristic.value.length;
+    [characteristic.value getBytes:recvBuffer length:recvLen];
+    if (recvBuffer[0]==0xff&&recvBuffer[1]==0xff)
+    {
+        isStart = YES;
+        g_com_rx_len += characteristic.value.length;
+        memcpy(&g_com_rx_buf[g_com_rx_len], recvBuffer, recvLen);
+        for (int i=2; i<recvLen; i++) {
+            if (recvBuffer[i] == 0xff) {
+                dispatch_semaphore_signal(self.obuSemaphore);
+                g_com_rx_len += recvLen;
+                isStart = NO;
+                break;
+            }
+        }
     }
-    NSLog(@"测试：%@",characteristic);
+    else if (isStart == YES)
+    {
+        for (int i=0; i<recvLen;i++)
+        {
+            if (recvBuffer[i] == 0xff) {
+                if (i==recvLen-1) {
+                    memcpy(&g_com_rx_buf[g_com_rx_len], recvBuffer, recvLen);
+                    g_com_rx_len += recvLen;
+                    dispatch_semaphore_signal(self.obuSemaphore);
+                    isStart = NO;
+                    return;
+                }
+                else
+                {
+                    if (recvBuffer[i+1] != 0xff ) {
+                         memcpy(&g_com_rx_buf[g_com_rx_len], recvBuffer, recvLen);
+                         g_com_rx_len += recvLen;
+                         dispatch_semaphore_signal(self.obuSemaphore);
+                        isStart = NO;
+                        return;
+                    }
+                    else{
+                        memcpy(&g_com_rx_buf[0], &recvBuffer[i], recvLen-i);
+                        g_com_rx_len = recvLen - i;
+                        isStart = YES;
+                        return;
+                    }
+                }
+            }
+        }
+        if (g_com_rx_len + recvLen > 1024) {
+            g_com_rx_len = 0;
+            recvLen = 0;
+        }
+        memcpy(&g_com_rx_buf[g_com_rx_len], recvBuffer, recvLen);
+        g_com_rx_len += recvLen;
+    }
+    
 }
 -(void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
@@ -1221,7 +1268,7 @@ static ObuSDK * _instance;
     g_com_rx_len = 0;
     g_com_needrx_len = 50;
     [self sendData:length andRepeat:1];
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_FOREVER) != 0)//
+    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)//
     {
         NSLog(@"超时没有收到BST");
         callBack(NO,nil,@"超时没有收到BST");
