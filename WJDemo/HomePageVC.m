@@ -279,7 +279,19 @@
         if (self.myObu) {
             [self.myObu getCardInformation:^(BOOL status, NSObject *data, NSString *errorMsg) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [MBProgressHUD showSuccess:@"得到标签信息"];
+                    NSString *title;
+                    NSString *message;
+                    if (status) {
+                        title = @"读取卡片信息成功";
+                        message = [NSString stringWithFormat:@"%@",data];
+                    }
+                    else
+                    {
+                        title = @"读取卡片信息失败";
+                        message = [NSString stringWithFormat:@"%@",errorMsg];
+                    }
+                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                    [alert show];
                 });
             }];
         }
@@ -370,6 +382,27 @@
     }
     else if (indexPath.row == 7){
         if(self.myObu){
+            [self.myObu readCardConsumeRecord:1 callBack:^(BOOL status, id data, NSString *errorMsg) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSString *title;
+                    NSString *message;
+                    if (status) {
+                        title = @"读取消费记录成功";
+                        message = [NSString stringWithFormat:@"%@",data];
+                    }
+                    else{
+                        title = @"读取消费记录失败";
+                        message = errorMsg;
+                    }
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                    [alert show];
+                });
+            }];
+        }
+    }
+    else if (indexPath.row == 8){
+        if(self.myObu){
             [self.myObu readCardOwnerRecord:^(BOOL status, id data, NSString *errorMsg) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSString *title;
@@ -388,13 +421,6 @@
                 });
             }];
         }
-    }
-    else if (indexPath.row == 8){
-        //  测试
-        self.myObu = [ObuSDK sharedObuSDK];
-        
-//        [MBProgressHUD showMessage:@"正在搜索..." toView:self.view];
-//        [self blueInit];
     }
     else
     {

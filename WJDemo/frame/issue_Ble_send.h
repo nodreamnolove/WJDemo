@@ -7,11 +7,11 @@
 //
 //FRAME_UPLOAD_TRADEINFO_RQ g_frame_uploadtradeinfo_rq;
 
-void init_C4_ReadIccInfo_OC(byte nType,byte index,PROG_COMM_C4 prog_c4);
+void init_C4_ReadIccInfo_OC(byte nType,byte index,PROG_COMM_C4 *prog_c4);
 
-int c4_init(PROG_COMM_C4 prog_c4,byte nType);
+int c4_init(PROG_COMM_C4 *prog_c4,byte nType);
 
-int  c5_init(PROG_COMM_C5 prog_c5);
+int  c5_init(PROG_COMM_C5 *prog_c5);
 
 int send_c1_Ble_OC(PROG_COMM_C1 prog_c1);
 

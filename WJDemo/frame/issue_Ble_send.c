@@ -10,94 +10,94 @@
 #include "saveStruct.h"
 extern uint8 g_u8LLCFlag;
 //c1初始化
-int c1_init(PROG_COMM_C1 prog_c1)
+int c1_init(PROG_COMM_C1 *prog_c1)
 {
     short i = 0;
-    prog_c1.RSCTL = (byte) 0x80;
-    prog_c1.CMDType = (byte) 0xC1;
-    prog_c1.ObuInitMode = 0x00;
+    prog_c1->RSCTL = (byte) 0x80;
+    prog_c1->CMDType = (byte) 0xC1;
+    prog_c1->ObuInitMode = 0x00;
     for (i = 0; i < 5; i++) {
-        prog_c1.Reserved[i] = 0x00;
+        prog_c1->Reserved[i] = 0x00;
     }
     return 1;
 }
 //c9初始化nType=0x01
-int c4_init(PROG_COMM_C4 prog_c4,byte nType)
+int c4_init(PROG_COMM_C4 *prog_c4,byte nType)
 {
-    prog_c4.RSCTL = (byte) 0x81;
-    prog_c4.CMDType = (byte) 0xC4;
-    prog_c4.C4Flag = 0;
+    prog_c4->RSCTL = (byte) 0x81;
+    prog_c4->CMDType = (byte) 0xC4;
+    prog_c4->C4Flag = 0;
     if (nType == 0x01) {
-        prog_c4.NumOfFiles = 0x01;
-        prog_c4.DIDnFID[0] = 0x01;
-        prog_c4.Offset[0] = 0x00;
-        prog_c4.Length[0] = 0x1B;
+        prog_c4->NumOfFiles = 0x01;
+        prog_c4->DIDnFID[0] = 0x01;
+        prog_c4->Offset[0] = 0x00;
+        prog_c4->Length[0] = 0x1B;
     } else if (nType == 0x02) {
-        prog_c4.NumOfFiles = 0x01;
-        prog_c4.DIDnFID[0] = 0x11;
-        prog_c4.Offset[0] = 0x00;
-        prog_c4.Length[0] = 0x3B;
+        prog_c4->NumOfFiles = 0x01;
+        prog_c4->DIDnFID[0] = 0x11;
+        prog_c4->Offset[0] = 0x00;
+        prog_c4->Length[0] = 0x3B;
     } else if (nType == 0x03) {
-        prog_c4.NumOfFiles = 0x02;
-        prog_c4.DIDnFID[0] = 0x01;
-        prog_c4.Offset[0] = 0x00;
-        prog_c4.Length[0] = 0x1B;
-        prog_c4.DIDnFID[1] = 0x11;
-        prog_c4.Offset[1] = 0x00;
-        prog_c4.Length[1] = 0x3B;
+        prog_c4->NumOfFiles = 0x02;
+        prog_c4->DIDnFID[0] = 0x01;
+        prog_c4->Offset[0] = 0x00;
+        prog_c4->Length[0] = 0x1B;
+        prog_c4->DIDnFID[1] = 0x11;
+        prog_c4->Offset[1] = 0x00;
+        prog_c4->Length[1] = 0x3B;
     } else {
-        prog_c4.NumOfFiles = 0x01;
-        prog_c4.DIDnFID[0] = 0x01;
-        prog_c4.Offset[0] = 0x00;
-        prog_c4.Length[0] = 0x1B;
+        prog_c4->NumOfFiles = 0x01;
+        prog_c4->DIDnFID[0] = 0x01;
+        prog_c4->Offset[0] = 0x00;
+        prog_c4->Length[0] = 0x1B;
     }
     return 1;
 }
-int  c5_init(PROG_COMM_C5 prog_c5)
+int  c5_init(PROG_COMM_C5 *prog_c5)
 {
 
     short i = 0;
-    prog_c5.RSCTL = (byte) 0x82;
-    prog_c5.CMDType = (byte) 0xC5;
-    prog_c5.SetMMIMode = 0x00;
+    prog_c5->RSCTL = (byte) 0x82;
+    prog_c5->CMDType = (byte) 0xC5;
+    prog_c5->SetMMIMode = 0x00;
     for (i = 0; i < 5; i++) {
-        prog_c5.Reserved[i] = 0x00;
+        prog_c5->Reserved[i] = 0x00;
     }
     return 1;
 }
 
 
-void init_C4_ReadIccInfo_OC(byte nType,byte index,PROG_COMM_C4 prog_c4)
+void init_C4_ReadIccInfo_OC(byte nType,byte index,PROG_COMM_C4 *prog_c4)
 {
-    prog_c4.RSCTL = (byte) 0x81;
-    prog_c4.CMDType = (byte) 0xC4;
-    prog_c4.C4Flag = 0;
-    prog_c4.NumOfFiles = index;
-    prog_c4.DIDnFID[0] = nType;
+    prog_c4->RSCTL = (byte) 0x81;
+    prog_c4->CMDType = (byte) 0xC4;
+    prog_c4->C4Flag = 0;
+    prog_c4->NumOfFiles = index;
+    prog_c4->DIDnFID[0] = nType;
     switch (nType) {
         case 0x02://
-            prog_c4.Offset[0] = 0x02;
-            prog_c4.Length[0] = 4;
+            prog_c4->Offset[0] = 0x02;
+            prog_c4->Length[0] = 4;
             break;
         case 0x12:
-            prog_c4.Offset[0] = 0x00;
-            prog_c4.Length[0] = 40;
+            prog_c4->Offset[0] = 0x00;
+            prog_c4->Length[0] = 40;
             break;
         case 0x15:
-            prog_c4.Offset[0] = 0x00;
-            prog_c4.Length[0] = 43;
+            prog_c4->Offset[0] = 0x00;
+            prog_c4->Length[0] = 43;
             break;
         case 0x16:
-            prog_c4.Offset[0] = 0x00;
-            prog_c4.Length[0] = 55;
+            prog_c4->Offset[0] = 0x00;
+            prog_c4->Length[0] = 55;
             break;
         case 0x18:
-            prog_c4.Offset[0] = (byte)0xC4;
-            prog_c4.Length[0] = 0x17;
+            prog_c4->Offset[0] = (byte)0xC4;
+            prog_c4->Length[0] = 0x17;
             break;
         case 0x19:
-            prog_c4.Offset[0] = (byte) 0xCC;
-            prog_c4.Length[0] = 43;
+            prog_c4->Offset[0] = (byte) 0xCC;
+            prog_c4->Length[0] = 43;
             break;
         default:
             break;
@@ -107,7 +107,7 @@ void init_C4_ReadIccInfo_OC(byte nType,byte index,PROG_COMM_C4 prog_c4)
 //返回编码长度
 int send_c1_Ble_OC(PROG_COMM_C1 prog_c1) {
     int ret = SUCCESS, profile;
-    c1_init(prog_c1);//C1初始化
+    c1_init(&prog_c1);//C1初始化
     char beacon_id[4] = { 0 };
     char unix_time[4] = { 0 };
     static uint32 count = 1;
@@ -132,7 +132,7 @@ int send_c1_Ble_OC(PROG_COMM_C1 prog_c1) {
 #pragma mark 发送C5帧 返回帧长度
 int send_c5_Ble_OC(PROG_COMM_C5 prog_c5) {
     g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
-    c5_init(prog_c5);
+    c5_init(&prog_c5);
     int ret;
     g_frame_uploadtradeinfo_rq.OnLineDenoteByte = 0xA5;
     ret = SetMMI_rq_OC(prog_c5.SetMMIMode);

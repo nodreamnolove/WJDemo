@@ -279,27 +279,30 @@ static ObuSDK * _instance;
     NSLog(@"发送成功调用%s，characteristic=%@",__func__,characteristic);
 }
 
-uint8 recvBuffer[40];
-int recvLen;
+uint8 recvBuffer[1024];
+int recvBufferLen;
 //处理蓝牙发过来的数据
 -(void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
     if(error){
         NSLog(@"发现特征错误：%@",[error localizedDescription]);
+        isStart = NO;
+        recvBufferLen = 0;
         return;
     }
     NSLog(@"特征值：%@",characteristic.value);
-    recvLen = (int)characteristic.value.length;
-    [characteristic.value getBytes:recvBuffer length:recvLen];
-    if (recvBuffer[0]==0xff&&recvBuffer[1]==0xff)
+    uint8 tempBuffer[40];
+    int tempLen = (int)characteristic.value.length;
+    [characteristic.value getBytes:tempBuffer length:tempLen];
+    if (tempBuffer[0]==0xff&&tempBuffer[1]==0xff)
     {
         isStart = YES;
-        g_com_rx_len += characteristic.value.length;
-        memcpy(&g_com_rx_buf[g_com_rx_len], recvBuffer, recvLen);
-        for (int i=2; i<recvLen; i++) {
+        recvBufferLen = tempLen;
+        memcpy(recvBuffer, tempBuffer, tempLen);
+        for (int i=2; i<tempLen; i++) {
             if (recvBuffer[i] == 0xff) {
+                pkt_decode(recvBuffer,recvBufferLen,0x00);//port 取值
                 dispatch_semaphore_signal(self.obuSemaphore);
-                g_com_rx_len += recvLen;
                 isStart = NO;
                 break;
             }
@@ -307,40 +310,46 @@ int recvLen;
     }
     else if (isStart == YES)
     {
-        for (int i=0; i<recvLen;i++)
+        for (int i=0; i<tempLen;i++)
         {
-            if (recvBuffer[i] == 0xff) {
-                if (i==recvLen-1) {
-                    memcpy(&g_com_rx_buf[g_com_rx_len], recvBuffer, recvLen);
-                    g_com_rx_len += recvLen;
+            if (tempBuffer[i] == 0xff) {
+//                if (i==tempLen-1)
+                {
+                    memcpy(&recvBuffer[recvBufferLen], tempBuffer, i+1);
+                    recvBufferLen += i+1;
+                    pkt_decode(recvBuffer, recvBufferLen, 0x00);
                     dispatch_semaphore_signal(self.obuSemaphore);
                     isStart = NO;
                     return;
                 }
-                else
-                {
-                    if (recvBuffer[i+1] != 0xff ) {
-                         memcpy(&g_com_rx_buf[g_com_rx_len], recvBuffer, recvLen);
-                         g_com_rx_len += recvLen;
-                         dispatch_semaphore_signal(self.obuSemaphore);
-                        isStart = NO;
-                        return;
-                    }
-                    else{
-                        memcpy(&g_com_rx_buf[0], &recvBuffer[i], recvLen-i);
-                        g_com_rx_len = recvLen - i;
-                        isStart = YES;
-                        return;
-                    }
-                }
+//                else
+//                {
+//                    if (tempBuffer[i+1] != 0xff ) {
+//                         memcpy(&recvBuffer[recvBufferLen], tempBuffer, tempLen);
+//                         recvBufferLen += tempLen;
+//                        pkt_decode(recvBuffer, recvBufferLen, 0x01);
+//                         dispatch_semaphore_signal(self.obuSemaphore);
+//                        isStart = NO;
+//                        return;
+//                    }
+////                    else{
+////                        memcpy(&recvBuffer[0], &tempBuffer[i], tempLen-i);
+////                        recvBufferLen = tempLen - i;
+////                        isStart = YES;
+////                        return;
+////                    }
+//                }
             }
         }
-        if (g_com_rx_len + recvLen > 1024) {
-            g_com_rx_len = 0;
-            recvLen = 0;
+        
+        if (recvBufferLen + tempLen > 1024) {
+            isStart = NO;
+            recvBufferLen = 0;
+            tempLen = 0;
+            return ;
         }
-        memcpy(&g_com_rx_buf[g_com_rx_len], recvBuffer, recvLen);
-        g_com_rx_len += recvLen;
+        memcpy(&recvBuffer[recvBufferLen], tempBuffer, tempLen);
+        recvBufferLen += tempLen;
     }
     
 }
@@ -351,6 +360,7 @@ int recvLen;
         return;
     }
     NSLog(@"通知更新成功%@---%@",characteristic,peripheral);
+    _blueConnected = YES;
     if (self.connectBlock) {
         self.connectBlock(YES,@{@"character":characteristic,@"deceive":peripheral},nil);
     }
@@ -391,6 +401,10 @@ int recvLen;
 #pragma mark 4.连接OBU
 -(void)connectDevice:(obuCallBack)callBack
 {
+    if (self.isBlueConnected) {
+        callBack(YES,@"设备已连接",@"设备已连接");
+        return;
+    }
      self.connectBlock = callBack;
     [self startScan];       //开始扫描
 }
@@ -400,6 +414,7 @@ int recvLen;
     self.disconnectBlock = callBack;
     if (self.isBlueConnected) {
         [self.wjCentralManger cancelPeripheralConnection:self.connectedPeripheral];
+        _blueConnected = NO;
     }
     
 }
@@ -408,19 +423,25 @@ int recvLen;
 {
     int ret;
     self.getCardInfoBlock = callBack;
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
     //1.发c1
     if([self sendC1AndWaitB1:callBack]!= YES)
         return ; //结束
+   
         //2.发送c9
    PROG_COMM_C4 progc4;
-   c4_init(progc4, (byte)0x01);
+   c4_init(&progc4, (byte)0x01);
    int needble2;
     int icc_flag;
     int icc_Length;
    int length = send_c9_Ble1_OC(progc4, &needble2,&icc_flag,&icc_Length);
+   if (length==-8) {
+            callBack(NO,nil,@"不存在IC卡");
+            return;
+    }
     //等B9 1
    [self sendData:length andRepeat:1];
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+    if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0)
     {
         callBack(NO,nil,@"超时未接收到C9帧");
         return;
@@ -470,7 +491,7 @@ int recvLen;
             
             length = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
             [self sendData:length andRepeat:1];
-            if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+            if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0)
             {
                 callBack(NO,nil,@"超时未接收到B9帧2");
                 return;
@@ -501,7 +522,8 @@ int recvLen;
     
     save_Info_OC(progc4,prog_b3);
     
-    if([self sendC5AndWaitB4:callBack]){
+//    if([self sendC5AndWaitB4:callBack])
+    {
         
         NSMutableDictionary *reDict = [NSMutableDictionary dictionaryWithCapacity:11];
         [reDict setObject:[NSString byteToNSString:g_pkg_iccinfo_data.ICC0015_INFO.cardIssuerID andLength:8] forKey:@"cardId"];
@@ -516,11 +538,19 @@ int recvLen;
         [reDict setObject:[NSString stringByByte:g_pkg_data.vehicleClass] forKey:@"vehicleModel"];
         [reDict setObject:[NSString byteToNSString:g_pkg_iccinfo_data.ICC0002_INFO.IccBanlance andLength:4] forKey:@"balance"];
         callBack(YES,reDict,@"成功");
+        
+        [self sendC5AndWaitB4:nil];
     }
+   });
 }
 #pragma mark  7.读取OBU的设备信息 ok
 -(void)getObuInformation:(obuCallBack)callBack
 {
+    if (!self.isBlueConnected) {
+        callBack(NO,nil,@"请先连接设备");
+        
+        return ;
+    }
     self.getOBUInfoBlock = callBack;
     //发送数据
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
@@ -539,13 +569,13 @@ int recvLen;
 #pragma mark  8.充值写卡：获取Mac1等数据
 -(void)loadCreditGetMac1:(NSString *)credit    cardId:(NSString*)cardId     terminalNo:(NSString *)terminalNo  picCode:(NSString *)pinCode    procType:(NSString*)procType     keyIndex:(NSString *)keyIndex callBack:(obuCallBack)callBack
 {
-    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
     if([self sendC1AndWaitB1:callBack]!= YES)
         return ; //结束
+    NSString *cardID = @"00000000000000000001";
+//    cardId = @"00000000000000000001";
     
-    cardId = @"00000000000000000001";
-    
-    byte* l_abcardId = [[cardId hexToBytes] bytes];
+    byte* l_abcardId = [[cardID hexToBytes] bytes];
     
     int l_nprocType = 0x01;
     if ([procType isEqualToString:@"ED"]) {
@@ -588,7 +618,7 @@ int recvLen;
     icc_getOneDispersed(&transfer_rq);
     int length = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist, transfer_rq.apdu);
     [self sendData:length andRepeat:1];
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)
+    if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2)) != 0)
     {
         callBack(NO,nil,@"超时没有收到TransferChannel_rs");
         return ;//  NSLog(@"超时无响应");
@@ -615,7 +645,7 @@ int recvLen;
     
     length = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist,transfer_rq.apdu);
     [self sendData:length andRepeat:1];
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)
+    if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2)) != 0)
     {
         callBack(NO,nil,@"超时没有收到TransferChannel_rs 2");
         return ;//  NSLog(@"超时无响应");
@@ -647,7 +677,7 @@ int recvLen;
                              transfer_rq.apdu);
  
     [self sendData:length andRepeat:1];
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)
+    if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2)) != 0)
     {
         callBack(NO,nil,@"超时没有收到TransferChannel_rs 3");
         return ;//  NSLog(@"超时无响应");
@@ -693,7 +723,7 @@ int recvLen;
     length = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist,
                              transfer_rq.apdu);
     [self sendData:length andRepeat:1];
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)
+    if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2)) != 0)
     {
         callBack(NO,nil,@"超时没有收到TransferChannel_rs 4");
         return ;//  NSLog(@"超时无响应");
@@ -753,14 +783,14 @@ int recvLen;
     [getMac1Dict setObject:[NSString byteToNSString:g_loadCredit_GetMac1.a_cid andLength:10] forKey:@"a_cid"];
     [getMac1Dict setObject:[NSString byteToNSString:g_loadCredit_GetMac1.a_on andLength:2] forKey:@"a_pt"];
     callBack(YES,getMac1Dict,nil);
-    
-    
+});
+
 }
 
 #pragma mark 9.充值写卡：执行写卡操作 FD_SingleMAC tac
 -(void)loadCreditWriteCard:(NSString *)dateMAC2 callBack:(obuCallBack)callBack
 {
-    
+   dispatch_async(dispatch_get_global_queue(0, 0), ^{
     NSData *macData = [dateMAC2 hexToBytes];
     uint8 *mac2 = [macData bytes];
         
@@ -812,7 +842,7 @@ int recvLen;
     int length = TransferChannel_rq_OC(did, transfer_rq.channelid, transfer_rq.apdulist,transfer_rq.apdu);
     //等B9 1
     [self sendData:length andRepeat:1];
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+    if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0)
     {
         callBack(NO,nil,@"超时未接收到TransferChannel帧");
         return;
@@ -838,13 +868,14 @@ int recvLen;
     }
     callBack(YES,@{@"tac":@""},nil);
     [self sendC5AndWaitB4:callBack];
-    
-   
+});
+
 }
 
 #pragma mark 10.读终端交易记录文件 OK
 -(void)readCardTransactionRecord:(NSString *)pinCode maxNumber:(NSInteger)maxNumber callBack:(obuCallBack)callBack
 {
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
     if([self sendC1AndWaitB1:callBack]!= YES)
         return ; //结束
     NSData *pinData = [pinCode hexToBytes];
@@ -852,7 +883,7 @@ int recvLen;
     NSMutableArray *transactionRecordsArr = [NSMutableArray array];
     for (int i = 0; i < maxNumber; i++) {
         PROG_COMM_C4 progc4;
-        init_C4_ReadIccInfo_OC(0x0018,0x01,progc4);
+        init_C4_ReadIccInfo_OC(0x0018,0x01,&progc4);
         
         int ret = 0;
     
@@ -874,7 +905,7 @@ int recvLen;
       
         //等B9 1
         [self sendData:length andRepeat:1];
-        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+        if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0)
         {
             callBack(NO,nil,@"超时未接收到C9帧");
             return;
@@ -932,7 +963,7 @@ int recvLen;
             length  = TransferChannel_rq_OC(did, transfer_rq.channelid,
                                      transfer_rq.apdulist, transfer_rq.apdu);
             [self sendData:length andRepeat:1];
-            if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+            if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0)
             {
                 callBack(NO,nil,@"超时未接收到C9帧2");
                 return;
@@ -991,17 +1022,19 @@ int recvLen;
     callBack(YES,transactionRecordsArr,nil);
     
     [self sendC5AndWaitB4:callBack];
+    });
 }
 
 #pragma mark 11.读联网收费复合消费过程文件 ok
 -(void)readCardConsumeRecord:(NSInteger)maxNumber callBack:(obuCallBack)callBack
 {
+     dispatch_async(dispatch_get_global_queue(0, 0), ^{
     if([self sendC1AndWaitB1:callBack]!= YES)
         return ; //结束
     NSMutableArray *consumeRecordsArr = [NSMutableArray array];
     for (int i=0; i<maxNumber; i++) {
         PROG_COMM_C4 progc4;
-        init_C4_ReadIccInfo_OC(0x0019, 0x01, progc4);
+        init_C4_ReadIccInfo_OC(0x0019, 0x01, &progc4);
         
         int needble2;
         int icc_flag;
@@ -1009,7 +1042,7 @@ int recvLen;
         int length = send_c9_Ble1_OC(progc4, &needble2,&icc_flag,&icc_Length);
         //等B9 1
         [self sendData:length andRepeat:1];
-        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+        if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0)
         {
             callBack(NO,nil,@"超时未接收到C9帧");
             return;
@@ -1059,7 +1092,7 @@ int recvLen;
                 
                 length = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
                 [self sendData:length andRepeat:1];
-                if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+                if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0)
                 {
                     callBack(NO,nil,@"超时未接收到B9帧2");
                     return;
@@ -1112,6 +1145,7 @@ int recvLen;
     callBack(YES,consumeRecordsArr,nil);
     
      [self sendC5AndWaitB4:callBack];
+     });
 }
 
 #pragma mark  12.读持卡人基本数据文件 ok
@@ -1119,10 +1153,11 @@ int recvLen;
 {
     self.getCardInfoBlock = callBack;
     //1.发c1
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
     if([self sendC1AndWaitB1:callBack]!= YES)
         return ; //结束
     PROG_COMM_C4 prog_c4;
-    init_C4_ReadIccInfo_OC(0x0016,(byte)1,prog_c4);
+    init_C4_ReadIccInfo_OC(0x0016,(byte)1,&prog_c4);
     int ret = 0;
     int datalist;
     ST_TRANSFER_CHANNEL transfer_rq;
@@ -1140,7 +1175,7 @@ int recvLen;
                              transfer_rq.apdu);
     
     [self sendData:length andRepeat:1];
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+    if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0)
     {
         callBack(NO,nil,@"超时未接收到TransferChannel");
         return;
@@ -1190,7 +1225,7 @@ int recvLen;
         icc_enter_dir(&transfer_rq, 0x3F00);
         length =TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
         [self sendData:length andRepeat:1];
-        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+        if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0)
         {
             callBack(NO,nil,@"超时未接收到TransferChannel2");
             return;
@@ -1206,7 +1241,7 @@ int recvLen;
         iccReadFileFrame(&transfer_rq, icc_flag, icc_offset, icc_Length);
         length = TransferChannel_rq(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
         [self sendData:length andRepeat:1];
-        if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0)
+        if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0)
         {
             callBack(NO,nil,@"超时未接收到TransferChannel3");
             return;
@@ -1250,6 +1285,7 @@ int recvLen;
     ower.ownerLicenseType = [NSString stringByByte:prog_b3.FileContent[0][54]];
     callBack(YES,ower,nil);
     [self sendC5AndWaitB4:callBack];
+    });
 }
 
 #pragma mark 13.数据透传
@@ -1268,7 +1304,8 @@ int recvLen;
     g_com_rx_len = 0;
     g_com_needrx_len = 50;
     [self sendData:length andRepeat:1];
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3) != 0)//
+    
+    if (dispatch_semaphore_wait(self.obuSemaphore,dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2)) != 0)//DISPATCH_TIME_FOREVER));//
     {
         NSLog(@"超时没有收到BST");
         callBack(NO,nil,@"超时没有收到BST");
@@ -1295,14 +1332,14 @@ int recvLen;
         return NO;
     }
     //5.解析b4
-    if (dispatch_semaphore_wait(self.obuSemaphore, DISPATCH_TIME_NOW+NSEC_PER_SEC*3)!=0){
-        callBack(NO,nil,@"超时没有收到B4");
+    if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0){
+//        callBack(NO,nil,@"超时没有收到B4");
         return NO;//超时未收到数据
     }
     PROG_COMM_B4 progb4;
     if(recv_b4_Ble_OC(&progb4,1)!=SUCCESS)
     {
-        callBack(NO,nil,@"B4解析出错");
+//        callBack(NO,nil,@"B4解析出错");
         return NO;//解析出错
     }
     length = EVENT_REPORT_rq_OC(0, 0);
