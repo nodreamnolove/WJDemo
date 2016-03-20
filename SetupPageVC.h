@@ -10,4 +10,6 @@
 
 @interface SetupPageVC : UIViewController
 
+@property (weak, nonatomic) IBOutlet UIButton *connectBtn;
+
 @end

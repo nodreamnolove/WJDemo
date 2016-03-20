@@ -21,6 +21,9 @@
 		04EBACC21C6CFE4300A456E6 /* AFURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBACB91C6CFE4300A456E6 /* AFURLSessionManager.m */; };
 		04EBACC41C70969600A456E6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EBACC31C70969500A456E6 /* UIKit.framework */; };
 		04EEA7AF1C88DBF900709FA0 /* CardOwnerRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EEA7AE1C88DBF900709FA0 /* CardOwnerRecord.m */; };
+		04EEA8031C9E38B900709FA0 /* MBProgressHUD+HMH.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EEA8021C9E38B900709FA0 /* MBProgressHUD+HMH.m */; };
+		04EEA8051C9E7D8B00709FA0 /* File.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 04EEA8041C9E7D8A00709FA0 /* File.rtf */; };
+		04EEA8801C9EAF7A00709FA0 /* hmac_sha1c.txt in Sources */ = {isa = PBXBuildFile; fileRef = 04EEA87F1C9EAF7A00709FA0 /* hmac_sha1c.txt */; };
 		AE0869731C741A8100887931 /* esam.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869681C741A8100887931 /* esam.c */; };
 		AE0869741C741A8100887931 /* icc.c in Sources */ = {isa = PBXBuildFile; fileRef = AE08696A1C741A8100887931 /* icc.c */; };
 		AE0869751C741A8100887931 /* lib2rsu.c in Sources */ = {isa = PBXBuildFile; fileRef = AE08696C1C741A8100887931 /* lib2rsu.c */; };
@@ -112,6 +115,11 @@
 		04EBACC31C70969500A456E6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		04EEA7AD1C88DBF900709FA0 /* CardOwnerRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CardOwnerRecord.h; sourceTree = "<group>"; };
 		04EEA7AE1C88DBF900709FA0 /* CardOwnerRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CardOwnerRecord.m; sourceTree = "<group>"; };
+		04EEA8011C9E38B900709FA0 /* MBProgressHUD+HMH.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MBProgressHUD+HMH.h"; sourceTree = "<group>"; };
+		04EEA8021C9E38B900709FA0 /* MBProgressHUD+HMH.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MBProgressHUD+HMH.m"; sourceTree = "<group>"; };
+		04EEA8041C9E7D8A00709FA0 /* File.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = File.rtf; sourceTree = "<group>"; };
+		04EEA87E1C9EAF7900709FA0 /* hmac_sha1h.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hmac_sha1h.txt; sourceTree = "<group>"; };
+		04EEA87F1C9EAF7A00709FA0 /* hmac_sha1c.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hmac_sha1c.txt; sourceTree = "<group>"; };
 		AE0869661C741A8100887931 /* CToOcType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CToOcType.h; sourceTree = "<group>"; };
 		AE0869671C741A8100887931 /* esam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = esam.h; sourceTree = "<group>"; };
 		AE0869681C741A8100887931 /* esam.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = esam.c; sourceTree = "<group>"; };
@@ -230,6 +238,8 @@
 				04EBACA01C6CED5800A456E6 /* MBProgressHUD.bundle */,
 				04EBACA11C6CED5800A456E6 /* MBProgressHUD.h */,
 				04EBACA21C6CED5800A456E6 /* MBProgressHUD.m */,
+				04EEA8011C9E38B900709FA0 /* MBProgressHUD+HMH.h */,
+				04EEA8021C9E38B900709FA0 /* MBProgressHUD+HMH.m */,
 			);
 			path = MBProgressHUD;
 			sourceTree = "<group>";
@@ -270,6 +280,8 @@
 				AE0869831C755A6100887931 /* issue_Bleh.txt */,
 				AE0869841C755A6100887931 /* issue_Blec.txt */,
 				AE0869661C741A8100887931 /* CToOcType.h */,
+				04EEA87E1C9EAF7900709FA0 /* hmac_sha1h.txt */,
+				04EEA87F1C9EAF7A00709FA0 /* hmac_sha1c.txt */,
 				AE0869671C741A8100887931 /* esam.h */,
 				AE0869681C741A8100887931 /* esam.c */,
 				AE0869691C741A8100887931 /* icc.h */,
@@ -305,6 +317,7 @@
 		AEDB5ABF1C58495A00902D17 = {
 			isa = PBXGroup;
 			children = (
+				04EEA8041C9E7D8A00709FA0 /* File.rtf */,
 				04EBACC31C70969500A456E6 /* UIKit.framework */,
 				AE5D69BA1C5FA1CA00381955 /* CoreBluetooth.framework */,
 				AEDB5B451C59C85500902D17 /* CFNetwork.framework */,
@@ -544,6 +557,7 @@
 				AEDB5AD81C58495A00902D17 /* Assets.xcassets in Resources */,
 				AEDB5B691C5A123100902D17 /* wenhua.png in Resources */,
 				AEDB5AD61C58495A00902D17 /* Main.storyboard in Resources */,
+				04EEA8051C9E7D8B00709FA0 /* File.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -577,6 +591,7 @@
 				AE50A86F1C5B118200688BD6 /* MyWebVC.m in Sources */,
 				AEDB5B241C590F3800902D17 /* ExitPageVC.m in Sources */,
 				AE0869901C7577F600887931 /* wjOBU.txt in Sources */,
+				04EEA8801C9EAF7A00709FA0 /* hmac_sha1c.txt in Sources */,
 				AEDB5B421C59C83300902D17 /* AsyncSocket.m in Sources */,
 				AE0869881C75646C00887931 /* issue_Ble_send.c in Sources */,
 				AE727B8B1C83EB6B00E181BA /* CardTransactionRecord.m in Sources */,
@@ -605,6 +620,7 @@
 				04EBACC11C6CFE4300A456E6 /* AFURLResponseSerialization.m in Sources */,
 				04EBACA51C6CED5800A456E6 /* MBProgressHUD.m in Sources */,
 				AEDB5B2A1C59177800902D17 /* WJTabBarController.m in Sources */,
+				04EEA8031C9E38B900709FA0 /* MBProgressHUD+HMH.m in Sources */,
 				AEDB5B1E1C590EBB00902D17 /* MinePageVC.m in Sources */,
 				AE0869931C75B06E00887931 /* issue_Ble_recv.c in Sources */,
 				AEDB5ACD1C58495A00902D17 /* main.m in Sources */,

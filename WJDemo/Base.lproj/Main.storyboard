@@ -174,7 +174,7 @@
                                     <action selector="connectSer:" destination="Qlf-zy-LPV" eventType="touchUpInside" id="ufp-gE-wra"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="8088" borderStyle="roundedRect" placeholder="端口" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="khU-dU-L5G">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="8082" borderStyle="roundedRect" placeholder="端口" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="khU-dU-L5G">
                                 <rect key="frame" x="86" y="152" width="203" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="QCb-6z-OQS"/>
@@ -189,7 +189,7 @@
                                     <constraint firstAttribute="height" constant="21" id="sD5-vJ-MNW"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="端口" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UKC-TS-tsJ">
@@ -199,7 +199,7 @@
                                     <constraint firstAttribute="width" constant="42" id="NH8-ni-ZLh"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="wanjiwuhanyuming.oicp.net" borderStyle="roundedRect" placeholder="域名" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="34g-du-Cib">
@@ -227,6 +227,7 @@
                     <navigationItem key="navigationItem" id="Di0-NJ-D6L"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
                     <connections>
+                        <outlet property="connectBtn" destination="dUm-lL-bbw" id="5la-RS-B94"/>
                         <outlet property="portstr" destination="khU-dU-L5G" id="fgC-1X-sla"/>
                         <outlet property="yuming" destination="34g-du-Cib" id="H92-2P-lhP"/>
                     </connections>

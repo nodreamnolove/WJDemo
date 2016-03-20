@@ -37,5 +37,8 @@ void save_CpuCardinfo_OC(PROG_COMM_B3 prog_b3);
 
 float byteToFloat(byte* bytearr);
 
+//int send_Quancun_Init_OnLine_To_Front_End_Processor(FRAME_QUANCUN_INIT_RQ frame_quancun_init_rq);
+//int getQuanCunInit_Rq_Ble(FrameQuanCunInitRq *data_rq, uint8 *UserName,  uint8 Addmoney[], int miyaotype, int miyaoFlag, int TimeOut);
+//int GetFingMarkFunction(uint8 *data,int datalen,uint8 *anTalkKey, int nTalkKeylen,uint8 *OutInfo,int Outlen);
 #endif
 

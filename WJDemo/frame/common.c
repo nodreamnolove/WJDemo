@@ -988,3 +988,24 @@ int getFileSize(char strFileName[])
     return size;
 }
 
+int GetTimeStampFunction(uint8 *TimeInfo)
+{
+    int tmp, pos = 0;
+    time_t ltime;
+    struct tm *newtime;
+    
+    time(&ltime);
+    newtime = localtime(&ltime);	//◊™ªªŒ™struct tmΩ·ππµƒµ±µÿ ±º‰--CST ±º‰(∂´∞À«¯)
+    
+    tmp = newtime->tm_year + 1900;
+    TimeInfo[pos++] = tmp&0xff;			//ƒÍ£¨µÕ8Œª
+    TimeInfo[pos++] = (tmp>>8)&0xff;	//ƒÍ£¨∏ﬂ8Œª
+    TimeInfo[pos++] = newtime->tm_mon + 1;//‘¬
+    TimeInfo[pos++] = newtime->tm_mday;	//»’
+    TimeInfo[pos++] = newtime->tm_wday; //÷‹
+    TimeInfo[pos++] = newtime->tm_hour;	// ±
+    TimeInfo[pos++] = newtime->tm_min;	//∑÷
+    TimeInfo[pos++] = newtime->tm_sec;	//√Î
+    return 0;
+}
+

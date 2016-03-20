@@ -11,13 +11,22 @@
 #import "UIView+HMH.h"
 #import "ObuSDK.h"
 #import "MBProgressHUD+MJ.h"
+#import "MBProgressHUD+HMH.h"
+#import "CardTransactionRecord.h"
+#import "CardOwnerRecord.h"
+#import "CardConsumeRecord.h"
+#import "AsyncSocket.h"
+#import "NetFunction.h"
+#import "AppDelegate.h"
+#import "NSString+NSStringHexToBytes.h"
 #import <CoreBluetooth/CoreBluetooth.h>
+#include "issue_Ble_send.h"
 
 #define PicNum  3
 #define ScrollNum 3600
 
 
-@interface HomePageVC ()<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate,CBCentralManagerDelegate>
+@interface HomePageVC ()<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate,CBCentralManagerDelegate,UITableViewDataSource>
 
 @property (nonatomic,strong) UIScrollView * scrollView;
 
@@ -44,6 +53,10 @@
 @property (nonatomic, strong) NSArray *titleArr;
 
 @property (nonatomic, strong) ObuSDK *myObu;
+
+@property (nonatomic, strong) UIView *displayView;
+
+@property (nonatomic, strong) NSMutableArray *infosArr;
 @end
 
 @implementation HomePageVC
@@ -92,6 +105,18 @@
 
    
 
+}
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    [MBProgressHUD hideHUD];
+}
+
+-(NSMutableArray *)infosArr
+{
+    if (_infosArr==nil) {
+        _infosArr = [NSMutableArray array];
+    }
+    return _infosArr;
 }
 -(NSArray *)titleArr
 {
@@ -244,41 +269,74 @@
 
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    NSString *tintString;
+    
     //连接
     if (indexPath.row == 0) {
+        tintString = @"连接OBU";
         self.myObu = [ObuSDK sharedObuSDK];
-        if (self.myObu) {
-            [self.myObu connectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
-                if (status==NO) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [MBProgressHUD showError:@"连接失败"];
-                    });
-                }
-                else if (status == YES){
-                    dispatch_async(dispatch_get_main_queue(), ^{
-//                [MBProgressHUD showSuccess:[NSString stringWithFormat:@"obu连接成功/r/n,%@",data]];
-                        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"连接成功" message: [NSString stringWithFormat:@"%@",data] delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-                        [alert show];
-                    });
-                }
-            }];
-        }
-    }//断开
+            if (self.myObu) {
+                [MBProgressHUD showMessage:tintString toView:nil];
+                [self.myObu connectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
+                     dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD hideHUD];
+                    if (status==NO) {
+                            [MBProgressHUD showError:[NSString stringWithFormat:@"连接失败:%@",errorMsg]];
+                    }
+                    else if (status == YES){
+                            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"连接成功" message: [NSString stringWithFormat:@"%@",data] delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                            [alert show];
+    //                        [MBProgressHUD showInfo:data toView:nil];
+                        
+                    }
+                
+                     });
+                }];
+        }//断开
+    }
     else if(indexPath.row == 1){
+        tintString = @"断开OBU";
         if (self.myObu) {
-            [self.myObu disconnectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
-                if (status == YES) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [MBProgressHUD showSuccess:@"断开成功"];
-                    });
-                }
+            [MBProgressHUD showMessage:tintString toView:nil];
+            [self.myObu transCommand:nil callBack:^(BOOL status, id data, NSString *errorMsg)  {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD hideHUD];
+                    NSString *title;
+                    NSString *message;
+                    if (status) {
+                        title = @"读取卡片信息成功";
+                        message = [NSString stringWithFormat:@"%@",data];
+                    }
+                    else
+                    {
+                        title = @"读取卡片信息失败";
+                        message = [NSString stringWithFormat:@"%@",errorMsg];
+                    }
+                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                    [alert show];
+                });
             }];
+//            [self.myObu disconnectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
+//                 dispatch_async(dispatch_get_main_queue(), ^{
+//                [MBProgressHUD hideHUD];
+//                if (status == YES) {
+//                    [MBProgressHUD showSuccess:@"断开成功"];
+//                }
+//                else
+//                {
+//                    [MBProgressHUD showSuccess:@"断开成功"];
+//                }
+//              });
+//           }];
         }
     }//读卡
     else if(indexPath.row == 2){
+        tintString = @"读取IC卡信息";
         if (self.myObu) {
+            [MBProgressHUD showMessage:tintString toView:nil];
             [self.myObu getCardInformation:^(BOOL status, NSObject *data, NSString *errorMsg) {
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD hideHUD];
                     NSString *title;
                     NSString *message;
                     if (status) {
@@ -297,9 +355,12 @@
         }
     }//读OBU
     else if (indexPath.row == 3){
+        tintString = @"读取OBU信息";
         if(self.myObu){
+            [MBProgressHUD showMessage:tintString toView:nil];
             [self.myObu getObuInformation:^(BOOL status, id data, NSString *errorMsg) {
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD hideHUD];
                     NSString *title;
                     NSString *message;
                     if (status) {
@@ -318,14 +379,37 @@
         }
     }
     else if (indexPath.row == 4){
+        tintString = @"圈存初始化";
         if(self.myObu){
-            [self.myObu loadCreditGetMac1:@"" cardId:@"" terminalNo:@"" picCode:@"" procType:@"" keyIndex:@"" callBack:^(BOOL status, id data, NSString *errorMsg) {
+            [MBProgressHUD showMessage:tintString toView:nil];
+            [self.myObu loadCreditGetMac1:@"1" cardId:@"00000000000000000001" terminalNo:@"" picCode:@"123456" procType:@"02" keyIndex:@"01" callBack:^(BOOL status, id data, NSString *errorMsg) {
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD hideHUD];
                     NSString *title;
                     NSString *message;
                     if (status) {
                         title = @"圈存初始化成功";
-                        message = [NSString stringWithFormat:@"%@",data];
+//                        message = [NSString stringWithFormat:@"%@",data];
+                        //*********测试
+                        [self.myObu loadCreditWriteCard:@"2016012713281112346111" callBack:^(BOOL status, id data, NSString *errorMsg) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [MBProgressHUD hideHUD];
+                                NSString *title;
+                                NSString *message;
+                                if (status) {
+                                    title = @"圈存成功";
+                                    message = [NSString stringWithFormat:@"%@",data];
+                                }
+                                else{
+                                    title = @"圈存失败";
+                                    message = errorMsg;
+                                }
+                                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                                [alert show];
+                                
+                            });
+                        }];
+                        
                     }
                     else{
                         title = @"圈存初始化失败";
@@ -339,9 +423,13 @@
         }
     }
     else if (indexPath.row == 5){
+        tintString = @"正在圈存";
         if(self.myObu){
-            [self.myObu loadCreditWriteCard:@"" callBack:^(BOOL status, id data, NSString *errorMsg) {
+            [MBProgressHUD showMessage:tintString toView:nil];
+            
+            [self.myObu loadCreditWriteCard:@"2016012713281112346111" callBack:^(BOOL status, id data, NSString *errorMsg) {
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD hideHUD];
                     NSString *title;
                     NSString *message;
                     if (status) {
@@ -360,14 +448,23 @@
         }
     }
     else if (indexPath.row == 6){
+        tintString = @"读取交易记录";
         if(self.myObu){
-            [self.myObu readCardTransactionRecord:@"" maxNumber:5 callBack:^(BOOL status, id data, NSString *errorMsg) {
+            [MBProgressHUD showMessage:tintString toView:nil];
+            [self.myObu readCardTransactionRecord:@"123456" maxNumber:1 callBack:^(BOOL status, id data, NSString *errorMsg) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    NSString *title;
+                    [MBProgressHUD hideHUD];
+                    NSString *title=@"";
                     NSString *message;
                     if (status) {
                         title = @"读取交易记录成功";
-                        message = [NSString stringWithFormat:@"%@",data];
+                        NSArray *arrs = data;
+                        for (CardTransactionRecord *record in arrs) {
+                            NSString *infos = [NSString stringWithFormat:@"onlineSn:%@,overdrawLimit:%@,transAmount:%@,transType:%@,terminalNo:%@,transDate:%@,transTime:%@\n",record.onlineSn,record.overdrawLimit,record.transAmount,record.transType,record.terminalNo,record.transDate,record.transTime];
+                             
+                            message = [NSString stringWithFormat:@" %@\n%@",message,infos];
+                        }
+                        
                     }
                     else{
                         title = @"读取交易记录失败";
@@ -381,14 +478,39 @@
         }
     }
     else if (indexPath.row == 7){
+        tintString = @"读取消费记录";
         if(self.myObu){
+            [MBProgressHUD showMessage:tintString toView:nil];
             [self.myObu readCardConsumeRecord:1 callBack:^(BOOL status, id data, NSString *errorMsg) {
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD hideHUD];
                     NSString *title;
                     NSString *message;
                     if (status) {
                         title = @"读取消费记录成功";
-                        message = [NSString stringWithFormat:@"%@",data];
+                        NSArray *recordArr = data;
+                        CardConsumeRecord *record = recordArr[0];
+                        message = [NSString stringWithFormat:@"applicationId:%@,recordLength:%@,applicationLockFlag:%@,tollRoadNetworkId:%@,tollStationId:%@,tollLaneId:%@,timeUnix:%@,vehicleModel:%@,passStatus:%@,staffNo:%@,mtcSequenceNo:%@,vehicleNumber:%@,reserve1:%@,reserve2:%@",record.applicationId,record.recordLength,record.applicationLockFlag,record.tollRoadNetworkId,record.tollStationId,record.tollLaneId,record.timeUnix,
+                                   record.vehicleModel,record.passStatus,record.staffNo,record.mtcSequenceNo,record.vehicleNumber,record.reserve1,record.reserve2];
+//                        @property(nonatomic, copy)NSString* tollStationId; // 入/出口收费站号
+//                        
+//                        @property(nonatomic, copy)NSString* tollLaneId; // 入/出口收费车道号
+//                        
+//                        @property(nonatomic, copy)NSString* timeUnix; // 入/出口时间 UNIX时间
+//                        
+//                        @property(nonatomic, copy)NSString* vehicleModel; //车型
+//                        
+//                        @property(nonatomic, copy)NSString* passStatus; // 入出口状态
+//                        
+//                        @property(nonatomic, copy)NSString* reserve1; //保留字节1
+//                        
+//                        @property(nonatomic, copy)NSString* staffNo; //收费员工号二进制方式存放入口员工号后六位
+//                        
+//                        @property(nonatomic, copy)NSString* mtcSequenceNo; //收费员工号二进制方式存放入口员工号后六位
+//                        
+//                        @property(nonatomic, copy)NSString* vehicleNumber; //车牌号码
+//                        
+//                        @property(nonatomic, copy)NSString* reserve2;
                     }
                     else{
                         title = @"读取消费记录失败";
@@ -402,14 +524,19 @@
         }
     }
     else if (indexPath.row == 8){
+        tintString = @"读取持卡人信息";
         if(self.myObu){
+            [MBProgressHUD showMessage:tintString toView:nil];
             [self.myObu readCardOwnerRecord:^(BOOL status, id data, NSString *errorMsg) {
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD hideHUD];
                     NSString *title;
                     NSString *message;
                     if (status) {
                         title = @"读取持卡人信息成功";
-                        message = [NSString stringWithFormat:@"%@",data];
+                        CardOwnerRecord *record = data;
+                        
+                        message = [NSString stringWithFormat:@"ownerId:%@,staffId:%@,ownerName:%@,ownerLicenseNumber:%@,ownerLicenseType:%@",record.ownerId,record.staffId,record.ownerName,record.ownerLicenseNumber,record.ownerLicenseType];
                     }
                     else{
                         title = @"读取持卡人信息失败";
@@ -428,6 +555,21 @@
     }
 }
 
+#pragma mark 网络连接
+-(void)getMacByNet
+{
+//    AppDelegate *app = [UIApplication sharedApplication].delegate;
+//    
+//    if (app.connection) {
+//        FrameQuanCunInitRq  data_rq;
+//        NSData *userName = [@"shaocong" hexToBytes];
+//        uint8 username[22] = {115,104,97,111,99,104,111,110,103,00};
+//        uint8 Addmoney[2] = {0x00,0x00,0x03,0xe8};
+//        getQuanCunInit_Rq_Ble(&data_rq, username,Addmoney,2, 1, 1000);
+//        
+//    
+//    }
+}
 
 
 #pragma mark 点击pagecontrol
@@ -447,6 +589,7 @@ static int timeCount = ScrollNum/2;
     
     
 }
+
 
 -(void)imageViewClick:(UITapGestureRecognizer *)ges
 {

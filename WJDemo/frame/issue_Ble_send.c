@@ -8,6 +8,7 @@
 #include "psam.h"
 #include "icc.h"
 #include "saveStruct.h"
+//#include "hmac_sha1.h"
 extern uint8 g_u8LLCFlag;
 //c1初始化
 int c1_init(PROG_COMM_C1 *prog_c1)
@@ -69,10 +70,10 @@ int  c5_init(PROG_COMM_C5 *prog_c5)
 
 void init_C4_ReadIccInfo_OC(byte nType,byte index,PROG_COMM_C4 *prog_c4)
 {
-    prog_c4->RSCTL = (byte) 0x81;
-    prog_c4->CMDType = (byte) 0xC4;
+    prog_c4->RSCTL = (uint8) 0x81;
+    prog_c4->CMDType = (uint8) 0xC4;
     prog_c4->C4Flag = 0;
-    prog_c4->NumOfFiles = index;
+    prog_c4->NumOfFiles = (uint8)index;
     prog_c4->DIDnFID[0] = nType;
     switch (nType) {
         case 0x02://
@@ -322,7 +323,7 @@ int  send_c9_Ble1_OC(PROG_COMM_C4 prog_c4,int * needble2,int *icc_flag,int *icc_
         if ((vst.obustatus[0] & 0x80) == 0x00) {
             did = 0x01;
             iccInitFrame(&transfer_rq);
-            iccReadFileFrame(&transfer_rq, *icc_flag, icc_offset, icc_Length);
+            iccReadFileFrame(&transfer_rq, *icc_flag, icc_offset, *icc_Length);
             ret = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
             * needble2 = 0;
             return ret;
@@ -602,7 +603,8 @@ void save_Info_OC(PROG_COMM_C4 prog_c4,PROG_COMM_B3 prog_b3)
     for (i = 0; i < prog_b3.NumOfFiles; i++) {
         if (prog_c4.DIDnFID[i] == 0x01) {
             for (oppt = 0; oppt < 8;) {
-                 g_pkg_data.contractProvider[oppt] = prog_b3.FileContent[i][oppt++];
+                g_pkg_data.contractProvider[oppt] = prog_b3.FileContent[i][oppt];
+                oppt++;
             }
              g_pkg_data.contractType = prog_b3.FileContent[i][oppt++];
              g_pkg_data.contractVersion = prog_b3.FileContent[i][oppt++];
@@ -920,18 +922,159 @@ float byteToFloat(byte * bytearr)
 {
     float   floatVariable;
     memcpy(&floatVariable, bytearr, 4);
-    return  floatVariable;
+    if(bytearr[0]==0xff && bytearr[1]==0xff && bytearr[2]==0xff && bytearr[3]==0xff)
+        return 0.0;
+    else
+        return  floatVariable;
 }
 
 
+//int getQuanCunInit_Rq_Ble(FrameQuanCunInitRq *data_rq, uint8 *UserName,
+//                          uint8 Addmoney[], int miyaotype, int miyaoFlag, int TimeOut) {
+//    ST_TRANSFER_CHANNEL transfer_rq;
+//    
+//    int datalist;
+//    uint8 data[128];
+//    int did, i;
+//    int ret;
+//    int j = 0;
+//    did = 0x01;
+//    
+//    uint8 banlance[4] = { 0x00, 0x00, 0x00, 0x00 };		//(0, 4)”‡∂Ó
+//    uint8 paySerial[2] = { 0x00, 0x00 };		//(4, 2)¡™ª˙Ωª“◊–Ú∫≈
+//    uint8 passtyperand[4] = { 0x00, 0x00, 0x00, 0x00 };		//(8, 4)Œ±ÀÊª˙ ˝
+//    
+//    uint8 passkey[8] = { 0x00, 0x00, 0x00, 0x00 };	//π˝≥Ã√ÿ‘ø
+//    
+//    uint8 dealtime[9] = { 0x20, 0x15, 0x01, 0x01, 0x10, 0x10, 0x10 };
+//    GetTimebufFunction(dealtime);
+//    dealtime[4] = dealtime[5];
+//    dealtime[5] = dealtime[6];
+//    dealtime[6] = dealtime[7];
+//    
+//    uint8 mac1[10] = { 0 };	//(12,4)MAC1¬Î
+//    uint8 mac2[10] = { 0 };	//MAC2¬Î
+//    
+//    uint8 RecvLen = 0;
+//    uint8 RecvDate[128];
+//    
+//    memcpy(&data_rq->UserName, &UserName[0], sizeof(data_rq->UserName));
+//    memcpy(&data_rq->Quancun_Money[0], &Addmoney[0],
+//           sizeof(data_rq->Quancun_Money));
+//    
+//    ret = send_Quancun_Init_OnLine_To_Front_End_Processor(g_frame_quancun_init_rq);
+//    
+//    
+//    
+//    if (ret != SUCCESS) {
+//        return -1 + ret * 100;
+//    }
+//    
+//    return 0;
+//}
+
+//int send_Quancun_Init_OnLine_To_Front_End_Processor(FRAME_QUANCUN_INIT_RQ frame_quancun_init_rq)
+//{
+//    int ret = SUCCESS;
+//    uint32 len = 0;
+//    uint8 i = 0, chk = 0;
+//    uint8 buf[512] = {0};
+//    
+//    
+//    frame_quancun_init_rq.FrameType = 0x21;//÷°¿‡–Õ±‡∫≈
+//    frame_quancun_init_rq.FrameLen = 0x40;//÷°≥§∂»
+//    
+//    memset(frame_quancun_init_rq.FillBytes,0xA5,sizeof(frame_quancun_init_rq.FillBytes));
+//    
+//    uint8 TimeInfo[10];
+//    GetTimeStampFunction(TimeInfo);
+//    memcpy(frame_quancun_init_rq.TimeStamp,TimeInfo,sizeof(frame_quancun_init_rq.TimeStamp));
+//    
+//    
+//    memset(frame_quancun_init_rq.FingerMark,0x00,sizeof(frame_quancun_init_rq.FingerMark));
+//   
+//    memset(frame_quancun_init_rq.ExtendInformation,0xA5,sizeof(frame_quancun_init_rq.ExtendInformation));
+//    
+//    len = sizeof(FRAME_QUANCUN_INIT_RQ);
+//    memcpy(buf,&frame_quancun_init_rq.FrameType,len);
+//    
+//    uint8 outer[30];
+//    GetFingMarkFunction((uint8*)(buf), len, g_certifyResult.TalkKey, 20, outer, 20);
+//    for(i = 0; i < sizeof(frame_quancun_init_rq.FingerMark); i ++)
+//    {
+//        buf[len - sizeof(frame_quancun_init_rq.ExtendInformation) - sizeof(frame_quancun_init_rq.FingerMark) + i] = outer[i];
+//        frame_quancun_init_rq.FingerMark[i] = outer[i];
+//    }
+//    
+//    
+//    memcpy(&g_frame_quancun_init_rq.FrameType,&frame_quancun_init_rq.FrameType,sizeof(FRAME_QUANCUN_INIT_RQ));
+//    
+//    
+//    g_udpnet_tx_len = pkt_code_udpnet(&buf[0], &g_udpnet_tx_buf[0], len);
+//    
+//   
+//    return SUCCESS;
+//}
 
 
+//int GetFingMarkFunction(uint8 *data,int datalen,uint8 *anTalkKey, int nTalkKeylen,uint8 *OutInfo,int Outlen)
+//{
+//    // 	hmac_sha(k,lk,d,ld,out,t);
+//    //  ≤Œ ˝¡–±Ìkey°¢keylen°¢data°¢datalen°¢out°¢outlen
+//    int i;
+//    uint8 anTalkKeyTmp[30];
+//    for (i = 0;i<nTalkKeylen;i++)
+//    {
+//        anTalkKeyTmp[i] = anTalkKey[i];
+//    }
+//#ifdef TalkKey_A5
+//    for (i = 0;i<nTalkKeylen;i++)
+//    {
+//        anTalkKeyTmp[i] = 0xA5;//g_certifyResult.TalkKey[i];
+//    }
+//#endif
+//    anTalkKeyTmp[20] = '\0';
+//    
+//    hmac_sha((char*)anTalkKeyTmp,nTalkKeylen,(char*)data,datalen,&OutInfo[0],20);
+//    
+//    return 0;
+//}
 
-
-
-
-
-
+//byte* EncodeFrame_FrameQuanCunInitRq(byte* UserName,byte* Quancun_Money)
+//{
+//    int FrameQuanCunInitRqLength = 100;
+//    byte Frame[FrameQuanCunInitRqLength];
+//    int index = 0;
+//    Frame[index++] = 0x21;
+//    Frame[index++] = FrameQuanCunInitRqLength & 0xFF;
+//    for(int i=0;i < UserName.length;i++)
+//    {
+//        Frame[index++] = UserName[i];
+//    }
+//    for( i=0;i < 4 ;i++)
+//    {
+//        Frame[index++] = (byte) 0xA5;
+//    }
+//    for( i=0;i<Quancun_Money.length;i++)
+//    {
+//        Frame[index++] = Quancun_Money[i];
+//    }
+//    FrameUtil fu = new FrameUtil();
+//    byte* TimeStamp = fu.GetTimeStamp();
+//    for( i=0;i<TimeStamp.length;i++)
+//    {
+//        Frame[index++] = TimeStamp[i];
+//    }
+//    for( i=0;i<WJVariables.g_FrameQuanInitCunRq_data.FingerMark.length;i++)
+//    {
+//        Frame[index++] = WJVariables.g_FrameQuanInitCunRq_data.FingerMark[i];
+//    }
+//    for( i=0;i<WJVariables.g_FrameQuanInitCunRq_data.ExtendInformation.length;i++)
+//    {
+//        Frame[index++] = WJVariables.g_FrameQuanInitCunRq_data.ExtendInformation[i];
+//    }
+//    return Frame;
+//}
 
 
 

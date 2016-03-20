@@ -49,6 +49,7 @@
     appdelegate.port = [self.portstr.text intValue];
     if ([appdelegate connection]) {
         [MBProgressHUD showSuccess:@"连接成功"];
+        self.connectBtn.enabled = NO;
         return ;
     }
 }

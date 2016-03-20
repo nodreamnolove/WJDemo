@@ -10,6 +10,7 @@
 #import "WJTabBarController.h"
 #import "NetFunction.h"
 #import "AsyncSocket.h"
+#import "SetupPageVC.h"
 
 @interface AppDelegate ()
 
@@ -115,6 +116,7 @@
 {
     if ([self.asocket isConnected]) {
         [self.asocket disconnect];
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"Disconnect" object:nil];
     }
     return YES;
 }

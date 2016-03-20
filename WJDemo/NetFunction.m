@@ -40,6 +40,11 @@ singleton_implementation(NetFunction)
     NSString* strIPAddress = [NSString stringWithUTF8String:ip];
     return strIPAddress;     
 }
+
+
+
+
+
 @end
 
 

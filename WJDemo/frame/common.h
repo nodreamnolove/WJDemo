@@ -333,6 +333,8 @@ extern char filename_usbcom[100];
 //}
 //#endif
 
+extern int GetTimeStampFunction(uint8 *TimeInfo);
+
 #endif
 
 

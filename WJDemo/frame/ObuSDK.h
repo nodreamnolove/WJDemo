@@ -1,5 +1,8 @@
  
 #import <Foundation/Foundation.h>
+
+
+#define  ScanTimeOut  20
 @class CBPeripheral;
 //1.回调函数
 typedef void(^obuCallBack)(BOOL status,id data, NSString *errorMsg);
@@ -28,6 +31,7 @@ typedef void(^obuCallBack)(BOOL status,id data, NSString *errorMsg);
 -(void)getObuInformation:(obuCallBack)callBack;
 
 //8.充值写卡：获取Mac1等数据
+//12345 02 01
 -(void)loadCreditGetMac1:(NSString *)credit \
                   cardId:(NSString*)cardId  \
               terminalNo:(NSString *)terminalNo \
@@ -39,10 +43,10 @@ typedef void(^obuCallBack)(BOOL status,id data, NSString *errorMsg);
 //9.充值写卡：执行写卡操作
 -(void)loadCreditWriteCard:(NSString *)dateMAC2 callBack:(obuCallBack)callBack;
 
-//10.读终端交易记录文件
+//10.读终端交易记录文件 123456 1
 -(void)readCardTransactionRecord:(NSString *)pinCode maxNumber:(NSInteger)maxNumber callBack:(obuCallBack)callBack;
 
-//11.读联网收费复合消费过程文件
+//11.读联网收费复合消费过程文件 1
 -(void)readCardConsumeRecord:(NSInteger)maxNumber callBack:(obuCallBack)callBack;;
 
 //12.读持卡人基本数据文件

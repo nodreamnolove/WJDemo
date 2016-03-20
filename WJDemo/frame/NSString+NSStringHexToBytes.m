@@ -34,7 +34,7 @@
 {
     NSString *hexStr=@"";
     //&&i<sizeof(byteArr)/sizeof(byteArr[0])
-    for (int i=startPos; i<length; i++) {
+    for (int i=startPos; i<startPos+length; i++) {
         NSString *newHexStr = [NSString stringWithFormat:@"%x",byteArr[i]&0xff];
         if (newHexStr.length==1) {
             hexStr = [NSString stringWithFormat:@"%@0%@",hexStr,newHexStr];
@@ -47,7 +47,7 @@
 +(NSString *)stringByByte:(Byte)oneByte
 {
     NSString * hexStr = @"";
-    hexStr = [NSString stringWithFormat:@"%x",oneByte];
+    hexStr = [NSString stringWithFormat:@"%02x",oneByte];
     return hexStr;
 }
 @end
