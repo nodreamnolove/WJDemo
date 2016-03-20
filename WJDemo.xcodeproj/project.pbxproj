@@ -24,6 +24,7 @@
 		04EEA8031C9E38B900709FA0 /* MBProgressHUD+HMH.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EEA8021C9E38B900709FA0 /* MBProgressHUD+HMH.m */; };
 		04EEA8051C9E7D8B00709FA0 /* File.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 04EEA8041C9E7D8A00709FA0 /* File.rtf */; };
 		04EEA8801C9EAF7A00709FA0 /* hmac_sha1c.txt in Sources */ = {isa = PBXBuildFile; fileRef = 04EEA87F1C9EAF7A00709FA0 /* hmac_sha1c.txt */; };
+		04EEA8831C9F55F700709FA0 /* DisplayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EEA8821C9F55F700709FA0 /* DisplayViewController.m */; };
 		AE0869731C741A8100887931 /* esam.c in Sources */ = {isa = PBXBuildFile; fileRef = AE0869681C741A8100887931 /* esam.c */; };
 		AE0869741C741A8100887931 /* icc.c in Sources */ = {isa = PBXBuildFile; fileRef = AE08696A1C741A8100887931 /* icc.c */; };
 		AE0869751C741A8100887931 /* lib2rsu.c in Sources */ = {isa = PBXBuildFile; fileRef = AE08696C1C741A8100887931 /* lib2rsu.c */; };
@@ -120,6 +121,8 @@
 		04EEA8041C9E7D8A00709FA0 /* File.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = File.rtf; sourceTree = "<group>"; };
 		04EEA87E1C9EAF7900709FA0 /* hmac_sha1h.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hmac_sha1h.txt; sourceTree = "<group>"; };
 		04EEA87F1C9EAF7A00709FA0 /* hmac_sha1c.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hmac_sha1c.txt; sourceTree = "<group>"; };
+		04EEA8811C9F55F700709FA0 /* DisplayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DisplayViewController.h; sourceTree = "<group>"; };
+		04EEA8821C9F55F700709FA0 /* DisplayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DisplayViewController.m; sourceTree = "<group>"; };
 		AE0869661C741A8100887931 /* CToOcType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CToOcType.h; sourceTree = "<group>"; };
 		AE0869671C741A8100887931 /* esam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = esam.h; sourceTree = "<group>"; };
 		AE0869681C741A8100887931 /* esam.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = esam.c; sourceTree = "<group>"; };
@@ -383,6 +386,8 @@
 			isa = PBXGroup;
 			children = (
 				AEDB5ACC1C58495A00902D17 /* main.m */,
+				04EEA8811C9F55F700709FA0 /* DisplayViewController.h */,
+				04EEA8821C9F55F700709FA0 /* DisplayViewController.m */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -623,6 +628,7 @@
 				04EEA8031C9E38B900709FA0 /* MBProgressHUD+HMH.m in Sources */,
 				AEDB5B1E1C590EBB00902D17 /* MinePageVC.m in Sources */,
 				AE0869931C75B06E00887931 /* issue_Ble_recv.c in Sources */,
+				04EEA8831C9F55F700709FA0 /* DisplayViewController.m in Sources */,
 				AEDB5ACD1C58495A00902D17 /* main.m in Sources */,
 				AE0869741C741A8100887931 /* icc.c in Sources */,
 				04EBACBD1C6CFE4300A456E6 /* AFNetworkReachabilityManager.m in Sources */,

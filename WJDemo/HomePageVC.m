@@ -21,6 +21,7 @@
 #import "NSString+NSStringHexToBytes.h"
 #import <CoreBluetooth/CoreBluetooth.h>
 #include "issue_Ble_send.h"
+#import "DisplayViewController.h"
 
 #define PicNum  3
 #define ScrollNum 3600
@@ -33,6 +34,8 @@
 @property (nonatomic,strong) UIPageControl * pageControl;
 
 @property (nonatomic, strong) UICollectionView *collectionView;
+
+@property (nonatomic, strong) UIButton *transCommandBtn;
 
 @property (nonatomic,assign) int   currentPage;
 
@@ -97,6 +100,7 @@
     [self.scrollView addSubview:self.imageView1];
     [self.scrollView addSubview:self.imageView2];
     
+    [self.view addSubview:self.transCommandBtn];
     
     [self.view addSubview:self.scrollView];
     [self.view addSubview:self.pageControl];
@@ -161,13 +165,25 @@
         UICollectionViewFlowLayout *fallLayout =[[UICollectionViewFlowLayout alloc]init];
         [fallLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
        
-        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(self.scrollView.frame)+2, ScreenWidth, ScreenHigth-CGRectGetMaxY(self.scrollView.frame)-2) collectionViewLayout:fallLayout];
+        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(self.scrollView.frame)+2, ScreenWidth, ScreenHigth-CGRectGetMaxY(self.scrollView.frame)-90) collectionViewLayout:fallLayout];
         _collectionView.dataSource = self;
         _collectionView.delegate = self;
         _collectionView.backgroundColor = [UIColor whiteColor];
         [_collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"homePageCell"];
     }
     return _collectionView;
+}
+
+-(UIButton *)transCommandBtn
+{
+    if (_transCommandBtn==nil) {
+        _transCommandBtn = [[UIButton alloc]initWithFrame:CGRectMake(20, CGRectGetMaxY(self.collectionView.frame), ScreenWidth-40, 38)];
+        [_transCommandBtn setTitle:@"数据透传" forState:UIControlStateNormal];
+        [_transCommandBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        _transCommandBtn.backgroundColor = [UIColor grayColor];
+        [_transCommandBtn addTarget:self action:@selector(transCommandAction:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _transCommandBtn;
 }
 
 #pragma mark scrollect 代理
@@ -270,7 +286,7 @@
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     NSString *tintString;
-    
+    __weak typeof(self) weakSelf = self;
     //连接
     if (indexPath.row == 0) {
         tintString = @"连接OBU";
@@ -284,8 +300,15 @@
                             [MBProgressHUD showError:[NSString stringWithFormat:@"连接失败:%@",errorMsg]];
                     }
                     else if (status == YES){
-                            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"连接成功" message: [NSString stringWithFormat:@"%@",data] delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-                            [alert show];
+                        [MBProgressHUD showSuccess:@"连接成功"];
+                        DisplayViewController *display = [DisplayViewController new];
+                        display.title = @"连接信息";
+                        display.objdata = data;
+                        display.hidesBottomBarWhenPushed = YES;
+                        [weakSelf.navigationController pushViewController:display animated:YES];
+                        
+//                            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"连接成功" message: [NSString stringWithFormat:@"%@",data] delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+//                            [alert show];
     //                        [MBProgressHUD showInfo:data toView:nil];
                         
                     }
@@ -296,38 +319,24 @@
     }
     else if(indexPath.row == 1){
         tintString = @"断开OBU";
-        if (self.myObu) {
+//       self.myObu = [ObuSDK sharedObuSDK];
+        if (self.myObu)
+        {
             [MBProgressHUD showMessage:tintString toView:nil];
-            [self.myObu transCommand:nil callBack:^(BOOL status, id data, NSString *errorMsg)  {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [MBProgressHUD hideHUD];
-                    NSString *title;
-                    NSString *message;
-                    if (status) {
-                        title = @"读取卡片信息成功";
-                        message = [NSString stringWithFormat:@"%@",data];
-                    }
-                    else
-                    {
-                        title = @"读取卡片信息失败";
-                        message = [NSString stringWithFormat:@"%@",errorMsg];
-                    }
-                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-                    [alert show];
-                });
-            }];
-//            [self.myObu disconnectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
-//                 dispatch_async(dispatch_get_main_queue(), ^{
-//                [MBProgressHUD hideHUD];
-//                if (status == YES) {
-//                    [MBProgressHUD showSuccess:@"断开成功"];
-//                }
-//                else
-//                {
-//                    [MBProgressHUD showSuccess:@"断开成功"];
-//                }
-//              });
-//           }];
+            
+          
+            [self.myObu disconnectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
+                 dispatch_async(dispatch_get_main_queue(), ^{
+                [MBProgressHUD hideHUD];
+                if (status == YES) {
+                    [MBProgressHUD showSuccess:@"断开成功"];
+                }
+                else
+                {
+                    [MBProgressHUD showSuccess:@"断开成功"];
+                }
+              });
+           }];
         }
     }//读卡
     else if(indexPath.row == 2){
@@ -342,17 +351,23 @@
                     if (status) {
                         title = @"读取卡片信息成功";
                         message = [NSString stringWithFormat:@"%@",data];
+                        DisplayViewController *display = [DisplayViewController new];
+                        display.title = @"IC卡信息";
+                        display.objdata = data;
+                        display.hidesBottomBarWhenPushed = YES;
+                        [self.navigationController pushViewController:display animated:YES];
                     }
                     else
                     {
                         title = @"读取卡片信息失败";
                         message = [NSString stringWithFormat:@"%@",errorMsg];
+                        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                        [alert show];
                     }
-                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-                    [alert show];
                 });
             }];
-        }
+        }else
+            [MBProgressHUD showError:@"请先连接设备"];
     }//读OBU
     else if (indexPath.row == 3){
         tintString = @"读取OBU信息";
@@ -364,19 +379,24 @@
                     NSString *title;
                     NSString *message;
                     if (status) {
+                        DisplayViewController *display = [DisplayViewController new];
+                        display.title = @"OBU信息";
+                        display.objdata = data;
+                        display.hidesBottomBarWhenPushed = YES;
+                        [weakSelf.navigationController pushViewController:display animated:YES];
                         title = @"读取OBU成功";
                         message = [NSString stringWithFormat:@"%@",data];
                     }
                     else{
                         title = @"读取OBU失败";
                         message = errorMsg;
-                    }
-                    
-                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-                    [alert show];
+                        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                        [alert show];
+                        }
                 });
             }];
-        }
+        }else
+            [MBProgressHUD showError:@"请先连接设备"];
     }
     else if (indexPath.row == 4){
         tintString = @"圈存初始化";
@@ -388,39 +408,48 @@
                     NSString *title;
                     NSString *message;
                     if (status) {
-                        title = @"圈存初始化成功";
+                        DisplayViewController *display = [DisplayViewController new];
+                        display.title = @"圈存初始化成功";
+                        display.hidesBottomBarWhenPushed = YES;
+                        display.objdata = data;
+                        [weakSelf.navigationController pushViewController:display animated:YES];
+
+//                        title = @"圈存初始化成功";
 //                        message = [NSString stringWithFormat:@"%@",data];
                         //*********测试
-                        [self.myObu loadCreditWriteCard:@"2016012713281112346111" callBack:^(BOOL status, id data, NSString *errorMsg) {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                [MBProgressHUD hideHUD];
-                                NSString *title;
-                                NSString *message;
-                                if (status) {
-                                    title = @"圈存成功";
-                                    message = [NSString stringWithFormat:@"%@",data];
-                                }
-                                else{
-                                    title = @"圈存失败";
-                                    message = errorMsg;
-                                }
-                                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-                                [alert show];
-                                
-                            });
-                        }];
+//                        [self.myObu loadCreditWriteCard:@"2016012713281112346111" callBack:^(BOOL status, id data, NSString *errorMsg) {
+//                            dispatch_async(dispatch_get_main_queue(), ^{
+//                                [MBProgressHUD hideHUD];
+//                                NSString *title;
+//                                NSString *message;
+//                                if (status) {
+//                                    title = @"圈存成功";
+//                                    message = [NSString stringWithFormat:@"%@",data];
+//                                }
+//                                else{
+//                                    title = @"圈存失败";
+//                                    message = errorMsg;
+//                                }
+//                                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+//                                [alert show];
+//                                
+//                            });
+//                        }];
+                        //*************************
                         
                     }
                     else{
                         title = @"圈存初始化失败";
                         message = errorMsg;
+                        
                     }
-                    
                     UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
                     [alert show];
+                    
                 });
             }];
-        }
+        }else
+            [MBProgressHUD showError:@"请先连接设备"];
     }
     else if (indexPath.row == 5){
         tintString = @"正在圈存";
@@ -445,7 +474,8 @@
                     [alert show];
                 });
             }];
-        }
+        }else
+            [MBProgressHUD showError:@"请先连接设备"];
     }
     else if (indexPath.row == 6){
         tintString = @"读取交易记录";
@@ -464,18 +494,24 @@
                              
                             message = [NSString stringWithFormat:@" %@\n%@",message,infos];
                         }
-                        
+                        DisplayViewController *display = [DisplayViewController new];
+                        display.title = @"交易记录信息";
+                        display.objdata = data;
+                        display.hidesBottomBarWhenPushed = YES;
+                        [weakSelf.navigationController pushViewController:display animated:YES];
                     }
                     else{
                         title = @"读取交易记录失败";
                         message = errorMsg;
-                    }
+                    
                     
                     UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
                     [alert show];
+                    }
                 });
             }];
-        }
+        }else
+            [MBProgressHUD showError:@"请先连接设备"];
     }
     else if (indexPath.row == 7){
         tintString = @"读取消费记录";
@@ -511,17 +547,24 @@
 //                        @property(nonatomic, copy)NSString* vehicleNumber; //车牌号码
 //                        
 //                        @property(nonatomic, copy)NSString* reserve2;
+                        DisplayViewController *display = [DisplayViewController new];
+                        display.title = @"消费记录信息";
+                        display.objdata = data;
+                        display.hidesBottomBarWhenPushed = YES;
+                        [weakSelf.navigationController pushViewController:display animated:YES];
                     }
                     else{
                         title = @"读取消费记录失败";
                         message = errorMsg;
-                    }
+                   
                     
                     UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
                     [alert show];
+                         }
                 });
             }];
-        }
+        }else
+            [MBProgressHUD showError:@"请先连接设备"];
     }
     else if (indexPath.row == 8){
         tintString = @"读取持卡人信息";
@@ -537,17 +580,22 @@
                         CardOwnerRecord *record = data;
                         
                         message = [NSString stringWithFormat:@"ownerId:%@,staffId:%@,ownerName:%@,ownerLicenseNumber:%@,ownerLicenseType:%@",record.ownerId,record.staffId,record.ownerName,record.ownerLicenseNumber,record.ownerLicenseType];
+                        DisplayViewController *display = [DisplayViewController new];
+                        display.title = @"持卡人信息信息";
+                        display.objdata = data;
+                        display.hidesBottomBarWhenPushed = YES;
+                        [weakSelf.navigationController pushViewController:display animated:YES];
                     }
                     else{
                         title = @"读取持卡人信息失败";
                         message = errorMsg;
-                    }
-                    
-                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-                    [alert show];
+                        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                        [alert show];
+                        }
                 });
             }];
-        }
+        }else
+            [MBProgressHUD showError:@"请先连接设备"];
     }
     else
     {
@@ -589,7 +637,39 @@ static int timeCount = ScrollNum/2;
     
     
 }
-
+-(void)transCommandAction:(id)sender
+{
+    
+    byte reqBytes[8]={0x07,0x00,0xa4,0x00,0x00,0x02,0x3f,0x00};
+    NSData *reqData = [NSData dataWithBytes:reqBytes length:8];
+    if(self.myObu){
+        [MBProgressHUD showMessage:@"发送透传数据" toView:nil];
+    [self.myObu transCommand:reqData callBack:^(BOOL status, id data, NSString *errorMsg)  {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [MBProgressHUD hideHUD];
+            NSString *title;
+            NSString *message;
+            if (status) {
+                title = @"透传成功";
+                message = [NSString stringWithFormat:@"%@",data];
+//                DisplayViewController *display = [DisplayViewController new];
+//                display.title = @"卡片信息";
+//                display.hidesBottomBarWhenPushed = YES;
+//                [self.navigationController pushViewController:display animated:YES];
+            }
+            else
+            {
+                title = @"透传失败";
+                message = [NSString stringWithFormat:@"%@",errorMsg];
+                
+            }
+            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+            [alert show];
+        });
+    }];
+    }else
+        [MBProgressHUD showError:@"请先连接设备"];
+}
 
 -(void)imageViewClick:(UITapGestureRecognizer *)ges
 {

@@ -405,6 +405,7 @@ int recvBufferLen;
 #pragma mark 4.连接OBU
 -(void)connectDevice:(obuCallBack)callBack
 {
+    callBack(YES,@[@{@"character":@"hhhfafjkla;fja;fjak;fja;fjka;fja;fja;fj;a123hhhfafjkla;fja;fjak;fja;fjka;fja;fja;fj;a123",@"deceive":@"bb"},@{@"test":@"123"}],nil);
     if (self.isBlueConnected) {
         callBack(YES,@{@"info":@"设备已连接"},@"设备已连接");
         return;
@@ -557,9 +558,10 @@ int recvBufferLen;
         [reDict setObject:[NSString byteToNSString:g_pkg_data.vehicleLicencePlateColor andLength:2] forKey:@"plateColor"];
         [reDict setObject:[NSString stringByByte:g_pkg_data.vehicleClass] forKey:@"vehicleModel"];
         [reDict setObject:[NSString byteToNSString:g_pkg_iccinfo_data.ICC0002_INFO.IccBanlance andLength:4] forKey:@"balance"];
-        callBack(YES,reDict,@"成功");
-        
-        [self sendC5AndWaitB4:nil];
+        if([self sendC5AndWaitB4:nil])
+        {
+           callBack(YES,reDict,@"成功");
+        }
     }
    });
 }
@@ -580,8 +582,14 @@ int recvBufferLen;
         }
           NSLog(@"失败2");
         NSString *obuMAC = [NSString byteToNSString:vst.macid andLength:4];
-        NSDictionary *dict = @{@"mac":obuMAC,@"name":@"WanJi_303",@"indentify":self.deveice_uuid,@"sn":@""};
-        callBack(YES,dict,nil);
+        NSDictionary *dict = @{@"mac":obuMAC,@"name":@"WanJi_303",@"indentify":self.deveice_uuid,@"sn":@"no"};
+        
+         if( [self sendC5AndWaitB4:callBack])
+         {
+             callBack(YES,dict,nil);
+         }
+        
+        
     });
 }
 
@@ -807,7 +815,11 @@ int recvBufferLen;
     [getMac1Dict setObject:[NSString byteToNSString:g_loadCredit_GetMac1.a_m1 andLength:4] forKey:@"a_m1"];
     [getMac1Dict setObject:[NSString byteToNSString:g_loadCredit_GetMac1.a_cid andLength:10] forKey:@"a_cid"];
     [getMac1Dict setObject:[NSString byteToNSString:g_loadCredit_GetMac1.a_on andLength:2] forKey:@"a_pt"];
-    callBack(YES,getMac1Dict,nil);
+    if( [self sendC5AndWaitB4:callBack])
+    {
+        callBack(YES,getMac1Dict,nil);
+    }
+     
 });
 
 }
@@ -897,9 +909,11 @@ int recvBufferLen;
         return;
         
     }
-    callBack(YES,@{@"tac":@""},nil);
-    [self sendC5AndWaitB4:callBack];
-});
+    if( [self sendC5AndWaitB4:callBack])
+    {
+        callBack(YES,@{@"tac":@"tac"},nil);
+    }
+  });
 
 }
 
@@ -1056,8 +1070,11 @@ int recvBufferLen;
         save_CpuCardinfo_OC(prog_b3);
     }
     callBack(YES,transactionRecordsArr,nil);
+    if( [self sendC5AndWaitB4:callBack])
+    {
+        callBack(YES,transactionRecordsArr,nil);
+    }
     
-    [self sendC5AndWaitB4:callBack];
     });
 }
 
@@ -1069,7 +1086,7 @@ int recvBufferLen;
         
         return ;
     }
-     dispatch_async(dispatch_get_global_queue(0, 0), ^{
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
     if([self sendC1AndWaitB1:callBack]!= YES)
         return ; //结束
     NSMutableArray *consumeRecordsArr = [NSMutableArray array];
@@ -1183,11 +1200,11 @@ int recvBufferLen;
         [consumeRecordsArr addObject:consumeRecord];
         save_CpuCardinfo_OC(prog_b3);
     }
-    
-    callBack(YES,consumeRecordsArr,nil);
-    
-     [self sendC5AndWaitB4:callBack];
-     });
+    if ([self sendC5AndWaitB4:callBack]) {
+        callBack(YES,consumeRecordsArr,nil);
+    }
+      
+  });
 }
 
 #pragma mark  12.读持卡人基本数据文件 ok
@@ -1287,7 +1304,7 @@ int recvBufferLen;
         iccInitFrame(&transfer_rq);
         iccReadFileFrame(&transfer_rq, icc_flag, icc_offset, icc_Length);
         length = TransferChannel_rq_OC(did, transfer_rq.channelid,transfer_rq.apdulist, transfer_rq.apdu);
-        NSLog(@"发送%p",g_com_tx_buf);
+        
         [self sendData:length andRepeat:1];
         if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0)
         {
@@ -1322,6 +1339,7 @@ int recvBufferLen;
         callBack(NO,nil,@"VST状态位错误");
         return ;
     }
+        
     PROG_COMM_B3 prog_b3;
     recv_b9_Blefile_OC(&prog_b3,0x0016);//READ_CPUCARD_FILE_0016
     save_CpuCardinfo_OC(prog_b3);
@@ -1332,18 +1350,22 @@ int recvBufferLen;
     ower.ownerLicenseNumber = [NSString byteToNSString:prog_b3.FileContent[0] fromIndex:22 andLength:32];
     ower.ownerLicenseType = [NSString stringByByte:prog_b3.FileContent[0][54]];
 //    callBack(YES,ower,nil);
-    [self sendC5AndWaitB4:callBack];
+    if( [self sendC5AndWaitB4:callBack])
+    {
+        callBack(YES,ower,nil);
+    }
+//    [self sendC5AndWaitB4:callBack];
     });
 }
 
 #pragma mark 13.数据透传
 -(void)transCommand:(NSData*)reqData callBack:(obuCallBack)callBack
 {
-    if (!self.isBlueConnected) {
-        callBack(NO,nil,@"请先连接设备");
-        
-        return ;
-    }
+//    if (!self.isBlueConnected) {
+//        callBack(NO,nil,@"请先连接设备");
+//        
+//        return ;
+//    }
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         if([self sendC1AndWaitB1:callBack]!= YES)
             return ; //结束
@@ -1351,14 +1373,18 @@ int recvBufferLen;
 
         iccInitFrame(&transfer_rq);
         transfer_rq.apdulist = 1;
-        transfer_rq.apdu[0] = 0x07;
-        transfer_rq.apdu[1] = 0x00;
-        transfer_rq.apdu[2] = 0xa4;
-        transfer_rq.apdu[3] = 0x00;
-        transfer_rq.apdu[4] = 0x00;
-        transfer_rq.apdu[5] = 0x02;
-        transfer_rq.apdu[6] = 0x3f;
-        transfer_rq.apdu[7] = 0x00;
+        byte *reqBytes = (byte*)[reqData bytes];
+//        for (int i=0; i<reqData.length&&i<256; i++) {
+//            transfer_rq.apdu[i]=  reqBytes[i];
+//        }
+//        transfer_rq.apdu[0] = 0x07;
+//        transfer_rq.apdu[1] = 0x00;
+//        transfer_rq.apdu[2] = 0xa4;
+//        transfer_rq.apdu[3] = 0x00;
+//        transfer_rq.apdu[4] = 0x00;
+//        transfer_rq.apdu[5] = 0x02;
+//        transfer_rq.apdu[6] = 0x3f;
+//        transfer_rq.apdu[7] = 0x00;
     int length = TransferChannel_rq_OC(0x01, transfer_rq.channelid, transfer_rq.apdulist,
                                            transfer_rq.apdu);
         
@@ -1373,10 +1399,10 @@ int recvBufferLen;
 //            callBack(NO,nil,@"TransferChannel3解析错误");
 //            return;
 //        }
-        [self sendC5AndWaitB4:callBack];
-      
-        
-        
+        if( [self sendC5AndWaitB4:callBack])
+        {
+            callBack(YES,@"透传数据成功",nil);
+        }        
     });
 
 }
@@ -1416,17 +1442,22 @@ int recvBufferLen;
     PROG_COMM_C5 progc5;
     length = send_c5_Ble_OC(progc5);
     if (length<1) {
+        callBack(NO,nil,@"C5帧长度异常");
         return NO;
     }
     [self sendData:length andRepeat:1];
     
+    [NSThread sleepForTimeInterval:0.02];
+    
     length = EVENT_REPORT_rq_OC(0, 0);
     if (length<1) {
+        callBack(NO,nil,@"REPORT帧长度异常");
         return NO;
     }
     [self sendData:length andRepeat:1];
     
     return YES;
+//    return YES;
 //    //5.解析b4
 //    if (dispatch_semaphore_wait(self.obuSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*2))!=0){
 //        callBack(NO,nil,@"超时没有收到B4");
@@ -1440,13 +1471,13 @@ int recvBufferLen;
 //    }
     
         
-    length = EVENT_REPORT_rq_OC(0, 0);
-    if (length<1) {
-        return NO;
-    }
-    [self sendData:length andRepeat:1];
-    callBack(YES,nil,@"成功");
-    return YES;
+//    length = EVENT_REPORT_rq_OC(0, 0);
+//    if (length<1) {
+//        return NO;
+//    }
+//    [self sendData:length andRepeat:1];
+////    callBack(YES,nil,@"成功");
+//    return YES;
 }
 
 
