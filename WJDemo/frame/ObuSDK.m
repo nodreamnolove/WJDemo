@@ -1077,7 +1077,7 @@ int recvBufferLen;
         [transactionRecordsArr addObject:transactionRecord];
         save_CpuCardinfo_OC(prog_b3);
     }
-    callBack(YES,transactionRecordsArr,nil);
+//    callBack(YES,transactionRecordsArr,nil);
     if( [self sendC5AndWaitB4:callBack])
     {
         callBack(YES,transactionRecordsArr,nil);

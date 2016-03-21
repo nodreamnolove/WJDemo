@@ -582,7 +582,7 @@
                         message = [NSString stringWithFormat:@"ownerId:%@,staffId:%@,ownerName:%@,ownerLicenseNumber:%@,ownerLicenseType:%@",record.ownerId,record.staffId,record.ownerName,record.ownerLicenseNumber,record.ownerLicenseType];
                         DisplayViewController *display = [DisplayViewController new];
                         display.title = @"持卡人信息信息";
-                        display.objdata = data;
+                        display.objdata = @[data];
                         display.hidesBottomBarWhenPushed = YES;
                         [weakSelf.navigationController pushViewController:display animated:YES];
                     }
