@@ -144,7 +144,7 @@ uint8 contract_version;			//±±æ©∏˘æ›≤ªÕ¨µƒ∞Ê±æ∫≈£¨«
 uint8 g_esam_type = 1;  		//ƒ¨»œŒ™”≤ESAM
 uint8 once_sign = 0;
 
-char InfoTmp[100];				//¥Ú”°–≈œ¢ ˝◊È
+//char InfoTmp[100];				//¥Ú”°–≈œ¢ ˝◊È
 
 
 

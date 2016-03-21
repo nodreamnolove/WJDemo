@@ -200,7 +200,7 @@ int INITIALISATION_rs(char *obu_mac, char *sys_info, char *icc_info, char *rnd_i
 	uint8 mac_control = 0;
 	uint8 dsrc_op = 0;
 	uint8 container_ops = 0;
-	char InfoTmp[100];
+//	char InfoTmp[100];
 	memset(icc_info,0x00,sizeof(icc_info));//add by wll 2013-5-14 9:40:13
 //    for(i = 0; i < time_out; i++)
 //	{
@@ -375,8 +375,8 @@ int INITIALISATION_rs(char *obu_mac, char *sys_info, char *icc_info, char *rnd_i
 				{
 					reset_info[i] = g_com_rx_buf[pos++];
 				}
-				sprintf(InfoTmp,"fu wei xin xi, reset_info = %X %X ..... %X %X\n", reset_info[0],reset_info[1], reset_info[13],reset_info[14]);
-				print_info_Info(InfoTmp,strlen(InfoTmp),COM);
+//				sprintf(InfoTmp,"fu wei xin xi, reset_info = %X %X ..... %X %X\n", reset_info[0],reset_info[1], reset_info[13],reset_info[14]);
+//				print_info_Info(InfoTmp,strlen(InfoTmp),COM);
 
 			}
 

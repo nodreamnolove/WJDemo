@@ -1,14 +1,21 @@
- 
-#import "NSString+NSStringHexToBytes.h"
+//
+//  HexByteConvert.m
+//  WJDemo
+//
+//  Created by mac on 16/3/22.
+//  Copyright © 2016年 WanJi. All rights reserved.
+//
 
-@implementation NSString (NSStringHexToBytes)
--(NSData*) hexToBytes
+#import "HexByteConvert.h"
+
+@implementation HexByteConvert
++(NSData*) hexToBytes:(NSString *)string
 {
     NSMutableData* data = [NSMutableData data];
     int idx;
-    for (idx = 0; idx+2 <= self.length; idx+=2) {
+    for (idx = 0; idx+2 <= string.length; idx+=2) {
         NSRange range = NSMakeRange(idx, 2);
-        NSString* hexStr = [self substringWithRange:range];
+        NSString* hexStr = [string substringWithRange:range];
         NSScanner* scanner = [NSScanner scannerWithString:hexStr];
         unsigned int intValue;
         [scanner scanHexInt:&intValue];

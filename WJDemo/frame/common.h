@@ -280,7 +280,7 @@ extern int is_usbcom_recved;
 extern sem_t g_sem_serialrecv;			//¥Æø⁄ ’µΩ ˝
 extern sem_t g_sem_udpnetrecv;			//Õ¯ø⁄ ’µΩ ˝ add by wll 2013-3-22 13:53:53
 
-char InfoTmp[100];				//¥Ú”°–≈œ¢ ˝◊È
+//char InfoTmp[100];				//¥Ú”°–≈œ¢ ˝◊È
 
 #if 0
 //USB2COM

@@ -18,9 +18,9 @@
 #import "AsyncSocket.h"
 #import "NetFunction.h"
 #import "AppDelegate.h"
-#import "NSString+NSStringHexToBytes.h"
+//#import "NSString+NSStringHexToBytes.h"
 #import <CoreBluetooth/CoreBluetooth.h>
-#include "issue_Ble_send.h"
+//#include "issue_Ble_send.h"
 #import "DisplayViewController.h"
 
 #define PicNum  3
@@ -35,7 +35,7 @@
 
 @property (nonatomic, strong) UICollectionView *collectionView;
 
-@property (nonatomic, strong) UIButton *transCommandBtn;
+//@property (nonatomic, strong) UIButton *transCommandBtn;
 
 @property (nonatomic,assign) int   currentPage;
 
@@ -100,7 +100,7 @@
     [self.scrollView addSubview:self.imageView1];
     [self.scrollView addSubview:self.imageView2];
     
-    [self.view addSubview:self.transCommandBtn];
+//    [self.view addSubview:self.transCommandBtn];
     
     [self.view addSubview:self.scrollView];
     [self.view addSubview:self.pageControl];
@@ -125,7 +125,7 @@
 -(NSArray *)titleArr
 {
     if (_titleArr == nil) {
-        _titleArr = @[@"蓝牙连接", @"蓝牙断开", @"读卡信息", @"读OBU信息", @"圈存初始化", @"圈存", @"交易记录", @"消费过程", @"持卡人信息"];
+        _titleArr = @[@"蓝牙连接", @"蓝牙断开", @"读卡信息", @"读OBU信息", @"圈存初始化", @"圈存", @"交易记录", @"消费过程", @"持卡人信息",@"透传指令"];
     }
     return _titleArr;
 }
@@ -165,7 +165,7 @@
         UICollectionViewFlowLayout *fallLayout =[[UICollectionViewFlowLayout alloc]init];
         [fallLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
        
-        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(self.scrollView.frame)+2, ScreenWidth, ScreenHigth-CGRectGetMaxY(self.scrollView.frame)-90) collectionViewLayout:fallLayout];
+        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(self.scrollView.frame)+2, ScreenWidth, ScreenHigth-CGRectGetMaxY(self.scrollView.frame)-60) collectionViewLayout:fallLayout];
         _collectionView.dataSource = self;
         _collectionView.delegate = self;
         _collectionView.backgroundColor = [UIColor whiteColor];
@@ -174,21 +174,22 @@
     return _collectionView;
 }
 
--(UIButton *)transCommandBtn
-{
-    if (_transCommandBtn==nil) {
-        _transCommandBtn = [[UIButton alloc]initWithFrame:CGRectMake(20, CGRectGetMaxY(self.collectionView.frame), ScreenWidth-40, 38)];
-        [_transCommandBtn setTitle:@"数据透传" forState:UIControlStateNormal];
-        [_transCommandBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-        _transCommandBtn.backgroundColor = [UIColor grayColor];
-        [_transCommandBtn addTarget:self action:@selector(transCommandAction:) forControlEvents:UIControlEventTouchUpInside];
-    }
-    return _transCommandBtn;
-}
+//-(UIButton *)transCommandBtn
+//{
+//    if (_transCommandBtn==nil) {
+//        _transCommandBtn = [[UIButton alloc]initWithFrame:CGRectMake(20, CGRectGetMaxY(self.collectionView.frame), ScreenWidth-40, 38)];
+//        [_transCommandBtn setTitle:@"数据透传" forState:UIControlStateNormal];
+//        [_transCommandBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+//        _transCommandBtn.backgroundColor = [UIColor grayColor];
+//        [_transCommandBtn addTarget:self action:@selector(transCommandAction:) forControlEvents:UIControlEventTouchUpInside];
+//    }
+//    return _transCommandBtn;
+//}
 
 #pragma mark scrollect 代理
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    if (scrollView.tag == 99) {
     int page = floor((scrollView.contentOffset.x - ScreenWidth/2)/ScreenWidth)+1;
     self.pageControl.currentPage = page%PicNum;
     UIImageView *lastView;
@@ -241,29 +242,39 @@
             self.pageControl.currentPage = self.currentPage%PicNum;
         }
     }
+    }
 }
 
 -(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    [self.gundongTimer setFireDate:[NSDate distantFuture]];
+    if (scrollView.tag == 99) {
+         [self.gundongTimer setFireDate:[NSDate distantFuture]];
+    }
+   
 }
 
 -(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    timeCount = self.currentPage;
-    [self.gundongTimer setFireDate:[[NSDate date] dateByAddingTimeInterval:3]];
+    if (scrollView.tag == 99) {
+        timeCount = self.currentPage;
+        [self.gundongTimer setFireDate:[[NSDate date] dateByAddingTimeInterval:3]];
+    }
+    
 }
 
 #pragma mark collection代理
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return 9;
+    return 10;
 }
 
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     UICollectionViewCell *collectCell = [collectionView dequeueReusableCellWithReuseIdentifier:@"homePageCell" forIndexPath:indexPath];
+    for (UIView *subview in collectCell.contentView.subviews) {
+        [subview removeFromSuperview];
+    }
     collectCell.backgroundColor = [UIColor lightGrayColor];
     UILabel *titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 100, 100)];
     titleLabel.text = self.titleArr[indexPath.row];
@@ -293,7 +304,7 @@
         self.myObu = [ObuSDK sharedObuSDK];
             if (self.myObu) {
                 [MBProgressHUD showMessage:tintString toView:nil];
-                [self.myObu connectDevice:^(BOOL status, NSObject *data, NSString *errorMsg) {
+                [self.myObu connectDevice:20 callBack:^(BOOL status, NSObject *data, NSString *errorMsg) {
                      dispatch_async(dispatch_get_main_queue(), ^{
                     [MBProgressHUD hideHUD];
                     if (status==NO) {
@@ -441,11 +452,9 @@
                     else{
                         title = @"圈存初始化失败";
                         message = errorMsg;
-                        
+                        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                        [alert show];
                     }
-                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-                    [alert show];
-                    
                 });
             }];
         }else
@@ -582,7 +591,7 @@
                         message = [NSString stringWithFormat:@"ownerId:%@,staffId:%@,ownerName:%@,ownerLicenseNumber:%@,ownerLicenseType:%@",record.ownerId,record.staffId,record.ownerName,record.ownerLicenseNumber,record.ownerLicenseType];
                         DisplayViewController *display = [DisplayViewController new];
                         display.title = @"持卡人信息信息";
-                        display.objdata = data;
+                        display.objdata = @[data];
                         display.hidesBottomBarWhenPushed = YES;
                         [weakSelf.navigationController pushViewController:display animated:YES];
                     }
@@ -597,9 +606,33 @@
         }else
             [MBProgressHUD showError:@"请先连接设备"];
     }
-    else
+    else if(indexPath.row == 9)
     {
-        
+        Byte reqBytes[8]={0x07,0x00,0xa4,0x00,0x00,0x02,0x3f,0x00};
+        NSData *reqData = [NSData dataWithBytes:reqBytes length:8];
+        if(self.myObu){
+            [MBProgressHUD showMessage:@"发送透传数据" toView:nil];
+            [self.myObu transCommand:reqData callBack:^(BOOL status, id data, NSString *errorMsg)  {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD hideHUD];
+                    NSString *title;
+                    NSString *message;
+                    if (status) {
+                        title = @"透传成功";
+                        message = [NSString stringWithFormat:@"%@",data];
+                    }
+                    else
+                    {
+                        title = @"透传失败";
+                        message = [NSString stringWithFormat:@"%@",errorMsg];
+                        
+                    }
+                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+                    [alert show];
+                });
+            }];
+        }else
+            [MBProgressHUD showError:@"请先连接设备"];
     }
 }
 
@@ -637,39 +670,35 @@ static int timeCount = ScrollNum/2;
     
     
 }
--(void)transCommandAction:(id)sender
-{
-    
-    byte reqBytes[8]={0x07,0x00,0xa4,0x00,0x00,0x02,0x3f,0x00};
-    NSData *reqData = [NSData dataWithBytes:reqBytes length:8];
-    if(self.myObu){
-        [MBProgressHUD showMessage:@"发送透传数据" toView:nil];
-    [self.myObu transCommand:reqData callBack:^(BOOL status, id data, NSString *errorMsg)  {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [MBProgressHUD hideHUD];
-            NSString *title;
-            NSString *message;
-            if (status) {
-                title = @"透传成功";
-                message = [NSString stringWithFormat:@"%@",data];
-//                DisplayViewController *display = [DisplayViewController new];
-//                display.title = @"卡片信息";
-//                display.hidesBottomBarWhenPushed = YES;
-//                [self.navigationController pushViewController:display animated:YES];
-            }
-            else
-            {
-                title = @"透传失败";
-                message = [NSString stringWithFormat:@"%@",errorMsg];
-                
-            }
-            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-            [alert show];
-        });
-    }];
-    }else
-        [MBProgressHUD showError:@"请先连接设备"];
-}
+//-(void)transCommandAction:(id)sender
+//{
+//    
+//    byte reqBytes[8]={0x07,0x00,0xa4,0x00,0x00,0x02,0x3f,0x00};
+//    NSData *reqData = [NSData dataWithBytes:reqBytes length:8];
+//    if(self.myObu){
+//        [MBProgressHUD showMessage:@"发送透传数据" toView:nil];
+//    [self.myObu transCommand:reqData callBack:^(BOOL status, id data, NSString *errorMsg)  {
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [MBProgressHUD hideHUD];
+//            NSString *title;
+//            NSString *message;
+//            if (status) {
+//                title = @"透传成功";
+//                message = [NSString stringWithFormat:@"%@",data];
+//            }
+//            else
+//            {
+//                title = @"透传失败";
+//                message = [NSString stringWithFormat:@"%@",errorMsg];
+//                
+//            }
+//            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+//            [alert show];
+//        });
+//    }];
+//    }else
+//        [MBProgressHUD showError:@"请先连接设备"];
+//}
 
 -(void)imageViewClick:(UITapGestureRecognizer *)ges
 {
