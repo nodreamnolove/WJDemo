@@ -97,8 +97,8 @@
     }
     NSDictionary *dict = self.dataArr[indexPath.section];
     
-    NSString* keyVale = [[dict allKeys] objectAtIndex:indexPath.row];
-    NSString* valueV = [[dict allValues] objectAtIndex:indexPath.row];
+    NSString* keyVale = [NSString stringWithFormat:@"%@",[[dict allKeys] objectAtIndex:indexPath.row]];
+    NSString* valueV = [NSString stringWithFormat:@"%@",[[dict allValues] objectAtIndex:indexPath.row]];
     cellView.textLabel.text = keyVale;
     cellView.detailTextLabel.text = valueV;
     return cellView;
