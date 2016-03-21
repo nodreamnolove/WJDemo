@@ -405,7 +405,15 @@ int recvBufferLen;
 #pragma mark 4.连接OBU
 -(void)connectDevice:(obuCallBack)callBack
 {
-    callBack(YES,@[@{@"character":@"hhhfafjkla;fja;fjak;fja;fjka;fja;fja;fj;a123hhhfafjkla;fja;fjak;fja;fjka;fja;fja;fj;a123",@"deceive":@"bb"},@{@"test":@"123"}],nil);
+//    CardOwnerRecord *rec = [CardOwnerRecord new];
+//    rec.ownerId = @"qw";
+//    rec.ownerName = @"sc";
+//    CardOwnerRecord *rec2 = [CardOwnerRecord new];
+//    rec2.ownerId = @"qw2";
+//    rec2.ownerName = @"sc2";
+//    callBack(YES,@[rec,rec2],nil);
+//    return;
+//    callBack(YES,@[@{@"character":@"hhhfafjkla;fja;fjak;fja;fjka;fja;fja;fj;a123hhhfafjkla;fja;fjak;fja;fjka;fja;fja;fj;a123",@"deceive":@"bb"},@{@"test":@"123"}],nil);
     if (self.isBlueConnected) {
         callBack(YES,@{@"info":@"设备已连接"},@"设备已连接");
         return;

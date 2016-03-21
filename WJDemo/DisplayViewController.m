@@ -7,6 +7,7 @@
 //
 
 #import "DisplayViewController.h"
+#import <objc/runtime.h>
 
 @interface DisplayViewController ()<UITableViewDataSource,UITableViewDelegate>
 
@@ -54,10 +55,24 @@
         else if([objdata isKindOfClass:[NSArray class]])
         {
             NSArray *objArr = (NSArray *)objdata;
-            for (int i=0; i<objArr.count; i++) {
-                [self.dataArr addObject:objArr[i]];
-            }
             
+            for (int i=0; i<objArr.count; i++) {
+                id obj1 = objArr[i];
+                unsigned int count;
+                objc_property_t *pros = class_copyPropertyList([obj1 class], &count);
+                NSMutableDictionary *allDict = [NSMutableDictionary dictionary];
+                for (int i=0; i<count; i++) {
+                    objc_property_t pro = pros[i];
+                    const char * char_f = property_getName(pro);
+                    NSString *proName = [NSString stringWithUTF8String:char_f];
+                    if (!proName||proName.length<1) {
+                        proName = @"no";
+                    }
+                    NSString * proVale =[NSString stringWithFormat:@"%@",[obj1 valueForKey:proName]];
+                    [allDict setObject:proVale forKey:proName];
+                }
+                [self.dataArr addObject:allDict];
+            }
         }
         [self.tableView reloadData];
     }
