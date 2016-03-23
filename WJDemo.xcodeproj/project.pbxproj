@@ -29,7 +29,7 @@
 		04E6C3A71CA0B4D0000112B6 /* wjOBU.txt in Resources */ = {isa = PBXBuildFile; fileRef = 04E6C3921CA0B4D0000112B6 /* wjOBU.txt */; };
 		04E6C3A81CA0B4D0000112B6 /* WJStructs.txt in Resources */ = {isa = PBXBuildFile; fileRef = 04E6C3931CA0B4D0000112B6 /* WJStructs.txt */; };
 		04E6C3F41CA1B063000112B6 /* Documentation.html in Resources */ = {isa = PBXBuildFile; fileRef = 04E6C3F11CA1B063000112B6 /* Documentation.html */; };
-		04E6C3F51CA1B063000112B6 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C3F31CA1B063000112B6 /* GCDAsyncSocket.m */; };
+		04E6C3F51CA1B063000112B6 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C3F31CA1B063000112B6 /* GCDAsyncSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		04EBACA31C6CED5800A456E6 /* MBProgressHUD+MJ.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBAC9F1C6CED5800A456E6 /* MBProgressHUD+MJ.m */; };
 		04EBACA41C6CED5800A456E6 /* MBProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 04EBACA01C6CED5800A456E6 /* MBProgressHUD.bundle */; };
 		04EBACA51C6CED5800A456E6 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBACA21C6CED5800A456E6 /* MBProgressHUD.m */; };
