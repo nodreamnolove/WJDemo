@@ -28,6 +28,8 @@
 		04E6C3A61CA0B4D0000112B6 /* WJIssue_Ble.txt in Resources */ = {isa = PBXBuildFile; fileRef = 04E6C3911CA0B4D0000112B6 /* WJIssue_Ble.txt */; };
 		04E6C3A71CA0B4D0000112B6 /* wjOBU.txt in Resources */ = {isa = PBXBuildFile; fileRef = 04E6C3921CA0B4D0000112B6 /* wjOBU.txt */; };
 		04E6C3A81CA0B4D0000112B6 /* WJStructs.txt in Resources */ = {isa = PBXBuildFile; fileRef = 04E6C3931CA0B4D0000112B6 /* WJStructs.txt */; };
+		04E6C3F41CA1B063000112B6 /* Documentation.html in Resources */ = {isa = PBXBuildFile; fileRef = 04E6C3F11CA1B063000112B6 /* Documentation.html */; };
+		04E6C3F51CA1B063000112B6 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C3F31CA1B063000112B6 /* GCDAsyncSocket.m */; };
 		04EBACA31C6CED5800A456E6 /* MBProgressHUD+MJ.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBAC9F1C6CED5800A456E6 /* MBProgressHUD+MJ.m */; };
 		04EBACA41C6CED5800A456E6 /* MBProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 04EBACA01C6CED5800A456E6 /* MBProgressHUD.bundle */; };
 		04EBACA51C6CED5800A456E6 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBACA21C6CED5800A456E6 /* MBProgressHUD.m */; };
@@ -128,6 +130,9 @@
 		04E6C3911CA0B4D0000112B6 /* WJIssue_Ble.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = WJIssue_Ble.txt; sourceTree = "<group>"; };
 		04E6C3921CA0B4D0000112B6 /* wjOBU.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = wjOBU.txt; sourceTree = "<group>"; };
 		04E6C3931CA0B4D0000112B6 /* WJStructs.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = WJStructs.txt; sourceTree = "<group>"; };
+		04E6C3F11CA1B063000112B6 /* Documentation.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Documentation.html; sourceTree = "<group>"; };
+		04E6C3F21CA1B063000112B6 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
+		04E6C3F31CA1B063000112B6 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		04EBAC9E1C6CED5800A456E6 /* MBProgressHUD+MJ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MBProgressHUD+MJ.h"; sourceTree = "<group>"; };
 		04EBAC9F1C6CED5800A456E6 /* MBProgressHUD+MJ.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MBProgressHUD+MJ.m"; sourceTree = "<group>"; };
 		04EBACA01C6CED5800A456E6 /* MBProgressHUD.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = MBProgressHUD.bundle; sourceTree = "<group>"; };
@@ -279,6 +284,16 @@
 			path = frame;
 			sourceTree = "<group>";
 		};
+		04E6C3F01CA1B063000112B6 /* GCDAsyncSocket-master */ = {
+			isa = PBXGroup;
+			children = (
+				04E6C3F11CA1B063000112B6 /* Documentation.html */,
+				04E6C3F21CA1B063000112B6 /* GCDAsyncSocket.h */,
+				04E6C3F31CA1B063000112B6 /* GCDAsyncSocket.m */,
+			);
+			path = "GCDAsyncSocket-master";
+			sourceTree = "<group>";
+		};
 		04EBAC9D1C6CED5800A456E6 /* MBProgressHUD */ = {
 			isa = PBXGroup;
 			children = (
@@ -346,6 +361,7 @@
 		AEDB5ACA1C58495A00902D17 /* WJDemo */ = {
 			isa = PBXGroup;
 			children = (
+				04E6C3F01CA1B063000112B6 /* GCDAsyncSocket-master */,
 				04E6C36E1CA0B4D0000112B6 /* frame */,
 				04EBACA61C6CFE4300A456E6 /* AFNetworking */,
 				04EBAC9D1C6CED5800A456E6 /* MBProgressHUD */,
@@ -569,6 +585,7 @@
 				04E6C3A51CA0B4D0000112B6 /* WJInit.txt in Resources */,
 				AEDB5AD81C58495A00902D17 /* Assets.xcassets in Resources */,
 				AEDB5B691C5A123100902D17 /* wenhua.png in Resources */,
+				04E6C3F41CA1B063000112B6 /* Documentation.html in Resources */,
 				AEDB5AD61C58495A00902D17 /* Main.storyboard in Resources */,
 				04E6C3A61CA0B4D0000112B6 /* WJIssue_Ble.txt in Resources */,
 				04E6C3A71CA0B4D0000112B6 /* wjOBU.txt in Resources */,
@@ -609,6 +626,7 @@
 				AEDB5AD01C58495A00902D17 /* AppDelegate.m in Sources */,
 				AE50A86F1C5B118200688BD6 /* MyWebVC.m in Sources */,
 				AEDB5B241C590F3800902D17 /* ExitPageVC.m in Sources */,
+				04E6C3F51CA1B063000112B6 /* GCDAsyncSocket.m in Sources */,
 				AEDB5B421C59C83300902D17 /* AsyncSocket.m in Sources */,
 				AEDB5B1B1C590EA400902D17 /* HomePageVC.m in Sources */,
 				AEDB5B701C5A256A00902D17 /* UIView+HMH.m in Sources */,

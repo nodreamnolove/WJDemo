@@ -889,7 +889,7 @@ int recvBufferLen;
         [getMac1Dict setObject:[HexByteConvert byteToNSString:g_loadCredit_GetMac1.a_m1 andLength:4] forKey:@"a_m1"];
         [getMac1Dict setObject:[HexByteConvert byteToNSString:g_loadCredit_GetMac1.a_cid andLength:10] forKey:@"a_cid"];
         [getMac1Dict setObject:[HexByteConvert byteToNSString:g_loadCredit_GetMac1.a_on andLength:2] forKey:@"a_pt"];
-        if( [self sendC5AndWaitB4:callBack])
+        //        if( [self sendC5AndWaitB4:callBack])
         {
             callBack(YES,getMac1Dict,nil);
         }
@@ -993,9 +993,10 @@ int recvBufferLen;
             return;
             
         }
+        NSString *tac = [HexByteConvert byteToNSString:data fromIndex:1 andLength:4];
         if( [self sendC5AndWaitB4:callBack])
         {
-            callBack(YES,@{@"tac":@"tac"},nil);
+            callBack(YES,@{@"tac":tac},nil);
         }
     });
     
