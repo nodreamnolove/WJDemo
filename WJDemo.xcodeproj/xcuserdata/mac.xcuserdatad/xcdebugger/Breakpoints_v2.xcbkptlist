@@ -426,12 +426,12 @@
                   moduleName = "WJDemo"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/mac/Desktop/WJDemo/WJDemo/HomePageVC.m"
-                  timestampString = "480291352.338548"
+                  timestampString = "480618949.346474"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "358"
                   endingLineNumber = "358"
-                  offsetFromSymbolStart = "66">
+                  offsetFromSymbolStart = "107">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
@@ -441,14 +441,46 @@
                   moduleName = "WJDemo"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/mac/Desktop/WJDemo/WJDemo/HomePageVC.m"
-                  timestampString = "480291352.33886"
+                  timestampString = "480618949.346817"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "358"
                   endingLineNumber = "358"
-                  offsetFromSymbolStart = "40">
+                  offsetFromSymbolStart = "21">
                </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "WJDemo/LoginVC.m"
+            timestampString = "480618792.749545"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "56"
+            endingLineNumber = "56"
+            landmarkName = "-loginAction:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "WJDemo/LoginVC.m"
+            timestampString = "480618792.749545"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
+            landmarkName = "-loginAction:"
+            landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

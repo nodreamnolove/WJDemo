@@ -34,23 +34,15 @@
 
 - (IBAction)connectSer:(UIButton *)sender {
     if (!self.yuming.text) {
-        [MBProgressHUD showError:@"请输入域名"];
+        [MBProgressHUD showError:@"请输入用户名"];
         return ;
     }
     if (!self.portstr.text) {
-        [MBProgressHUD showError:@"请输入端口"];
+        [MBProgressHUD showError:@"请输入密码"];
         return;
     }
-    AppDelegate *appdelegate = [[UIApplication sharedApplication] delegate];
-    if(!appdelegate.ip) {
-        [MBProgressHUD showError:@"域名解析失败"];
-        return ;
-    }
-    appdelegate.port = [self.portstr.text intValue];
-    if ([appdelegate connection]) {
-        [MBProgressHUD showSuccess:@"连接成功"];
-        self.connectBtn.enabled = NO;
-        return ;
-    }
+    
+    
+    
 }
 @end

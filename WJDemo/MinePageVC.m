@@ -9,6 +9,7 @@
 #import "MinePageVC.h"
 #import "MineCellView.h"
 #import "MineCellModel.h"
+#import "LoginVC.h"
 
 @interface MinePageVC ()<UITableViewDataSource,UITableViewDelegate>
 
@@ -149,7 +150,13 @@
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
+ 
+    UIStoryboard *storyBoad = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    LoginVC *loginVC =[storyBoad instantiateViewControllerWithIdentifier:@"LoginVC"];
+    loginVC.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:loginVC animated:YES];
 }
 
 @end

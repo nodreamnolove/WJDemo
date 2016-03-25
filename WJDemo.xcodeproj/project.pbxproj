@@ -30,6 +30,7 @@
 		04E6C3A81CA0B4D0000112B6 /* WJStructs.txt in Resources */ = {isa = PBXBuildFile; fileRef = 04E6C3931CA0B4D0000112B6 /* WJStructs.txt */; };
 		04E6C3F41CA1B063000112B6 /* Documentation.html in Resources */ = {isa = PBXBuildFile; fileRef = 04E6C3F11CA1B063000112B6 /* Documentation.html */; };
 		04E6C3F51CA1B063000112B6 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C3F31CA1B063000112B6 /* GCDAsyncSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		04E6C3F81CA59C25000112B6 /* LoginVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C3F71CA59C25000112B6 /* LoginVC.m */; };
 		04EBACA31C6CED5800A456E6 /* MBProgressHUD+MJ.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBAC9F1C6CED5800A456E6 /* MBProgressHUD+MJ.m */; };
 		04EBACA41C6CED5800A456E6 /* MBProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 04EBACA01C6CED5800A456E6 /* MBProgressHUD.bundle */; };
 		04EBACA51C6CED5800A456E6 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBACA21C6CED5800A456E6 /* MBProgressHUD.m */; };
@@ -133,6 +134,8 @@
 		04E6C3F11CA1B063000112B6 /* Documentation.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Documentation.html; sourceTree = "<group>"; };
 		04E6C3F21CA1B063000112B6 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
 		04E6C3F31CA1B063000112B6 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
+		04E6C3F61CA59C25000112B6 /* LoginVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginVC.h; sourceTree = "<group>"; };
+		04E6C3F71CA59C25000112B6 /* LoginVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginVC.m; sourceTree = "<group>"; };
 		04EBAC9E1C6CED5800A456E6 /* MBProgressHUD+MJ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MBProgressHUD+MJ.h"; sourceTree = "<group>"; };
 		04EBAC9F1C6CED5800A456E6 /* MBProgressHUD+MJ.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MBProgressHUD+MJ.m"; sourceTree = "<group>"; };
 		04EBACA01C6CED5800A456E6 /* MBProgressHUD.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = MBProgressHUD.bundle; sourceTree = "<group>"; };
@@ -396,6 +399,8 @@
 				AEDB5B261C5912F100902D17 /* WJNavigationController.m */,
 				AEDB5B2C1C591F8C00902D17 /* WJDemoPrefixHeader.pch */,
 				04B9F3781C592CC30037FB7A /* singleton.h */,
+				04E6C3F61CA59C25000112B6 /* LoginVC.h */,
+				04E6C3F71CA59C25000112B6 /* LoginVC.m */,
 			);
 			path = WJDemo;
 			sourceTree = "<group>";
@@ -638,6 +643,7 @@
 				04E6C3A31CA0B4D0000112B6 /* ObuSDK.m in Sources */,
 				04E6C39A1CA0B4D0000112B6 /* HexByteConvert.m in Sources */,
 				AEDB5B211C590EF600902D17 /* SetupPageVC.m in Sources */,
+				04E6C3F81CA59C25000112B6 /* LoginVC.m in Sources */,
 				AEDB5B5B1C59F5EB00902D17 /* MineCellModel.m in Sources */,
 				04E6C39D1CA0B4D0000112B6 /* icc.c in Sources */,
 				04EBACBF1C6CFE4300A456E6 /* AFURLConnectionOperation.m in Sources */,

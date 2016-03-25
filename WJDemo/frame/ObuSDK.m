@@ -640,7 +640,7 @@ int recvBufferLen;
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         if([self sendC1AndWaitB1:callBack]!= YES)
             return ; //结束
-        
+        byte * l_credit = (byte*)[[HexByteConvert hexToBytes:credit]bytes];
         byte* l_abcardId = [[HexByteConvert hexToBytes:cardId]bytes];//    [[cardId hexToBytes] bytes];
         
         int l_nprocType = 0x02;
@@ -812,7 +812,7 @@ int recvBufferLen;
         
         
         //    intToBytes2(l_abcardId, addmoney);
-        memcpy(addmoney, l_abcardId, 4);
+        memcpy(addmoney, l_credit, 4);
         
         iccinit_for_loadFrame(&transfer_rq, addmoney, l_abterminalNo, l_nprocType,
                               l_nkeyIndex);
