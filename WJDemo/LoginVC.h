@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void(^loginBlock)(NSString *);
+
+
 @interface LoginVC : UIViewController
 
+@property (nonatomic,copy) loginBlock loginSuccessBlock;
 @end

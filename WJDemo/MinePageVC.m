@@ -10,6 +10,7 @@
 #import "MineCellView.h"
 #import "MineCellModel.h"
 #import "LoginVC.h"
+#import "AppDelegate.h"
 
 @interface MinePageVC ()<UITableViewDataSource,UITableViewDelegate>
 
@@ -151,12 +152,21 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSString *userName = [AppDelegate instance].userName;
+    if (!userName||userName.length<1) {
+        UIStoryboard *storyBoad = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        LoginVC *loginVC =[storyBoad instantiateViewControllerWithIdentifier:@"LoginVC"];
+        loginVC.loginSuccessBlock = ^(NSString *username){
+           MineCellFrame * cellFrame = self.cellArr[0][0];
+            cellFrame.cellModel.title = [NSString stringWithFormat:@"用户名：%@",username];
+            [self.infoTableview reloadData];
+        };
+        loginVC.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:loginVC animated:YES];
+    }
     
- 
-    UIStoryboard *storyBoad = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    LoginVC *loginVC =[storyBoad instantiateViewControllerWithIdentifier:@"LoginVC"];
-    loginVC.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:loginVC animated:YES];
+    
+    
 }
 
 @end

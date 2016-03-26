@@ -20,7 +20,10 @@
 
 @property (nonatomic,assign) UInt16 port;
 
+@property (nonatomic,copy) NSString * userName;
+
 -(BOOL)connection;
 -(BOOL)disconnection;
++ (instancetype)instance;
 @end
 
