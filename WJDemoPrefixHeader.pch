@@ -15,7 +15,7 @@
 #define  SystemVersion [[[UIDevice currentDevice]systemVersion]floatValue]
 
 
-
+#define ServerUrl @"http://wanjiwuhanyuming.oicp.net:8082/OBU/WJOBU"
 
 
 #endif /* WJDemoPrefixHeader_pch */
