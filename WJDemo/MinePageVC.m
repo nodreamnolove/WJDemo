@@ -11,6 +11,8 @@
 #import "MineCellModel.h"
 #import "LoginVC.h"
 #import "AppDelegate.h"
+#import "MineInfoVC.h"
+#import "ModifyVC.h"
 
 @interface MinePageVC ()<UITableViewDataSource,UITableViewDelegate>
 
@@ -153,18 +155,31 @@
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     NSString *userName = [AppDelegate instance].userName;
+    UIStoryboard *storyBoad = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     if (!userName||userName.length<1) {
-        UIStoryboard *storyBoad = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+       
         LoginVC *loginVC =[storyBoad instantiateViewControllerWithIdentifier:@"LoginVC"];
-        loginVC.loginSuccessBlock = ^(NSString *username){
+        loginVC.loginSuccessBlock = ^(NSString *username,NSString *userMoney){
            MineCellFrame * cellFrame = self.cellArr[0][0];
             cellFrame.cellModel.title = [NSString stringWithFormat:@"用户名：%@",username];
+            cellFrame.cellModel.subtitle = [NSString stringWithFormat:@"账户余额：%@元",userMoney];
             [self.infoTableview reloadData];
         };
         loginVC.hidesBottomBarWhenPushed = YES;
         [self.navigationController pushViewController:loginVC animated:YES];
+        return ;
     }
-    
+    if (indexPath.section == 2 && indexPath.row == 2) {
+        MineInfoVC *infoVC = [[MineInfoVC alloc]init];
+        infoVC.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:infoVC animated:YES];
+    }
+    else if (indexPath.section == 1 && indexPath.row == 1){
+        
+        ModifyVC *modifyVC = [storyBoad instantiateViewControllerWithIdentifier:@"modifyVC"];
+        modifyVC.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:modifyVC animated:YES];
+    }
     
     
 }

@@ -21,6 +21,7 @@
 @property (nonatomic,assign) UInt16 port;
 
 @property (nonatomic,copy) NSString * userName;
+@property (nonatomic,copy) NSString *  userMoney;
 
 -(BOOL)connection;
 -(BOOL)disconnection;

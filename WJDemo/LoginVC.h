@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-typedef void(^loginBlock)(NSString *);
+typedef void(^loginBlock)(NSString *userName,NSString *userMoney);
 
 
 @interface LoginVC : UIViewController

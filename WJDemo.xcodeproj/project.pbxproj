@@ -31,6 +31,9 @@
 		04E6C3F41CA1B063000112B6 /* Documentation.html in Resources */ = {isa = PBXBuildFile; fileRef = 04E6C3F11CA1B063000112B6 /* Documentation.html */; };
 		04E6C3F51CA1B063000112B6 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C3F31CA1B063000112B6 /* GCDAsyncSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		04E6C3F81CA59C25000112B6 /* LoginVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C3F71CA59C25000112B6 /* LoginVC.m */; };
+		04E6C3FD1CA84F0A000112B6 /* MineInfoVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C3FC1CA84F0A000112B6 /* MineInfoVC.m */; };
+		04E6C4001CA8527B000112B6 /* HttpGetTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C3FF1CA8527B000112B6 /* HttpGetTool.m */; };
+		04E6C4031CA87BB2000112B6 /* ModifyVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C4021CA87BB2000112B6 /* ModifyVC.m */; };
 		04EBACA31C6CED5800A456E6 /* MBProgressHUD+MJ.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBAC9F1C6CED5800A456E6 /* MBProgressHUD+MJ.m */; };
 		04EBACA41C6CED5800A456E6 /* MBProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 04EBACA01C6CED5800A456E6 /* MBProgressHUD.bundle */; };
 		04EBACA51C6CED5800A456E6 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBACA21C6CED5800A456E6 /* MBProgressHUD.m */; };
@@ -136,6 +139,12 @@
 		04E6C3F31CA1B063000112B6 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		04E6C3F61CA59C25000112B6 /* LoginVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginVC.h; sourceTree = "<group>"; };
 		04E6C3F71CA59C25000112B6 /* LoginVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginVC.m; sourceTree = "<group>"; };
+		04E6C3FB1CA84F0A000112B6 /* MineInfoVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MineInfoVC.h; sourceTree = "<group>"; };
+		04E6C3FC1CA84F0A000112B6 /* MineInfoVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MineInfoVC.m; sourceTree = "<group>"; };
+		04E6C3FE1CA8527B000112B6 /* HttpGetTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpGetTool.h; sourceTree = "<group>"; };
+		04E6C3FF1CA8527B000112B6 /* HttpGetTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpGetTool.m; sourceTree = "<group>"; };
+		04E6C4011CA87BB2000112B6 /* ModifyVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModifyVC.h; sourceTree = "<group>"; };
+		04E6C4021CA87BB2000112B6 /* ModifyVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ModifyVC.m; sourceTree = "<group>"; };
 		04EBAC9E1C6CED5800A456E6 /* MBProgressHUD+MJ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MBProgressHUD+MJ.h"; sourceTree = "<group>"; };
 		04EBAC9F1C6CED5800A456E6 /* MBProgressHUD+MJ.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MBProgressHUD+MJ.m"; sourceTree = "<group>"; };
 		04EBACA01C6CED5800A456E6 /* MBProgressHUD.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = MBProgressHUD.bundle; sourceTree = "<group>"; };
@@ -401,6 +410,12 @@
 				04B9F3781C592CC30037FB7A /* singleton.h */,
 				04E6C3F61CA59C25000112B6 /* LoginVC.h */,
 				04E6C3F71CA59C25000112B6 /* LoginVC.m */,
+				04E6C3FB1CA84F0A000112B6 /* MineInfoVC.h */,
+				04E6C3FC1CA84F0A000112B6 /* MineInfoVC.m */,
+				04E6C3FE1CA8527B000112B6 /* HttpGetTool.h */,
+				04E6C3FF1CA8527B000112B6 /* HttpGetTool.m */,
+				04E6C4011CA87BB2000112B6 /* ModifyVC.h */,
+				04E6C4021CA87BB2000112B6 /* ModifyVC.m */,
 			);
 			path = WJDemo;
 			sourceTree = "<group>";
@@ -624,6 +639,7 @@
 				04E6C3941CA0B4D0000112B6 /* CardConsumeRecord.m in Sources */,
 				04E6C3971CA0B4D0000112B6 /* common.c in Sources */,
 				AEDB5B431C59C83300902D17 /* AsyncUdpSocket.m in Sources */,
+				04E6C3FD1CA84F0A000112B6 /* MineInfoVC.m in Sources */,
 				04E6C3A41CA0B4D0000112B6 /* psam.c in Sources */,
 				04EBACBE1C6CFE4300A456E6 /* AFSecurityPolicy.m in Sources */,
 				04EBACBB1C6CFE4300A456E6 /* AFHTTPRequestOperationManager.m in Sources */,
@@ -638,6 +654,7 @@
 				04EBACA31C6CED5800A456E6 /* MBProgressHUD+MJ.m in Sources */,
 				04E6C3961CA0B4D0000112B6 /* CardTransactionRecord.m in Sources */,
 				AEDB5B441C59C83300902D17 /* NetFunction.m in Sources */,
+				04E6C4031CA87BB2000112B6 /* ModifyVC.m in Sources */,
 				04E6C3A21CA0B4D0000112B6 /* lib2rsu.c in Sources */,
 				04EBACBC1C6CFE4300A456E6 /* AFHTTPSessionManager.m in Sources */,
 				04E6C3A31CA0B4D0000112B6 /* ObuSDK.m in Sources */,
@@ -648,6 +665,7 @@
 				04E6C39D1CA0B4D0000112B6 /* icc.c in Sources */,
 				04EBACBF1C6CFE4300A456E6 /* AFURLConnectionOperation.m in Sources */,
 				04E6C39F1CA0B4D0000112B6 /* issue_Ble_send.c in Sources */,
+				04E6C4001CA8527B000112B6 /* HttpGetTool.m in Sources */,
 				04E6C3951CA0B4D0000112B6 /* CardOwnerRecord.m in Sources */,
 				04EBACC01C6CFE4300A456E6 /* AFURLRequestSerialization.m in Sources */,
 				04EBACC21C6CFE4300A456E6 /* AFURLSessionManager.m in Sources */,
