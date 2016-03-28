@@ -22,12 +22,16 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 //#include "issue_Ble_send.h"
 #import "DisplayViewController.h"
+#import "HttpGetTool.h"
 
 #define PicNum  3
 #define ScrollNum 3600
 
 
-@interface HomePageVC ()<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate,CBCentralManagerDelegate,UITableViewDataSource>
+@interface HomePageVC ()<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate,CBCentralManagerDelegate,UITableViewDataSource,UIAlertViewDelegate>
+{
+    NSString *OBUID;
+}
 
 @property (nonatomic,strong) UIScrollView * scrollView;
 
@@ -60,6 +64,8 @@
 @property (nonatomic, strong) UIView *displayView;
 
 @property (nonatomic, strong) NSMutableArray *infosArr;
+
+@property (nonatomic,strong) UITextField * moneyField;
 @end
 
 @implementation HomePageVC
@@ -411,54 +417,31 @@
     }
     else if (indexPath.row == 4){
         tintString = @"圈存初始化";
-        if(self.myObu){
-            [MBProgressHUD showMessage:tintString toView:nil];
-            [self.myObu loadCreditGetMac1:@"1" cardId:@"00000000000000000001" terminalNo:@"" picCode:@"123456" procType:@"02" keyIndex:@"01" callBack:^(BOOL status, id data, NSString *errorMsg) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [MBProgressHUD hideHUD];
-                    NSString *title;
-                    NSString *message;
-                    if (status) {
-                        DisplayViewController *display = [DisplayViewController new];
-                        display.title = @"圈存初始化成功";
-                        display.hidesBottomBarWhenPushed = YES;
-                        display.objdata = data;
-                        [weakSelf.navigationController pushViewController:display animated:YES];
-
-//                        title = @"圈存初始化成功";
-//                        message = [NSString stringWithFormat:@"%@",data];
-                        //*********测试
-//                        [self.myObu loadCreditWriteCard:@"2016012713281112346111" callBack:^(BOOL status, id data, NSString *errorMsg) {
-//                            dispatch_async(dispatch_get_main_queue(), ^{
-//                                [MBProgressHUD hideHUD];
-//                                NSString *title;
-//                                NSString *message;
-//                                if (status) {
-//                                    title = @"圈存成功";
-//                                    message = [NSString stringWithFormat:@"%@",data];
-//                                }
-//                                else{
-//                                    title = @"圈存失败";
-//                                    message = errorMsg;
-//                                }
-//                                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-//                                [alert show];
-//                                
-//                            });
-//                        }];
-                        //*************************
-                        
-                    }
-                    else{
-                        title = @"圈存初始化失败";
-                        message = errorMsg;
-                        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-                        [alert show];
-                    }
-                });
-            }];
-        }else
-            [MBProgressHUD showError:@"请先连接设备"];
+        [self qunchunInit];
+//        if(self.myObu){
+//            [MBProgressHUD showMessage:tintString toView:nil];
+//            [self.myObu loadCreditGetMac1:@"1" cardId:@"00000000000000000001" terminalNo:@"" picCode:@"123456" procType:@"02" keyIndex:@"01" callBack:^(BOOL status, id data, NSString *errorMsg) {
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    [MBProgressHUD hideHUD];
+//                    NSString *title;
+//                    NSString *message;
+//                    if (status) {
+//                        DisplayViewController *display = [DisplayViewController new];
+//                        display.title = @"圈存初始化成功";
+//                        display.hidesBottomBarWhenPushed = YES;
+//                        display.objdata = data;
+//                        [weakSelf.navigationController pushViewController:display animated:YES];
+//                    }
+//                    else{
+//                        title = @"圈存初始化失败";
+//                        message = errorMsg;
+//                        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+//                        [alert show];
+//                    }
+//                });
+//            }];
+//        }else
+//            [MBProgressHUD showError:@"请先连接设备"];
     }
     else if (indexPath.row == 5){
         tintString = @"正在圈存";
@@ -731,6 +714,112 @@ static int timeCount = ScrollNum/2;
 }
 
 
+#pragma mark 圈存初始化
+
+- (void)qunchunInit{
+    
+    NSString *userName = [AppDelegate instance].userName;
+    if (!userName || userName.length < 1) {
+        [MBProgressHUD showError:@"您还未登录"];
+        return;
+    }
+    UIView *backView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHigth)];
+    backView.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.5];
+    [self.view addSubview:backView];
+    UIView *alertView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 200, 120)];
+    alertView.layer.cornerRadius = 4.0;
+    alertView.layer.masksToBounds = YES;
+    alertView.layer.borderWidth = 1.0;
+    alertView.layer.borderColor = [UIColor purpleColor].CGColor;
+    alertView.backgroundColor = [UIColor whiteColor];
+    alertView.center = CGPointMake(self.view.center.x, self.view.center.y-50);
+    [backView addSubview:alertView];
+   
+    UILabel *titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 200, 20)];
+    titleLabel.textColor = [UIColor blackColor];
+    titleLabel.font = [UIFont systemFontOfSize:17];
+    titleLabel.text = @"圈存金额";
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    [alertView addSubview:titleLabel];
+    
+    UITextField *inputMoney = [[UITextField alloc]initWithFrame:CGRectMake(0, 30, 200, 30)];
+    inputMoney.placeholder = @"请输入圈存金额";
+    self.moneyField = inputMoney;
+    [alertView addSubview:inputMoney];
+    
+    UIButton *cancelBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 70, 100, 50)];
+    [cancelBtn setTitle:@"取消" forState:UIControlStateNormal];
+    cancelBtn.titleLabel.font = [UIFont systemFontOfSize:17];
+    [cancelBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [cancelBtn addTarget:self action:@selector(btnCancelAction:) forControlEvents:UIControlEventTouchUpInside];
+    cancelBtn.backgroundColor = [UIColor grayColor];
+    cancelBtn.layer.borderWidth = 1.0;
+    cancelBtn.layer.borderColor = [UIColor blackColor].CGColor;
+    UIButton *sureBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 70, 100, 50)];
+    [sureBtn setTitle:@"确认" forState:UIControlStateNormal];
+    sureBtn.titleLabel.font = [UIFont systemFontOfSize:17];
+    [sureBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [sureBtn addTarget:self action:@selector(btnSureAction:) forControlEvents:UIControlEventTouchUpInside];
+    sureBtn.backgroundColor = [UIColor grayColor];
+    sureBtn.layer.borderWidth = 1.0;
+    sureBtn.layer.borderColor = [UIColor blackColor].CGColor;
+    [alertView addSubview:cancelBtn];
+    [alertView addSubview:sureBtn];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapAction:)];
+    [backView addGestureRecognizer:tap];
+ 
+ }
+
+- (void)btnCancelAction:(id)sender{
+    
+    UIView *maskView = [[sender superview]superview];
+    [maskView removeFromSuperview];
+}
+
+- (void)btnSureAction:(id)sender{
+    
+    NSString *moneyCash = self.moneyField.text;
+    if ([moneyCash floatValue]<0) {
+        [MBProgressHUD showError:@"请输入正确金额"];
+        return ;
+    }
+    UIView *maskView = [[sender superview]superview];
+    [maskView removeFromSuperview];
+    NSString *userName = [AppDelegate instance].userName;
+    NSDate *today = [NSDate date];
+    NSDateFormatter *format = [[NSDateFormatter alloc]init];
+    format.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+    NSString  *curDayString = [format stringFromDate:today];
+    NSString *requestFrameString = @"";
+    NSMutableDictionary * frameDict = [NSMutableDictionary dictionary];
+    
+    [frameDict setObject:moneyCash forKey:@"QCAmount"];
+    [frameDict setObject:userName forKey:@"CustomerAccount"];
+    [frameDict setObject:curDayString forKey:@"TimeNode"];
+    [frameDict setObject:requestFrameString  forKey:@"RequestFrame"];
+    __weak typeof(self) weakSelf = self;
+    [HttpGetTool OrderFrame:frameDict andSuccess:^(NSDictionary *dict) {
+        //解析返回值
+        //.......
+        
+        if(weakSelf.myObu){
+            //填充返回值
+            [weakSelf.myObu loadCreditGetMac1:moneyCash cardId:@"" terminalNo:@"" picCode:@"" procType:@"" keyIndex:@"" callBack:^(BOOL status, id data, NSString *errorMsg) {
+                
+            }];
+        }
+        
+    } andFailure:^{
+        
+    }];
+    
+}
+
+- (void)tapAction:(UITapGestureRecognizer *)gest{
+    
+    [gest.view removeFromSuperview];
+    
+}
 
 
 
