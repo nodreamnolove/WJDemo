@@ -594,30 +594,74 @@
         Byte reqBytes[8]={0x07,0x00,0xa4,0x00,0x00,0x02,0x3f,0x00};
         NSData *reqData = [NSData dataWithBytes:reqBytes length:8];
         if(self.myObu){
-            [MBProgressHUD showMessage:@"发送透传数据" toView:nil];
-            [self.myObu transCommand:reqData callBack:^(BOOL status, id data, NSString *errorMsg)  {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [MBProgressHUD hideHUD];
-                    NSString *title;
-                    NSString *message;
-                    if (status) {
-                        title = @"透传成功";
-                        message = [NSString stringWithFormat:@"%@",data];
-                    }
-                    else
-                    {
-                        title = @"透传失败";
-                        message = [NSString stringWithFormat:@"%@",errorMsg];
-                        
-                    }
-                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
-                    [alert show];
-                });
-            }];
+             NSLog(@"0 %@",[NSThread currentThread]);
+            [self testTransCommand:3];
+//            [MBProgressHUD showMessage:@"发送透传数据" toView:nil];
+//            NSLog(@"1 %@",[NSThread currentThread]);
+//            [self.myObu transCommand:reqData callBack:^(BOOL status, id data, NSString *errorMsg)  {
+//                 NSLog(@"2 %@",[NSThread currentThread]);
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    [MBProgressHUD hideHUD];
+//                    NSString *title;
+//                    NSString *message;
+//                    if (status) {
+//                        title = @"透传成功";
+//                        message = [NSString stringWithFormat:@"%@",data];
+//                    }
+//                    else
+//                    {
+//                        title = @"透传失败";
+//                        message = [NSString stringWithFormat:@"%@",errorMsg];
+//                        
+//                    }
+//                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:title message:message delegate:self cancelButtonTitle:@"取消" otherButtonTitles: nil];
+//                    [alert show];
+//                });
+//            }];
         }else
             [MBProgressHUD showError:@"请先连接设备"];
     }
 }
+- (void)testTransCommand:(int)num{
+    
+    if (num == 0) {
+        return ;
+    }
+    Byte reqBytes[8]={0x07,0x00,0xa4,0x00,0x00,0x02,0x3f,0x00};
+    NSData *reqData = [NSData dataWithBytes:reqBytes length:8];
+    dispatch_semaphore_t transSemaphore = dispatch_semaphore_create(1);
+    __block int arcnum = num;
+    if(self.myObu){
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        while (arcnum)
+        {
+            dispatch_semaphore_wait(transSemaphore, DISPATCH_TIME_FOREVER);
+            [self.myObu transCommand:reqData callBack:^(BOOL status, id data, NSString *errorMsg)  {
+                NSLog(@"2 %@",[NSThread currentThread]);
+                    if (status) {
+                        NSLog(@"成功");
+                        arcnum--;
+                        if (arcnum == 0) {
+                            return ;
+                        }
+                        dispatch_semaphore_signal(transSemaphore);
+                    }
+                    else
+                    {
+                        NSLog(@"失败");
+                        arcnum--;
+                        if (arcnum == 0) {
+                            return ;
+                        }
+                        dispatch_semaphore_signal(transSemaphore);
+                    }
+            }];
+        }
+      });
+    }
+}
+
+
 
 #pragma mark 网络连接
 -(void)getMacByNet
